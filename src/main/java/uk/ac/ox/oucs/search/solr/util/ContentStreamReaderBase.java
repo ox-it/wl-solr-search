@@ -8,13 +8,13 @@ import java.io.InputStream;
 import java.io.Reader;
 
 /**
- * ContentReaderbase invert the default behaviour of {@link ContentStreamBase}.
+ * ContentStreamReaderBase invert the default behaviour of {@link ContentStreamBase}.
  * Instead of having a {@link #getReader} method based on the result of {@link #getStream()}, {@link #getStream()} uses
  * the {@link Reader} provided by {@link #getReader()}.
  *
  * @author Colin Hebert
  */
-public abstract class ContentReaderbase extends ContentStreamBase {
+public abstract class ContentStreamReaderBase extends ContentStreamBase {
     public abstract Reader getReader() throws IOException ;
 
     @Override
