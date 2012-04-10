@@ -15,6 +15,7 @@
         <maven.compiler.target>6</maven.compiler.target>
 
         <solr.version>3.5.0</solr.version>
+        <guava.version>11.0.2</guava.version>
         <sakai.search-api.version>1.3.5-SNAPSHOT</sakai.search-api.version>
         <sakai.kernel.version>1.2.5ox1-SNAPSHOT</sakai.kernel.version>
     </properties>
@@ -27,6 +28,11 @@
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
             <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
 
         <!-- Sakai dependencies -->
