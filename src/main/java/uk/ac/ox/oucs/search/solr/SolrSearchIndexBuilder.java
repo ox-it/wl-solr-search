@@ -4,7 +4,10 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
+import org.apache.solr.common.util.ContentStreamBase;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -12,10 +15,11 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
-import uk.ac.ox.oucs.search.solr.util.ContentReaderbase;
+import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
+import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -23,9 +27,10 @@ import java.util.*;
  */
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String COMMON_TOOL_ID = "sakai.search";
+    public static final String LITERAL = "literal.";
     private final List<EntityContentProducer> entityContentProducers = new ArrayList<EntityContentProducer>();
-    private SiteService siteService = null; // TODO import the site service
-    private SolrServer solrServer = null; //TODO import the solrServer
+    private SiteService siteService;
+    private SolrServer solrServer;
 
     @Override
     public void addResource(Notification notification, Event event) {
@@ -53,9 +58,18 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         try {
             ItemAction action = ItemAction.getAction(entityContentProducer.getAction(event));
-            SolrInputDocument document = new SolrInputDocument();
-            document.addField("name", resourceName);
-            solrServer.add(document);
+            SolrRequest request;
+            switch (action) {
+                case ADD:
+                    request = toSolrRequest(resourceName, entityContentProducer);
+                    break;
+                case DELETE:
+                    request = new UpdateRequest().deleteById(entityContentProducer.getId(resourceName));
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+            solrServer.request(request);
             solrServer.commit();
         } catch (SolrServerException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -212,5 +226,82 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         public int getItemAction() {
             return itemAction;
         }
+    }
+
+    private SolrRequest toSolrRequest(final String resourceName, EntityContentProducer contentProducer) {
+        SolrRequest request;
+        SolrInputDocument document = new SolrInputDocument();
+        String container = contentProducer.getContainer(resourceName);
+        if (container == null) container = "";
+
+        document.addField(SearchService.DATE_STAMP, String.valueOf(System.currentTimeMillis()));
+        document.addField(SearchService.FIELD_CONTAINER, container);
+        document.addField(SearchService.FIELD_ID, contentProducer.getId(resourceName));
+        document.addField(SearchService.FIELD_TYPE, contentProducer.getType(resourceName));
+        document.addField(SearchService.FIELD_SUBTYPE, contentProducer.getSubType(resourceName));
+        document.addField(SearchService.FIELD_REFERENCE, resourceName);
+        document.addField(SearchService.FIELD_CONTEXT, contentProducer.getSiteId(resourceName));
+        document.addField(SearchService.FIELD_TITLE, contentProducer.getTitle(resourceName));
+        document.addField(SearchService.FIELD_TOOL, contentProducer.getTool());
+        document.addField(SearchService.FIELD_URL, contentProducer.getUrl(resourceName));
+        document.addField(SearchService.FIELD_SITEID, contentProducer.getSiteId(resourceName));
+
+        // add the custom properties
+        Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
+        if (m != null) {
+            for (Map.Entry<String, ?> entry : m.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                Collection<String> values;
+
+                if (value instanceof String)
+                    values = Collections.singleton((String) value);
+                else if (value instanceof String[])
+                    values = Arrays.asList((String[]) value);
+                else if (value instanceof Collection)
+                    values = (Collection<String>) value;
+                else
+                    values = Collections.emptyList();
+
+                for (String value1 : values) {
+                    document.addField("property_" + key, value1);
+                }
+            }
+        }
+
+
+        if (contentProducer instanceof BinaryEntityContentProducer) {
+            final BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
+            //Send to tika
+            ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
+            contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
+            contentStreamUpdateRequest.setParam("uprefix", "unkown_");
+            contentStreamUpdateRequest.addContentStream(new ContentStreamBase() {
+                @Override
+                public InputStream getStream() throws IOException {
+                    return binaryContentProducer.getContentStream(resourceName);
+                }
+            });
+            for (SolrInputField field : document)
+                for (Object o : field)
+                    contentStreamUpdateRequest.setParam(LITERAL + field.getName(), o.toString());
+            request = contentStreamUpdateRequest;
+        } else if (contentProducer.isContentFromReader(resourceName)) {
+            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
+            request = new UpdateRequestReader().add(document);
+        } else {
+            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(resourceName));
+            request = new UpdateRequest().add(document);
+        }
+
+        return request;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setSolrServer(SolrServer solrServer) {
+        this.solrServer = solrServer;
     }
 }
