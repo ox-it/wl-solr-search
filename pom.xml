@@ -42,6 +42,11 @@
             <version>${sakai.search-api.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-impl</artifactId>
+            <version>${sakai.search-api.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
             <version>${sakai.kernel.version}</version>
