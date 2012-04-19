@@ -28,7 +28,7 @@ import java.util.*;
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String COMMON_TOOL_ID = "sakai.search";
     public static final String LITERAL = "literal.";
-    private final List<EntityContentProducer> entityContentProducers = new ArrayList<EntityContentProducer>();
+    private final Collection<EntityContentProducer> entityContentProducers = new HashSet<EntityContentProducer>();
     private SiteService siteService;
     private SolrServer solrServer;
 
@@ -67,7 +67,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                     request = new UpdateRequest().deleteById(entityContentProducer.getId(resourceName));
                     break;
                 default:
-                    throw new UnsupportedOperationException();
+                    throw new UnsupportedOperationException(action + " is not yet supported");
             }
             solrServer.request(request);
             solrServer.commit();
@@ -105,7 +105,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public List<EntityContentProducer> getContentProducers() {
-        return Collections.unmodifiableList(entityContentProducers);
+        return new ArrayList<EntityContentProducer>(entityContentProducers);
     }
 
     @Override
@@ -231,11 +231,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private SolrRequest toSolrRequest(final String resourceName, EntityContentProducer contentProducer) {
         SolrRequest request;
         SolrInputDocument document = new SolrInputDocument();
-        String container = contentProducer.getContainer(resourceName);
-        if (container == null) container = "";
 
+        //TODO: Solr handles dates, use that instead of a string timestamp...
         document.addField(SearchService.DATE_STAMP, String.valueOf(System.currentTimeMillis()));
-        document.addField(SearchService.FIELD_CONTAINER, container);
+        document.addField(SearchService.FIELD_CONTAINER, contentProducer.getContainer(resourceName));
         document.addField(SearchService.FIELD_ID, contentProducer.getId(resourceName));
         document.addField(SearchService.FIELD_TYPE, contentProducer.getType(resourceName));
         document.addField(SearchService.FIELD_SUBTYPE, contentProducer.getSubType(resourceName));
@@ -244,7 +243,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         document.addField(SearchService.FIELD_TITLE, contentProducer.getTitle(resourceName));
         document.addField(SearchService.FIELD_TOOL, contentProducer.getTool());
         document.addField(SearchService.FIELD_URL, contentProducer.getUrl(resourceName));
-        document.addField(SearchService.FIELD_SITEID, contentProducer.getSiteId(resourceName));
 
         // add the custom properties
         Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
@@ -275,7 +273,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             //Send to tika
             ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
             contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
-            contentStreamUpdateRequest.setParam("uprefix", "unkown_");
             contentStreamUpdateRequest.addContentStream(new ContentStreamBase() {
                 @Override
                 public InputStream getStream() throws IOException {
