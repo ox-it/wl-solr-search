@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
     private SolrSearchIndexBuilder solrSearchIndexBuilder;
     private SolrServer solrServer;
-    private SiteService siteService;
     private BinaryEntityContentProducer binaryContentProducer;
     private EntityContentProducer contentProducer;
     private Notification notification;
@@ -45,7 +44,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
 
         solrSearchIndexBuilder = new SolrSearchIndexBuilder();
-        siteService = mock(SiteService.class);
+        SiteService siteService = mock(SiteService.class);
         binaryContentProducer = mock(BinaryEntityContentProducer.class);
         contentProducer = mock(EntityContentProducer.class);
         notification = mock(Notification.class);
@@ -71,6 +70,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         Event event = mockBinaryEvent("BinaryFile",
                 SolrSearchIndexBuilderTest.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/refcard.pdf"));
         solrSearchIndexBuilder.addResource(notification, event);
+
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*");
         QueryResponse rsp = solrServer.query(query);
@@ -82,6 +82,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         Event event = mockReaderEvent("TextFile",
                 new InputStreamReader(SolrSearchIndexBuilderTest.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/README.markdown")));
         solrSearchIndexBuilder.addResource(notification, event);
+
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*");
         QueryResponse rsp = solrServer.query(query);
@@ -92,10 +93,24 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
     public void testAddStringResource() throws Exception {
         Event event = mockStringEvent("StringContent", "Random string content that will be indexed");
         solrSearchIndexBuilder.addResource(notification, event);
+
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*");
         QueryResponse rsp = solrServer.query(query);
         assertEquals(1, rsp.getResults().getNumFound());
+    }
+
+    @Test
+    public void testRemoveResource() throws Exception {
+        Event addEvent = mockStringEvent("RemovableContent", "Random string content that will be indexed");
+        solrSearchIndexBuilder.addResource(notification, addEvent);
+        Event removeEvent = mockRemoveEvent("RemovableContent", contentProducer);
+        solrSearchIndexBuilder.addResource(notification, removeEvent);
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        QueryResponse rsp = solrServer.query(query);
+        assertEquals(0, rsp.getResults().getNumFound());
     }
 
     @Override
@@ -108,8 +123,16 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         return "solr/conf/solrconfig.xml";
     }
 
+    public static Event mockRemoveEvent(String reference, EntityContentProducer entityContentProducer) throws Exception{
+        Event event = mock(Event.class);
+        when(event.getResource()).thenReturn(reference);
+        when(entityContentProducer.matches(event)).thenReturn(true);
+        when(entityContentProducer.getId(reference)).thenReturn(reference + ".id");
+        when(entityContentProducer.getAction(event)).thenReturn(SearchBuilderItem.ACTION_DELETE);
+        return event;
+    }
 
-    public static Event mockEvent(final String reference, EntityContentProducer entityContentProducer) throws Exception {
+    public static Event mockAddEvent(final String reference, EntityContentProducer entityContentProducer) throws Exception {
         Event event = mock(Event.class);
         when(event.getResource()).thenReturn(reference);
         when(entityContentProducer.matches(event)).thenReturn(true);
@@ -140,21 +163,21 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
     }
 
     public Event mockStringEvent(String reference, String content) throws Exception {
-        Event event = mockEvent(reference, contentProducer);
+        Event event = mockAddEvent(reference, contentProducer);
         when(contentProducer.isContentFromReader(reference)).thenReturn(false);
         when(contentProducer.getContent(reference)).thenReturn(content);
         return event;
     }
 
     public Event mockReaderEvent(String reference, Reader content) throws Exception {
-        Event event = mockEvent(reference, contentProducer);
+        Event event = mockAddEvent(reference, contentProducer);
         when(contentProducer.isContentFromReader(reference)).thenReturn(true);
         when(contentProducer.getContentReader(reference)).thenReturn(content);
         return event;
     }
 
     public Event mockBinaryEvent(String reference, InputStream content) throws Exception {
-        Event event = mockEvent(reference, binaryContentProducer);
+        Event event = mockAddEvent(reference, binaryContentProducer);
         when(contentProducer.isContentFromReader(reference)).thenReturn(false);
         when(binaryContentProducer.getContentStream(reference)).thenReturn(content);
         return event;
