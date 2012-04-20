@@ -68,7 +68,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
     @Test
     public void testAddBinaryResource() throws Exception {
         Event event = mockBinaryEvent("BinaryFile",
-                SolrSearchIndexBuilderTest.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/refcard.pdf"));
+                SolrSearchServiceTest.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/refcard.pdf"));
         solrSearchIndexBuilder.addResource(notification, event);
 
         SolrQuery query = new SolrQuery();
@@ -80,7 +80,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
     @Test
     public void testAddReaderResource() throws Exception {
         Event event = mockReaderEvent("TextFile",
-                new InputStreamReader(SolrSearchIndexBuilderTest.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/README.markdown")));
+                new InputStreamReader(SolrSearchServiceTest.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/README.markdown")));
         solrSearchIndexBuilder.addResource(notification, event);
 
         SolrQuery query = new SolrQuery();
@@ -123,7 +123,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         return "solr/conf/solrconfig.xml";
     }
 
-    public static Event mockRemoveEvent(String reference, EntityContentProducer entityContentProducer) throws Exception{
+    public static Event mockRemoveEvent(String reference, EntityContentProducer entityContentProducer) throws Exception {
         Event event = mock(Event.class);
         when(event.getResource()).thenReturn(reference);
         when(entityContentProducer.matches(event)).thenReturn(true);
@@ -143,7 +143,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         when(entityContentProducer.getSubType(reference)).thenReturn(reference + ".subtype");
         when(entityContentProducer.getTitle(reference)).thenReturn(reference + ".title");
         when(entityContentProducer.getTool()).thenReturn(reference + ".tool");
-        when(entityContentProducer.getUrl(reference)).thenReturn(reference + ".url all");
+        when(entityContentProducer.getUrl(reference)).thenReturn(reference + ".url");
         when(entityContentProducer.getCustomProperties(reference)).then(new Answer<Map<String, ?>>() {
             @Override
             public Map<String, ?> answer(InvocationOnMock invocationOnMock) throws Throwable {
