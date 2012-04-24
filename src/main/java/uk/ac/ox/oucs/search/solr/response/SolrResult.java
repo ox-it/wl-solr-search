@@ -175,7 +175,7 @@ public class SolrResult implements SearchResult {
         SortedSet<Map.Entry<String, Long>> sortedFrequencies = new TreeSet<Map.Entry<String, Long>>(new Comparator<Map.Entry<String, Long>>() {
             @Override
             public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
-                int longComparison = o1.getValue().compareTo(o2.getValue());
+                int longComparison = - o1.getValue().compareTo(o2.getValue());
                 return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
             }
         });

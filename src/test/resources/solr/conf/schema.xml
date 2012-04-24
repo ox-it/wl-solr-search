@@ -473,7 +473,7 @@ any data added to them will be ignored outright.  -->
         <field name="tool" type="string" indexed="true" stored="true" required="true"/>
         <field name="url" type="text_general" indexed="true" stored="true" required="true"/>
         <field name="siteid" type="string" indexed="true" stored="true"/>
-        <field name="contents" type="text_general" indexed="true" stored="true"/>
+        <field name="contents" type="text_general" indexed="true" stored="true" termVectors="true" />
 
         <!-- Common metadata fields, named specifically to match up with
           SolrCell metadata when parsing rich documents such as Word, PDF.
@@ -495,7 +495,7 @@ any data added to them will be ignored outright.  -->
 
         <!-- catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema  -->
-        <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+        <field name="text" type="text_general" indexed="true" stored="false" multiValued="true" />
 
         <dynamicField name="unknown_*" type="ignored" multiValued="true"/>
         <dynamicField name="property_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
