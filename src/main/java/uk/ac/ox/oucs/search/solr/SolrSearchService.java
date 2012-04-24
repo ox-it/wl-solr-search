@@ -26,7 +26,6 @@ import java.util.Map;
  */
 public class SolrSearchService implements SearchService {
     private SolrServer solrServer;
-    private NotificationService notificationService;
     private NotificationEdit notification;
     private SearchIndexBuilder searchIndexBuilder;
 
@@ -34,11 +33,11 @@ public class SolrSearchService implements SearchService {
      * Register a notification action to listen to events and modify the search
      * index
      */
-    public SolrSearchService() {
-        this(Collections.<String>emptyList());
+    public SolrSearchService(NotificationService notificationService) {
+        this(notificationService, Collections.<String>emptyList());
     }
 
-    public SolrSearchService(List<String> triggerFunctions) {
+    public SolrSearchService(NotificationService notificationService, List<String> triggerFunctions) {
         // register a transient notification for resources
         notification = notificationService.addTransientNotification();
 
@@ -261,18 +260,22 @@ public class SolrSearchService implements SearchService {
         return false;
     }
 
-    //--------------
-    //Spring setters
-    //--------------
+    //-------------------------
+    //Search services Accessors
+    //-------------------------
     public void setSolrServer(SolrServer solrServer) {
         this.solrServer = solrServer;
     }
 
-    public void setNotificationService(NotificationService notificationService) {
-        this.notificationService = notificationService;
+    public SolrServer getSolrServer() {
+        return solrServer;
     }
 
     public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
         this.searchIndexBuilder = searchIndexBuilder;
+    }
+
+    public SearchIndexBuilder getSearchIndexBuilder() {
+        return searchIndexBuilder;
     }
 }
