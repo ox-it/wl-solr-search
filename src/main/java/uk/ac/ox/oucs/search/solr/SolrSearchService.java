@@ -16,10 +16,7 @@ import uk.ac.ox.oucs.search.solr.notification.SearchNotificationAction;
 import uk.ac.ox.oucs.search.solr.response.SolrSearchList;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Colin Hebert
@@ -75,6 +72,19 @@ public class SolrSearchService implements SearchService {
             query.setParam("tv", "true");
             query.setParam("tv.fl", SearchService.FIELD_CONTENTS);
             query.setParam("tv.tf", "true");
+
+            if (contexts != null && !contexts.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append('+').append(SearchService.FIELD_SITEID).append(":");
+                sb.append('(');
+                for (Iterator<String> contextIterator = contexts.iterator(); contextIterator.hasNext(); ) {
+                    sb.append('"').append(contextIterator.next()).append('"');
+                    if (contextIterator.hasNext())
+                        sb.append(" OR ");
+                }
+                sb.append(')');
+                query.setFilterQueries(sb.toString());
+            }
 
             query.setQuery("searchTerms");
             QueryResponse rsp = solrServer.query(query);
