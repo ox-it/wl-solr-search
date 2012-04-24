@@ -178,7 +178,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
 
     public Event mockBinaryEvent(String reference, InputStream content) throws Exception {
         Event event = mockAddEvent(reference, binaryContentProducer);
-        when(contentProducer.isContentFromReader(reference)).thenReturn(false);
+        when(binaryContentProducer.isContentFromReader(reference)).thenReturn(false);
         when(binaryContentProducer.getContentStream(reference)).thenReturn(content);
         return event;
     }
