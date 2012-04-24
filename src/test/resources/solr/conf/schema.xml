@@ -473,7 +473,8 @@ any data added to them will be ignored outright.  -->
         <field name="tool" type="string" indexed="true" stored="true" required="true"/>
         <field name="url" type="text_general" indexed="true" stored="true" required="true"/>
         <field name="siteid" type="string" indexed="true" stored="true"/>
-        <field name="contents" type="text_general" indexed="true" stored="true" termVectors="true" />
+        <field name="contents" type="text_general" indexed="true" stored="true"
+               termVectors="true" termPositions="true" termOffsets="true" />
 
         <!-- Common metadata fields, named specifically to match up with
           SolrCell metadata when parsing rich documents such as Word, PDF.

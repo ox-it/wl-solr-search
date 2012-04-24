@@ -67,6 +67,8 @@ public class SolrSearchService implements SearchService {
             query.setRows(end - start);
 
             query.setHighlight(true).setHighlightSnippets(5);
+            query.setParam("hl.useFastVectorHighlighter", true);
+            query.setParam("hl.mergeContiguous", true);
             query.setParam("hl.fl", SearchService.FIELD_CONTENTS);
 
             query.setParam("tv", "true");
