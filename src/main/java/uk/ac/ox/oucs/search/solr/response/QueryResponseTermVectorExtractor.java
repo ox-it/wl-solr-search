@@ -48,13 +48,9 @@ public class QueryResponseTermVectorExtractor {
     private Map<String, Map<String, Map<String, TermInfo>>> termVectorInfo = Collections.emptyMap();
 
     public QueryResponseTermVectorExtractor(QueryResponse queryResponse) {
-        NamedList<Object> res = queryResponse.getResponse();
-        for (int i = 0; i < res.size(); i++) {
-            String n = res.getName(i);
-            if (TERM_VECTORS.equals(n)) {
-                termVectorInfo = extractTermVectorInfo((NamedList<Object>) res.getVal(i));
-            }
-        }
+        NamedList<Object> res = (NamedList<Object>) queryResponse.getResponse().get(TERM_VECTORS);
+        if (res != null)
+            termVectorInfo = extractTermVectorInfo(res);
     }
 
     /**
