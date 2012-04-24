@@ -86,7 +86,7 @@ public class SolrSearchService implements SearchService {
                 query.setFilterQueries(sb.toString());
             }
 
-            query.setQuery("searchTerms");
+            query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
             return new SolrSearchList(rsp);
         } catch (SolrServerException e) {
