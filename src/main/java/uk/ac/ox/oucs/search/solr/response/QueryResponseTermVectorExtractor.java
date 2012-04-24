@@ -21,7 +21,7 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class QueryResponseTermVectorExtractor {
-    //Fields found in
+    //Fields found in termVectorComponent
     private static final String TERM_VECTORS = "termVectors";
     private static final String DF = "df";
     private static final String TF = "tf";
@@ -45,7 +45,7 @@ public class QueryResponseTermVectorExtractor {
      * ...
      * </pre>
      */
-    private Map<String, Map<String, Map<String, TermInfo>>> termVectorInfo;
+    private Map<String, Map<String, Map<String, TermInfo>>> termVectorInfo = Collections.emptyMap();
 
     public QueryResponseTermVectorExtractor(QueryResponse queryResponse) {
         NamedList<Object> res = queryResponse.getResponse();
