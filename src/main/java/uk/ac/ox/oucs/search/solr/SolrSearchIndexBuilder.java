@@ -280,8 +280,11 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 }
             });
             for (SolrInputField field : document)
-                for (Object o : field)
-                    contentStreamUpdateRequest.setParam(LITERAL + field.getName(), o.toString());
+                for (Object o : field){
+                    //The "sakai_" part is due to SOLR-3386, this fix should be temporary
+                    contentStreamUpdateRequest.setParam(LITERAL + "sakai_" + field.getName(), o.toString());
+                    contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
+                }
             request = contentStreamUpdateRequest;
         } else if (contentProducer.isContentFromReader(resourceName)) {
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
