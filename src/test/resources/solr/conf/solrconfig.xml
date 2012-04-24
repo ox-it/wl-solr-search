@@ -771,7 +771,7 @@
        </arr>
       -->
       <arr name="last-components">
-          <str>terms</str>
+          <str>tv</str>
       </arr>
     </requestHandler>
 
@@ -901,7 +901,7 @@
     <lst name="defaults">
       <!-- All the main content goes into "text"... if you need to return
            the extracted text or do highlighting, use a stored field. -->
-      <str name="fmap.content">text</str>
+      <str name="fmap.title">tika_title</str>
       <str name="lowernames">true</str>
       <str name="uprefix">ignored_</str>
 
@@ -1187,7 +1187,7 @@
 
        http://wiki.apache.org/solr/TermVectorComponent
     -->
-  <searchComponent name="tvComponent" class="solr.TermVectorComponent"/>
+  <searchComponent name="tv" class="solr.TermVectorComponent"/>
 
   <!-- A request handler for demonstrating the term vector component
 
