@@ -112,12 +112,6 @@
             <version>${solr.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-velocity</artifactId>
-            <version>${solr.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
