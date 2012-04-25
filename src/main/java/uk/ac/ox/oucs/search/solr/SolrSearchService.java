@@ -71,9 +71,9 @@ public class SolrSearchService implements SearchService {
             query.setParam("hl.mergeContiguous", true);
             query.setParam("hl.fl", SearchService.FIELD_CONTENTS);
 
-            query.setParam("tv", "true");
+            query.setParam("tv", true);
             query.setParam("tv.fl", SearchService.FIELD_CONTENTS);
-            query.setParam("tv.tf", "true");
+            query.setParam("tv.tf", true);
 
             if (contexts != null && !contexts.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
@@ -245,14 +245,14 @@ public class SolrSearchService implements SearchService {
             ModifiableSolrParams params = new ModifiableSolrParams();
             params.set("qt", "/spell");
             params.set("q", searchString);
-            params.set("spellcheck", "true");
-            params.set("spellcheck.collate", "true");
+            params.set("spellcheck", true);
+            params.set("spellcheck.collate", true);
 
             QueryResponse response = solrServer.query(params);
             SpellCheckResponse spellCheckResponse = response.getSpellCheckResponse();
-            return spellCheckResponse.getCollatedResult();
+            return spellCheckResponse.isCorrectlySpelled() ? null : spellCheckResponse.getCollatedResult();
         } catch (SolrServerException e) {
-            return "";
+            return null;
         }
     }
 
