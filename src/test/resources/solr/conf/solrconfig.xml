@@ -1,120 +1,95 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-  <abortOnConfigurationError>true</abortOnConfigurationError>
-  <directoryFactory name="DirectoryFactory" class="solr.RAMDirectoryFactory"/>
+    <abortOnConfigurationError>true</abortOnConfigurationError>
+    <directoryFactory name="DirectoryFactory" class="solr.RAMDirectoryFactory"/>
 
-  <requestHandler name="search" class="solr.SearchHandler" default="true">
-    <!-- default values for query parameters can be specified, these
-         will be overridden by parameters in the request
-      -->
-     <lst name="defaults">
-       <str name="echoParams">explicit</str>
-       <int name="rows">10</int>
-     </lst>
-      <arr name="last-components">
-          <str>tv</str>
-      </arr>
+    <requestHandler name="search" class="solr.SearchHandler" default="true">
+        <lst name="defaults">
+            <str name="echoParams">explicit</str>
+            <int name="rows">10</int>
+        </lst>
+        <arr name="last-components">
+            <str>tv</str>
+        </arr>
     </requestHandler>
-  <requestHandler name="/update"
-                  class="solr.XmlUpdateRequestHandler">
+    <requestHandler name="/update" class="solr.XmlUpdateRequestHandler">
     </requestHandler>
-  <requestHandler name="/update/extract"
-                  startup="lazy"
-                  class="solr.extraction.ExtractingRequestHandler" >
-    <lst name="defaults">
-      <!-- All the main content goes into "text"... if you need to return
-           the extracted text or do highlighting, use a stored field. -->
-      <str name="fmap.title">tika_title</str>
-      <str name="lowernames">true</str>
-      <str name="uprefix">ignored_</str>
-
-      <!-- capture link hrefs but ignore div attributes -->
-      <str name="captureAttr">true</str>
-      <str name="fmap.a">links</str>
-      <str name="fmap.div">ignored_</str>
-    </lst>
-  </requestHandler>
-
-  <!-- ping/healthcheck -->
-  <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
-    <lst name="invariants">
-      <str name="qt">search</str>
-      <str name="q">solrpingquery</str>
-    </lst>
-    <lst name="defaults">
-      <str name="echoParams">all</str>
-    </lst>
-  </requestHandler>
-
-  <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
-    <str name="queryAnalyzerFieldType">textSpell</str>
-    <lst name="spellchecker">
-      <str name="name">default</str>
-      <str name="field">text</str>
-      <str name="spellcheckIndexDir">spellchecker</str>
-      <!-- Testing only -->
-      <str name="buildOnCommit">true</str>
-    </lst>
-  </searchComponent>
-
-  <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
-    <lst name="defaults">
-      <str name="spellcheck.onlyMorePopular">false</str>
-      <str name="spellcheck.extendedResults">false</str>
-      <str name="spellcheck.count">1</str>
-    </lst>
-    <arr name="last-components">
-      <str>spellcheck</str>
-    </arr>
-  </requestHandler>
-
-  <searchComponent name="tv" class="solr.TermVectorComponent"/>
-
-  <searchComponent class="solr.HighlightComponent" name="highlight">
-    <highlighting>
-      <!-- Configure the standard fragmenter -->
-      <!-- This could most likely be commented out in the "default" case -->
-      <fragmenter name="gap" 
-                  default="true"
-                  class="solr.highlight.GapFragmenter">
+    <requestHandler name="/update/extract" startup="lazy" class="solr.extraction.ExtractingRequestHandler">
         <lst name="defaults">
-          <int name="hl.fragsize">100</int>
+            <str name="fmap.title">tika_title</str>
+            <str name="lowernames">true</str>
+            <str name="uprefix">ignored_</str>
         </lst>
-      </fragmenter>
+    </requestHandler>
 
-      <!-- Configure the standard formatter -->
-      <formatter name="html" 
-                 default="true"
-                 class="solr.highlight.HtmlFormatter">
+    <!-- ping/healthcheck -->
+    <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
+        <lst name="invariants">
+            <str name="qt">search</str>
+            <str name="q">solrpingquery</str>
+        </lst>
         <lst name="defaults">
-          <str name="hl.simple.pre"><![CDATA[<em>]]></str>
-          <str name="hl.simple.post"><![CDATA[</em>]]></str>
+            <str name="echoParams">all</str>
         </lst>
-      </formatter>
+    </requestHandler>
 
-      <!-- Configure the standard encoder -->
-      <encoder name="html" 
-               class="solr.highlight.HtmlEncoder" />
+    <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
+        <str name="queryAnalyzerFieldType">textSpell</str>
+        <lst name="spellchecker">
+            <str name="name">default</str>
+            <str name="field">text</str>
+            <str name="spellcheckIndexDir">spellchecker</str>
+            <!-- Testing only -->
+            <str name="buildOnCommit">true</str>
+        </lst>
+    </searchComponent>
 
-      <!-- Configure the standard fragListBuilder -->
-      <fragListBuilder name="simple" 
-                       default="true"
-                       class="solr.highlight.SimpleFragListBuilder"/>
-
-      <!-- default tag FragmentsBuilder -->
-      <fragmentsBuilder name="default" 
-                        default="true"
-                        class="solr.highlight.ScoreOrderFragmentsBuilder">
-      </fragmentsBuilder>
-      
-      <boundaryScanner name="default" 
-                       default="true"
-                       class="solr.highlight.SimpleBoundaryScanner">
+    <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
         <lst name="defaults">
-          <str name="hl.bs.maxScan">10</str>
-          <str name="hl.bs.chars">.,!? &#9;&#10;&#13;</str>
+            <str name="spellcheck.onlyMorePopular">false</str>
+            <str name="spellcheck.extendedResults">false</str>
+            <str name="spellcheck.count">1</str>
         </lst>
-      </boundaryScanner>
-    </highlighting>
-  </searchComponent>
+        <arr name="last-components">
+            <str>spellcheck</str>
+        </arr>
+    </requestHandler>
+
+    <searchComponent name="tv" class="solr.TermVectorComponent"/>
+
+    <searchComponent class="solr.HighlightComponent" name="highlight">
+        <highlighting>
+            <!-- Configure the standard fragmenter -->
+            <!-- This could most likely be commented out in the "default" case -->
+            <fragmenter name="gap" default="true" class="solr.highlight.GapFragmenter">
+                <lst name="defaults">
+                    <int name="hl.fragsize">100</int>
+                </lst>
+            </fragmenter>
+
+            <!-- Configure the standard formatter -->
+            <formatter name="html" default="true" class="solr.highlight.HtmlFormatter">
+                <lst name="defaults">
+                    <str name="hl.simple.pre"><![CDATA[<em>]]></str>
+                    <str name="hl.simple.post"><![CDATA[</em>]]></str>
+                </lst>
+            </formatter>
+
+            <!-- Configure the standard encoder -->
+            <encoder name="html" class="solr.highlight.HtmlEncoder"/>
+
+            <!-- Configure the standard fragListBuilder -->
+            <fragListBuilder name="simple" default="true" class="solr.highlight.SimpleFragListBuilder"/>
+
+            <!-- default tag FragmentsBuilder -->
+            <fragmentsBuilder name="default" default="true" class="solr.highlight.ScoreOrderFragmentsBuilder"/>
+
+            <boundaryScanner name="default" default="true" class="solr.highlight.SimpleBoundaryScanner">
+                <lst name="defaults">
+                    <str name="hl.bs.maxScan">10</str>
+                    <str name="hl.bs.chars">.,!? &#9;&#10;&#13;</str>
+                </lst>
+            </boundaryScanner>
+        </highlighting>
+    </searchComponent>
 </config>
