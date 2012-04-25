@@ -12,6 +12,8 @@ import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -50,41 +52,62 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
         solrSearchService = new SolrSearchService(notificationService);
         SolrServer solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
         solrSearchService.setSolrServer(solrServer);
-
     }
 
     @Test
     public void testSearchOneDocumentContent() throws Exception  {
-        //TODO: Implement
-        //solrSearchService.search();
-        assertTrue(false);
+        presetIndex(solrSearchService.getSolrServer());
+        SearchList searchList = solrSearchService.search("contents:zsh", null, 0, 10);
+        assertEquals(1, searchList.getFullSize());
+        SearchResult result = searchList.get(0);
+        assertEquals("refcard.id", result.getId());
+        assertNotNull(result.getSearchResult());
+        assertTrue(result.getTerms().getFrequencies().length > 0);
+        assertEquals(result.getTerms().getFrequencies().length, result.getTerms().getTerms().length);
     }
 
     @Test
     public void testSearchOneDocumentMultipleFields() throws Exception  {
-        //TODO: Implement
-        //solrSearchService.search();
-        assertTrue(false);
+        presetIndex(solrSearchService.getSolrServer());
+        SearchList searchList = solrSearchService.search("refcard", null, 0, 10);
+        assertEquals(1, searchList.getFullSize());
+        SearchResult result = searchList.get(0);
+        assertEquals("refcard.id", result.getId());
+        assertNotNull(result.getSearchResult());
+        assertTrue(result.getTerms().getFrequencies().length > 0);
+        assertEquals(result.getTerms().getFrequencies().length, result.getTerms().getTerms().length);
     }
 
     @Test
     public void testSearchMultipleDocumentsContent() throws Exception  {
-        //TODO: Implement
-        //solrSearchService.search();
-        assertTrue(false);
+        presetIndex(solrSearchService.getSolrServer());
+        SearchList searchList = solrSearchService.search("contents:solr", null, 1, 2);
+        assertEquals(2, searchList.getFullSize());
+        assertEquals(1, searchList.size());
+        SearchResult result = searchList.get(0);
+        assertEquals("lucene.id", result.getId());
+        assertNotNull(result.getSearchResult());
+        assertTrue(result.getTerms().getFrequencies().length > 0);
+        assertEquals(result.getTerms().getFrequencies().length, result.getTerms().getTerms().length);
     }
 
     @Test
     public void testSearchMultipleDocumentsMultipleFields() throws Exception  {
-        //TODO: Implement
-        //solrSearchService.search();
-        assertTrue(false);
+        presetIndex(solrSearchService.getSolrServer());
+        SearchList searchList = solrSearchService.search("java", null, 1, 3);
+        assertEquals(4, searchList.getFullSize());
+        assertEquals(2, searchList.size());
+        SearchResult result = searchList.get(0);
+        assertEquals("lucene.id", result.getId());
+        assertNotNull(result.getSearchResult());
+        assertTrue(result.getTerms().getFrequencies().length > 0);
+        assertEquals(result.getTerms().getFrequencies().length, result.getTerms().getTerms().length);
     }
 
     @Test
     public void testStatus() throws Exception  {
         //Just a ping, 0 is expected when everything is ok, something else otherwise
-        assertEquals(0, solrSearchService.getStatus());
+        assertEquals("0", solrSearchService.getStatus());
         //Works with solr 3.6
         //((EmbeddedSolrServer)solrSearchService.getSolrServer()).shutdown();
         //assertNotSame(0, solrSearchService.getStatus());
@@ -99,9 +122,9 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
 
     @Test
     public void testGetSearchSuggestion() throws Exception  {
-        //TODO: Implement
-        //solrSearchService.getSearchSuggestion();
-        assertTrue(false);
+        presetIndex(solrSearchService.getSolrServer());
+        String suggestion = solrSearchService.getSearchSuggestion("Jav");
+        assertTrue("java".equalsIgnoreCase(suggestion));
     }
 
     @Override
