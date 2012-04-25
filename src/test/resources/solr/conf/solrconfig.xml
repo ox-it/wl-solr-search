@@ -1,24 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
   <abortOnConfigurationError>true</abortOnConfigurationError>
-
-  <!-- Controls what version of Lucene various components of Solr
-       adhere to.  Generally, you want to use the latest version to
-       get all bug fixes and improvements. It is highly recommended
-       that you fully re-index after changing this setting as it can
-       affect both how text is indexed and queried.
-    -->
-  <luceneMatchVersion>LUCENE_35</luceneMatchVersion>
-
-  <!-- Data Directory
-
-       Used to specify an alternate directory to hold all index data
-       other than the default ./data under the Solr home.  If
-       replication is in use, this should match the replication
-       configuration.
-    -->
-  <dataDir>${solr.data.dir:}</dataDir>
-
   <directoryFactory name="DirectoryFactory" class="solr.RAMDirectoryFactory"/>
 
   <!-- Index Defaults
@@ -125,21 +107,6 @@
      <infoStream file="INFOSTREAM.txt">false</infoStream> 
 
   </mainIndex>
-
-  <!-- JMX
-       
-       This example enables JMX if and only if an existing MBeanServer
-       is found, use this if you want to configure JMX through JVM
-       parameters. Remove this to disable exposing Solr configuration
-       and statistics to JMX.
-
-       For more details see http://wiki.apache.org/solr/SolrJmx
-    -->
-  <jmx />
-
-  <!-- The default high-performance update handler -->
-  <updateHandler class="solr.DirectUpdateHandler2">
-  </updateHandler>
 
   <query>
     <!-- Max Boolean Clauses
@@ -346,34 +313,6 @@
     <httpCaching never304="true" />
   </requestDispatcher>
 
-  <!-- Request Handlers 
-
-       http://wiki.apache.org/solr/SolrRequestHandler
-
-       incoming queries will be dispatched to the correct handler
-       based on the path or the qt (query type) param.
-
-       Names starting with a '/' are accessed with the a path equal to
-       the registered name.  Names without a leading '/' are accessed
-       with: http://host/app/[core/]select?qt=name
-
-       If a /select request is processed with out a qt param
-       specified, the requestHandler that declares default="true" will
-       be used.
-       
-       If a Request Handler is declared with startup="lazy", then it will
-       not be initialized until the first request that uses it.
-
-    -->
-  <!-- SearchHandler
-
-       http://wiki.apache.org/solr/SearchHandler
-
-       For processing Search Queries, the primary Request Handler
-       provided with Solr is "SearchHandler" It delegates to a sequent
-       of SearchComponents (see below) and supports distributed
-       queries across multiple shards
-    -->
   <requestHandler name="search" class="solr.SearchHandler" default="true">
     <!-- default values for query parameters can be specified, these
          will be overridden by parameters in the request
@@ -386,26 +325,9 @@
           <str>tv</str>
       </arr>
     </requestHandler>
-
-  <!-- XML Update Request Handler.
-
-       http://wiki.apache.org/solr/UpdateXmlMessages
-
-       The canonical Request Handler for Modifying the Index through
-       commands specified using XML.
-
-       Note: Since solr1.1 requestHandlers requires a valid content
-       type header if posted in the body. For example, curl now
-       requires: -H 'Content-type:text/xml; charset=utf-8'
-    -->
   <requestHandler name="/update"
                   class="solr.XmlUpdateRequestHandler">
     </requestHandler>
-  <!-- Solr Cell Update Request Handler
-
-       http://wiki.apache.org/solr/ExtractingRequestHandler
-
-    -->
   <requestHandler name="/update/extract"
                   startup="lazy"
                   class="solr.extraction.ExtractingRequestHandler" >
@@ -434,49 +356,17 @@
     </lst>
   </requestHandler>
 
-   <!-- Spell Check
-
-        The spell check component can return a list of alternative spelling
-        suggestions.  
-
-        http://wiki.apache.org/solr/SpellCheckComponent
-     -->
   <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
-
     <str name="queryAnalyzerFieldType">textSpell</str>
-
-    <!-- Multiple "Spell Checkers" can be declared and used by this
-         component
-      -->
-
-    <!-- a spellchecker built from a field of the main index, and
-         written to disk
-      -->
     <lst name="spellchecker">
       <str name="name">default</str>
       <str name="field">text</str>
       <str name="spellcheckIndexDir">spellchecker</str>
-      <!-- uncomment this to require terms to occur in 1% of the documents in order to be included in the dictionary
-      	<float name="thresholdTokenFrequency">.01</float>
-      -->
       <!-- Testing only -->
       <str name="buildOnCommit">true</str>
     </lst>
   </searchComponent>
 
-  <!-- A request handler for demonstrating the spellcheck component.  
-
-       NOTE: This is purely as an example.  The whole purpose of the
-       SpellCheckComponent is to hook it into the request handler that
-       handles your normal user queries so that a separate request is
-       not needed to get suggestions.
-
-       IN OTHER WORDS, THERE IS REALLY GOOD CHANCE THE SETUP BELOW IS
-       NOT WHAT YOU WANT FOR YOUR PRODUCTION SYSTEM!
-       
-       See http://wiki.apache.org/solr/SpellCheckComponent for details
-       on the request parameters.
-    -->
   <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <str name="spellcheck.onlyMorePopular">false</str>
@@ -488,16 +378,8 @@
     </arr>
   </requestHandler>
 
-  <!-- Term Vector Component
-
-       http://wiki.apache.org/solr/TermVectorComponent
-    -->
   <searchComponent name="tv" class="solr.TermVectorComponent"/>
 
-  <!-- Highlighting Component
-
-       http://wiki.apache.org/solr/HighlightingParameters
-    -->
   <searchComponent class="solr.HighlightComponent" name="highlight">
     <highlighting>
       <!-- Configure the standard fragmenter -->
