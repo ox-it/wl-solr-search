@@ -469,11 +469,11 @@ any data added to them will be ignored outright.  -->
         <field name="subtype" type="string" indexed="true" stored="true" required="true"/>
         <field name="reference" type="string" indexed="true" stored="true" required="true"/>
         <field name="context" type="string" indexed="true" stored="true" required="true"/>
-        <field name="title" type="text_general" indexed="true" stored="true" required="true"/>
+        <field name="title" type="text_en" indexed="true" stored="true" required="true"/>
         <field name="tool" type="string" indexed="true" stored="true" required="true"/>
-        <field name="url" type="text_general" indexed="true" stored="true" required="true"/>
+        <field name="url" type="text_en" indexed="true" stored="true" required="true"/>
         <field name="siteid" type="string" indexed="true" stored="true"/>
-        <field name="contents" type="text_general" indexed="true" stored="true"
+        <field name="contents" type="text_en" indexed="true" stored="true"
                termVectors="true" termPositions="true" termOffsets="true" />
 
         <!-- Common metadata fields, named specifically to match up with
@@ -496,10 +496,10 @@ any data added to them will be ignored outright.  -->
 
         <!-- catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema  -->
-        <field name="text" type="text_general" indexed="true" stored="false" multiValued="true" />
+        <field name="text" type="text_en" indexed="true" stored="false" multiValued="true" />
 
         <dynamicField name="unknown_*" type="ignored" multiValued="true"/>
-        <dynamicField name="property_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+        <dynamicField name="property_*" type="text_en" indexed="true" stored="true" multiValued="true"/>
 
         <dynamicField name="*" type="ignored" multiValued="true"/>
     </fields>
