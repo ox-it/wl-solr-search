@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="org.sakaiproject.search.api.SearchService"
+          class="uk.ac.ox.oucs.search.solr.SolrSearchService">
+        <constructor-arg ref="org.sakaiproject.event.api.NotificationService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="solrServer" ref="solrLookupServer"/>
+
+        <!--
+        <property name="filter" ref="searchSecurityFilterImpl"/>
+        <property name="defaultSorter" value="none" />
+        <property name="luceneSorters">
+            <map>
+                <entry key="dateRelevanceSort" value-ref="dateRelevanceSort"/>
+            </map>
+        </property>
+        -->
+    </bean>
+
+    <!--
+    <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+          class="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="solrServer" ref="solrIndexingServer"/>
+    </bean>
+    <bean id="searchSecurityFilterImpl" class="org.sakaiproject.search.filter.impl.SearchSecurityFilter"
+          init-method="init">
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+    </bean>
+    <bean id="dateRelevanceSort" class="org.sakaiproject.search.filter.impl.DateRelevanceSort"/>
+    -->
+
+    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+        <constructor-arg>
+            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getString">
+                <constructor-arg value="solr.server"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+    <alias alias="solrIndexingServer" name="solrLookupServer"/>
+
+</beans>
