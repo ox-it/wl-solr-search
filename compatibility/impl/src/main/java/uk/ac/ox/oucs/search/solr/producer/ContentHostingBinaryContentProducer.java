@@ -49,8 +49,6 @@ public class ContentHostingBinaryContentProducer extends ContentHostingContentPr
 
     @Override
     public InputStream getContentStream(String ref) {
-
-        boolean debug = log.isDebugEnabled();
         ContentResource contentResource;
         try {
             Reference reference = getEntityManager().newReference(ref);
@@ -59,14 +57,14 @@ public class ContentHostingBinaryContentProducer extends ContentHostingContentPr
             throw new RuntimeException("Failed to resolve resource " + ref, e);
         }
 
-        InputStream stream ;
+        InputStream stream;
         try {
             stream = contentResource.streamContent();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to obtain content from " + ref, ex);
         }
-        if (debug) {
-            log.debug("ContentHosting.getContentStrean" + ref + ":" + stream);
+        if (log.isDebugEnabled()) {
+            log.debug("ContentHosting.getContentStream" + ref + ":" + stream);
         }
         return stream;
     }
