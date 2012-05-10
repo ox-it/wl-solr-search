@@ -60,7 +60,6 @@ public class SolrSearchService implements SearchService {
     public SearchList search(String searchTerms, List<String> contexts, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
         try {
             //TODO: Handle filterName, sorterName
-            //TODO: Filter results based on security
             SolrQuery query = new SolrQuery();
 
             query.setStart(start);
@@ -77,7 +76,7 @@ public class SolrSearchService implements SearchService {
 
             if (contexts != null && !contexts.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                sb.append('+').append(SearchService.FIELD_SITEID).append(":");
+                sb.append('+').append(SearchService.FIELD_CONTEXT).append(":");
                 sb.append('(');
                 for (Iterator<String> contextIterator = contexts.iterator(); contextIterator.hasNext(); ) {
                     sb.append('"').append(contextIterator.next()).append('"');

@@ -243,6 +243,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         document.addField(SearchService.FIELD_TITLE, contentProducer.getTitle(resourceName));
         document.addField(SearchService.FIELD_TOOL, contentProducer.getTool());
         document.addField(SearchService.FIELD_URL, contentProducer.getUrl(resourceName));
+        document.addField(SearchService.FIELD_SITEID, contentProducer.getSiteId(resourceName));
 
         // add the custom properties
         Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
