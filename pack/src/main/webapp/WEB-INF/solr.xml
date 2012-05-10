@@ -9,16 +9,11 @@
         <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
-
-        <!--
-        <property name="filter" ref="searchSecurityFilterImpl"/>
-        <property name="defaultSorter" value="none" />
-        <property name="luceneSorters">
-            <map>
-                <entry key="dateRelevanceSort" value-ref="dateRelevanceSort"/>
-            </map>
+        <property name="searchItemFilter">
+            <bean class="uk.ac.ox.oucs.search.solr.filter.SecuritySearchFilter">
+                <constructor-arg ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+            </bean>
         </property>
-        -->
     </bean>
 
     <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
@@ -26,14 +21,6 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="solrServer" ref="solrIndexingServer"/>
     </bean>
-    <!--
-    <bean id="searchSecurityFilterImpl" class="org.sakaiproject.search.filter.impl.SearchSecurityFilter"
-          init-method="init">
-        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
-    </bean>
-    <bean id="dateRelevanceSort" class="org.sakaiproject.search.filter.impl.DateRelevanceSort"/>
-    -->
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
         <constructor-arg>
