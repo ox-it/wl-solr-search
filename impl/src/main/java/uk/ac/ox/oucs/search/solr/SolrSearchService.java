@@ -283,10 +283,6 @@ public class SolrSearchService implements SearchService {
         this.solrServer = solrServer;
     }
 
-    public SolrServer getSolrServer() {
-        return solrServer;
-    }
-
     public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
         this.searchIndexBuilder = searchIndexBuilder;
     }

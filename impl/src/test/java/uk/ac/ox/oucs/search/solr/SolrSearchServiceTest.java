@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
  * @author Colin Hebert
  */
 public class SolrSearchServiceTest extends AbstractSolrTestCase {
+    private EmbeddedSolrServer solrServer;
     private SolrSearchService solrSearchService;
     private final Map<String, String> documents;
 
@@ -49,14 +50,14 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
         super.setUp();
         NotificationService notificationService = mock(NotificationService.class);
         when(notificationService.addTransientNotification()).thenReturn(mock(NotificationEdit.class));
-        solrSearchService = new SolrSearchService(notificationService);
-        SolrServer solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
+        solrSearchService = new SolrSearchService();
+        solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
         solrSearchService.setSolrServer(solrServer);
     }
 
     @Test
     public void testSearchOneDocumentContent() throws Exception  {
-        presetIndex(solrSearchService.getSolrServer());
+        presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("contents:zsh", null, 0, 10);
         assertEquals(1, searchList.getFullSize());
         SearchResult result = searchList.get(0);
@@ -68,7 +69,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
 
     @Test
     public void testSearchOneDocumentMultipleFields() throws Exception  {
-        presetIndex(solrSearchService.getSolrServer());
+        presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("refcard", null, 0, 10);
         assertEquals(1, searchList.getFullSize());
         SearchResult result = searchList.get(0);
@@ -80,7 +81,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
 
     @Test
     public void testSearchMultipleDocumentsContent() throws Exception  {
-        presetIndex(solrSearchService.getSolrServer());
+        presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("contents:solr", null, 1, 2);
         assertEquals(2, searchList.getFullSize());
         assertEquals(1, searchList.size());
@@ -93,7 +94,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
 
     @Test
     public void testSearchMultipleDocumentsMultipleFields() throws Exception  {
-        presetIndex(solrSearchService.getSolrServer());
+        presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("java", null, 1, 3);
         assertEquals(4, searchList.getFullSize());
         assertEquals(2, searchList.size());
@@ -109,20 +110,20 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
         //Just a ping, 0 is expected when everything is ok, something else otherwise
         assertEquals("0", solrSearchService.getStatus());
         //Works with solr 3.6
-        //((EmbeddedSolrServer)solrSearchService.getSolrServer()).shutdown();
+        //solrServer.shutdown();
         //assertNotSame(0, solrSearchService.getStatus());
     }
 
     @Test
     public void testGetNDocs() throws Exception {
         assertEquals(0, solrSearchService.getNDocs());
-        presetIndex(solrSearchService.getSolrServer());
+        presetIndex(solrServer);
         assertEquals(documents.size(), solrSearchService.getNDocs());
     }
 
     @Test
     public void testGetSearchSuggestion() throws Exception  {
-        presetIndex(solrSearchService.getSolrServer());
+        presetIndex(solrServer);
         String suggestion = solrSearchService.getSearchSuggestion("Jav");
         assertTrue("java".equalsIgnoreCase(suggestion));
     }
