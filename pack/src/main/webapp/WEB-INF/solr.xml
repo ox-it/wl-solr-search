@@ -2,8 +2,11 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="org.sakaiproject.search.api.SearchService"
-          class="uk.ac.ox.oucs.search.solr.SolrSearchService">
-        <constructor-arg ref="org.sakaiproject.event.api.NotificationService"/>
+          class="uk.ac.ox.oucs.search.solr.SolrSearchService" init-method="init">
+        <property name="triggerFunctions">
+            <list/>
+        </property>
+        <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
 

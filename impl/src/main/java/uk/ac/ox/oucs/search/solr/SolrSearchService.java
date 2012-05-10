@@ -25,16 +25,14 @@ public class SolrSearchService implements SearchService {
     private SolrServer solrServer;
     private NotificationEdit notification;
     private SearchIndexBuilder searchIndexBuilder;
+    private List<String> triggerFunctions;
+    private NotificationService notificationService;
 
     /**
      * Register a notification action to listen to events and modify the search
      * index
      */
-    public SolrSearchService(NotificationService notificationService) {
-        this(notificationService, Collections.<String>emptyList());
-    }
-
-    public SolrSearchService(NotificationService notificationService, List<String> triggerFunctions) {
+    public void init() {
         // register a transient notification for resources
         notification = notificationService.addTransientNotification();
 
@@ -288,5 +286,17 @@ public class SolrSearchService implements SearchService {
 
     public SearchIndexBuilder getSearchIndexBuilder() {
         return searchIndexBuilder;
+    }
+
+    public void setNotification(NotificationEdit notification) {
+        this.notification = notification;
+    }
+
+    public void setTriggerFunctions(List<String> triggerFunctions) {
+        this.triggerFunctions = triggerFunctions;
+    }
+
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 }
