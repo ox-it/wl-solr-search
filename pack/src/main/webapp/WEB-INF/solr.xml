@@ -21,12 +21,12 @@
         -->
     </bean>
 
-    <!--
     <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
           class="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="solrServer" ref="solrIndexingServer"/>
     </bean>
+    <!--
     <bean id="searchSecurityFilterImpl" class="org.sakaiproject.search.filter.impl.SearchSecurityFilter"
           init-method="init">
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
