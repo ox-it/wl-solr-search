@@ -7,6 +7,7 @@ import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import uk.ac.ox.oucs.search.solr.filter.SearchItemFilter;
 
 import java.util.*;
 
@@ -20,7 +21,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
     private final QueryResponse rsp;
     private final int start;
 
-    public SolrSearchList(QueryResponse rsp) {
+    public SolrSearchList(QueryResponse rsp, SearchItemFilter filter) {
         this.rsp = rsp;
 
         //Get the 'start' value. If not set, use 0
@@ -37,7 +38,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
             String id = (String) document.getFieldValue(SearchService.FIELD_ID);
             Map<String, List<String>> highlight = rsp.getHighlighting().get(id);
             Map<String, Map<String, TermInfo>> terms = termsPerDocument.get(id);
-            solrResults.add(new SolrResult(solrResults.size(), document, highlight, terms));
+            solrResults.add(filter.filter(new SolrResult(solrResults.size(), document, highlight, terms)));
         }
     }
 

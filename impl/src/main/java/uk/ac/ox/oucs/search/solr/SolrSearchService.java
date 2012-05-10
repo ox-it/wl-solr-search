@@ -12,6 +12,7 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.*;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import uk.ac.ox.oucs.search.solr.filter.SearchItemFilter;
 import uk.ac.ox.oucs.search.solr.notification.SearchNotificationAction;
 import uk.ac.ox.oucs.search.solr.response.SolrSearchList;
 
@@ -27,6 +28,12 @@ public class SolrSearchService implements SearchService {
     private SearchIndexBuilder searchIndexBuilder;
     private List<String> triggerFunctions;
     private NotificationService notificationService;
+    private SearchItemFilter searchItemFilter = new SearchItemFilter() {
+        @Override
+        public SearchResult filter(SearchResult result) {
+            return result;
+        }
+    };
 
     /**
      * Register a notification action to listen to events and modify the search
@@ -87,7 +94,7 @@ public class SolrSearchService implements SearchService {
 
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
-            return new SolrSearchList(rsp);
+            return new SolrSearchList(rsp, searchItemFilter);
         } catch (SolrServerException e) {
             throw new RuntimeException(e);
         }
@@ -284,12 +291,8 @@ public class SolrSearchService implements SearchService {
         this.searchIndexBuilder = searchIndexBuilder;
     }
 
-    public SearchIndexBuilder getSearchIndexBuilder() {
-        return searchIndexBuilder;
-    }
-
-    public void setNotification(NotificationEdit notification) {
-        this.notification = notification;
+    public void setSearchItemFilter(SearchItemFilter searchItemFilter) {
+        this.searchItemFilter = searchItemFilter;
     }
 
     public void setTriggerFunctions(List<String> triggerFunctions) {
