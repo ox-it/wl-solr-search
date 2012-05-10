@@ -35,7 +35,7 @@
 
     <fields>
         <field name="indexdate" type="ignored"/>
-        <field name="container" type="string" indexed="true" stored="true" required="true"/>
+        <field name="container" type="string" indexed="true" stored="true"/>
         <field name="id" type="string" indexed="true" stored="true" required="true"/>
         <field name="type" type="string" indexed="true" stored="true" required="true"/>
         <field name="subtype" type="string" indexed="true" stored="true" required="true"/>
