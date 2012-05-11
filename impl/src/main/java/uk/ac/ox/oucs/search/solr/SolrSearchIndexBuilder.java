@@ -176,7 +176,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    private enum ItemAction {
+    public static enum ItemAction {
         /**
          * Action Unknown, usually because the record has just been created
          */
