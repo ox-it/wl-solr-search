@@ -1,12 +1,14 @@
 package uk.ac.ox.oucs.search.solr.producer;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 
@@ -17,9 +19,21 @@ import java.util.*;
 /**
  * @author Colin Hebert
  */
-public class SolrContentHostingContentProducer implements BinaryEntityContentProducer, StoredDigestContentProducer {
+public class BinaryContentHostingContentProducer implements BinaryEntityContentProducer, StoredDigestContentProducer {
+    private ServerConfigurationService serverConfigurationService;
+    private SearchService searchService;
+    private SearchIndexBuilder searchIndexBuilder;
     private ContentHostingService contentHostingService;
     private EntityManager entityManager;
+
+    public void init() {
+        if (serverConfigurationService.getBoolean("search.enable", false)) {
+            searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_ADD);
+            searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_WRITE);
+            searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_REMOVE);
+            searchIndexBuilder.registerEntityContentProducer(this);
+        }
+    }
 
     @Override
     public boolean isContentFromReader(String reference) {
@@ -218,6 +232,18 @@ public class SolrContentHostingContentProducer implements BinaryEntityContentPro
             throw new RuntimeException("Failed to obtain content from " + ref, ex);
         }
         return stream;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+        this.searchIndexBuilder = searchIndexBuilder;
     }
 
     public void setContentHostingService(ContentHostingService contentHostingService) {
