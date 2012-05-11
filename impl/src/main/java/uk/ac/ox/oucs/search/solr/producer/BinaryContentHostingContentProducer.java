@@ -156,24 +156,18 @@ public class BinaryContentHostingContentProducer implements BinaryEntityContentP
     @Override
     public Map<String, ?> getCustomProperties(String ref) {
         try {
-            ContentResource contentResource;
-            contentResource = contentHostingService.getResource(getId(ref));
+            Map<String, Collection<String>> props = new HashMap<String, Collection<String>>();
 
-            Map<String, String[]> cp = new HashMap<String, String[]>();
-
-            Iterator<String> propertiesIterator = contentResource.getProperties().getPropertyNames();
-
+            ResourceProperties rp = contentHostingService.getResource(getId(ref)).getProperties();
+            Iterator<String> propertiesIterator = rp.getPropertyNames();
             while (propertiesIterator.hasNext()) {
                 String propertyName = propertiesIterator.next();
-                List<String> prop = contentResource.getProperties().getPropertyList(propertyName);
-                if (prop != null) {
-                    cp.put(propertyName, prop.toArray(new String[prop.size()]));
-                }
+                props.put(propertyName, rp.getPropertyList(propertyName));
             }
-            return cp;
+            return props;
         } catch (Exception e) {
+            return Collections.emptyMap();
         }
-        return Collections.emptyMap();
     }
 
     @Override

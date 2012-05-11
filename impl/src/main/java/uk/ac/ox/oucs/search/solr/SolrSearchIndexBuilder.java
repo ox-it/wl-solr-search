@@ -266,7 +266,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
         }
 
-
         if (contentProducer instanceof BinaryEntityContentProducer) {
             final BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
             //Send to tika
