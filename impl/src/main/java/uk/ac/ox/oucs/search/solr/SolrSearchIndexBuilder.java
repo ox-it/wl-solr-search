@@ -262,9 +262,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 else
                     values = Collections.emptyList();
 
-                for (String value1 : values) {
-                    document.addField("property_" + key, value1);
-                }
+                document.addField("property_" + key, values);
             }
         }
 
@@ -281,7 +279,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 }
             });
             for (SolrInputField field : document)
-                for (Object o : field){
+                for (Object o : field) {
                     //The "sakai_" part is due to SOLR-3386, this fix should be temporary
                     contentStreamUpdateRequest.setParam(LITERAL + "sakai_" + field.getName(), o.toString());
                     contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
