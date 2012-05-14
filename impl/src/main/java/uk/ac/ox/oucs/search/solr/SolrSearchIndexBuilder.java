@@ -112,8 +112,29 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        //TODO: Only index content that is already indexed!
-        rebuildIndex(currentSiteId);
+        try {
+            //TODO: Obtain actual resources names!
+            Collection<String> resourceNames = null;
+            removeSiteIndexContent(currentSiteId);
+            for (String resourceName : resourceNames) {
+                EntityContentProducer entityContentProducer = newEntityContentProducer(resourceName);
+
+                //If there is no matching entity content producer or no associated site, skip the resource
+                //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
+                if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null)
+                    continue;
+
+                try {
+                    solrServer.request(toSolrRequest(resourceName, entityContentProducer));
+                } catch (Exception e) {
+                    //Ignore document
+                }
+            }
+
+            solrServer.commit();
+        } catch (Exception e) {
+        }
+
     }
 
     @Override
@@ -144,7 +165,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
-    private NamedList<Object> removeSiteIndexContent(String currentSiteId)  {
+    private NamedList<Object> removeSiteIndexContent(String currentSiteId) {
         try {
             return solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
         } catch (Exception e) {
