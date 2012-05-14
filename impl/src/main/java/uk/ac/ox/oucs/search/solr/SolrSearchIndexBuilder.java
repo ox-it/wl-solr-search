@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.ContentStreamBase;
+import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -117,7 +118,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
-        //TODO: Remove elements from the index first?
+        removeSiteIndexContent(currentSiteId);
+
         for (final EntityContentProducer entityContentProducer : getContentProducers()) {
             try {
                 Iterable<String> resourceNames = new Iterable<String>() {
@@ -139,6 +141,13 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             } catch (Exception e) {
                 //Oops?
             }
+        }
+    }
+
+    private NamedList<Object> removeSiteIndexContent(String currentSiteId)  {
+        try {
+            return solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
+        } catch (Exception e) {
         }
     }
 
