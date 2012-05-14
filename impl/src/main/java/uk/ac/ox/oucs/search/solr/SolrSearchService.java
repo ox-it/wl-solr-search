@@ -150,7 +150,7 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public int getPendingDocs() {
-        return 0;
+        return searchIndexBuilder.getPendingDocuments();
     }
 
     @Override

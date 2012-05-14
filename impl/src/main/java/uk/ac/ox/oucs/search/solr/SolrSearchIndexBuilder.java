@@ -165,9 +165,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
-    private NamedList<Object> removeSiteIndexContent(String currentSiteId) {
+    private void removeSiteIndexContent(String currentSiteId) {
         try {
-            return solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
+            solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
         } catch (Exception e) {
         }
     }
