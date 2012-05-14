@@ -14,6 +14,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
@@ -110,17 +111,44 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        //TODO: Don't refresh the index for now
+        //TODO: Only index content that is already indexed!
+        rebuildIndex(currentSiteId);
     }
 
     @Override
-    public void rebuildIndex(String currentSiteId) {
-        //TODO: Don't rebuild the index for now
+    public void rebuildIndex(final String currentSiteId) {
+        //TODO: Remove elements from the index first?
+        for (final EntityContentProducer entityContentProducer : getContentProducers()) {
+            try {
+                Iterable<String> resourceNames = new Iterable<String>() {
+                    @Override
+                    public Iterator<String> iterator() {
+                        return entityContentProducer.getSiteContentIterator(currentSiteId);
+                    }
+                };
+
+                for (String resourceName : resourceNames) {
+                    try {
+                        solrServer.request(toSolrRequest(resourceName, entityContentProducer));
+                    } catch (Exception e) {
+                        //Ignore document
+                    }
+                }
+
+                solrServer.commit();
+            } catch (Exception e) {
+                //Oops?
+            }
+        }
     }
 
     @Override
     public void refreshIndex() {
-        //TODO: Don't refresh the index for now
+        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
+            if (isSiteIndexable(s)) {
+                refreshIndex(s.getId());
+            }
+        }
     }
 
     @Override
@@ -130,7 +158,21 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex() {
-        //TODO: Don't rebuild the index for now
+        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
+            if (isSiteIndexable(s)) {
+                rebuildIndex(s.getId());
+            }
+        }
+    }
+
+    private boolean isSiteIndexable(Site s) {
+        // Do not index:
+        //  - Special sites
+        //  - Sites without the search tool (if the option is enabled)
+        //  - User sites (if the option is enabled)
+        return !(siteService.isSpecialSite(s.getId()) ||
+                (isOnlyIndexSearchToolSites() && s.getToolForCommonId("sakai.search") == null) ||
+                (isExcludeUserSites() && siteService.isUserSite(s.getId())));
     }
 
     @Override
