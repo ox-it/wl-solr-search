@@ -1,14 +1,17 @@
 package uk.ac.ox.oucs.search.solr;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.ContentStreamBase;
-import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -114,7 +117,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex(String currentSiteId) {
         try {
             //TODO: Obtain actual resources names!
-            Collection<String> resourceNames = null;
+            Collection<String> resourceNames = getResourceNames(currentSiteId);
             removeSiteIndexContent(currentSiteId);
             for (String resourceName : resourceNames) {
                 EntityContentProducer entityContentProducer = newEntityContentProducer(resourceName);
@@ -135,6 +138,22 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         } catch (Exception e) {
         }
 
+    }
+
+    private Collection<String> getResourceNames(String currentSiteId) {
+        try {
+            SolrQuery query = new SolrQuery()
+                    .setQuery(SearchService.FIELD_SITEID + ':' + currentSiteId)
+                    .addField(SearchService.FIELD_SITEID);
+            SolrDocumentList results = solrServer.query(query).getResults();
+            Collection<String> resourceNames = new ArrayList<String>(results.size());
+            for (SolrDocument document : results) {
+                resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
+            }
+            return resourceNames;
+        } catch (SolrServerException e) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
