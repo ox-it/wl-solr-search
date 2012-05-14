@@ -144,7 +144,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         try {
             SolrQuery query = new SolrQuery()
                     .setQuery(SearchService.FIELD_SITEID + ':' + currentSiteId)
-                    .addField(SearchService.FIELD_SITEID);
+                    .addField(SearchService.FIELD_REFERENCE);
             SolrDocumentList results = solrServer.query(query).getResults();
             Collection<String> resourceNames = new ArrayList<String>(results.size());
             for (SolrDocument document : results) {
@@ -187,6 +187,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private void removeSiteIndexContent(String currentSiteId) {
         try {
             solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
+            solrServer.commit();
         } catch (Exception e) {
         }
     }
