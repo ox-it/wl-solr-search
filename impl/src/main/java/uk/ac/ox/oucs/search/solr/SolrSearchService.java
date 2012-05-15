@@ -69,6 +69,7 @@ public class SolrSearchService implements SearchService {
 
             query.setStart(start);
             query.setRows(end - start);
+            query.setFields("*", "score");
 
             query.setHighlight(true).setHighlightSnippets(5);
             query.setParam("hl.useFastVectorHighlighter", true);
