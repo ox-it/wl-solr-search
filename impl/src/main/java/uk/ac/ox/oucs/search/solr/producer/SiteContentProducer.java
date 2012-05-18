@@ -53,6 +53,7 @@ public class SiteContentProducer implements EntityContentProducer {
         }
     }
 
+    @Override
     public boolean canRead(String reference) {
         Reference ref = entityManager.newReference(reference);
         EntityProducer ep = ref.getEntityProducer();
@@ -67,10 +68,7 @@ public class SiteContentProducer implements EntityContentProducer {
         return false;
     }
 
-    private Reference getReference(String reference) {
-        return entityManager.newReference(reference);
-    }
-
+    @Override
     public Integer getAction(Event event) {
         String evt = event.getEvent();
         if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
@@ -87,12 +85,14 @@ public class SiteContentProducer implements EntityContentProducer {
         return SearchBuilderItem.ACTION_UNKNOWN;
     }
 
+    @Override
     public String getContainer(String ref) {
         // the site document is contined by itself
         return entityManager.newReference(ref).getId();
 
     }
 
+    @Override
     public String getContent(String reference) {
         Reference ref = entityManager.newReference(reference);
         EntityProducer ep = ref.getEntityProducer();
@@ -110,11 +110,13 @@ public class SiteContentProducer implements EntityContentProducer {
 
     }
 
+    @Override
     public Reader getContentReader(String reference) {
         return new StringReader(getContent(reference));
     }
 
-    public Map<String, ?> getCustomProperties(String ref) {
+    @Override
+    public Map<String, Collection<String>> getCustomProperties(String ref) {
         Map<String, Collection<String>> props = new HashMap<String, Collection<String>>();
         ResourceProperties rp = entityManager.newReference(ref).getEntity().getProperties();
         for (Iterator<String> i = rp.getPropertyNames(); i.hasNext(); ) {
@@ -124,14 +126,17 @@ public class SiteContentProducer implements EntityContentProducer {
         return props;
     }
 
+    @Override
     public String getCustomRDF(String ref) {
         return null;
     }
 
+    @Override
     public String getId(String ref) {
         return entityManager.newReference(ref).getId();
     }
 
+    @Override
     public Iterator<String> getSiteContentIterator(String context) {
         try {
             return Collections.singletonList(siteService.getSite(context).getReference()).iterator();
@@ -141,6 +146,7 @@ public class SiteContentProducer implements EntityContentProducer {
         }
     }
 
+    @Override
     public String getSiteId(String ref) {
         // this is the site that the document is visible to,
         // we need to look at the state of the site, and use special sites.
@@ -162,44 +168,73 @@ public class SiteContentProducer implements EntityContentProducer {
 
     }
 
+    @Override
     public String getSubType(String ref) {
         return "";
     }
 
+    @Override
     public String getTitle(String ref) {
         Site s = (Site) entityManager.newReference(ref).getEntity();
         return SearchUtils.appendCleanString(s.getTitle(), null).toString();
     }
 
-
+    @Override
     public String getTool() {
         return "site";
     }
 
+    @Override
     public String getType(String ref) {
         return entityManager.newReference(ref).getType();
     }
 
+    @Override
     public String getUrl(String ref) {
         return entityManager.newReference(ref).getUrl();
     }
 
+    @Override
     public boolean isContentFromReader(String reference) {
         return false;
     }
 
+    @Override
     public boolean isForIndex(String ref) {
         Site s = (Site) entityManager.newReference(ref).getEntity();
         //SAK-18545 its possible the site no longer exits
         return s != null && s.isPublished();
     }
 
+    @Override
     public boolean matches(String ref) {
         EntityProducer ecp = entityManager.newReference(ref).getEntityProducer();
         return ecp instanceof SiteService;
     }
 
+    @Override
     public boolean matches(Event event) {
         return addEvents.contains(event.getEvent()) || removeEvents.contains(event.getEvent());
+    }
+
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+        this.searchIndexBuilder = searchIndexBuilder;
     }
 }
