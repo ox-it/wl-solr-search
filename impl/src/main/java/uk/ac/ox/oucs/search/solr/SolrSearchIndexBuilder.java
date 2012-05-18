@@ -363,6 +363,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             //Send to tika
             ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
             contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
+            contentStreamUpdateRequest.setParam("uprefix=property_tika_", SearchService.FIELD_CONTENTS);
             contentStreamUpdateRequest.addContentStream(new ContentStreamBase() {
                 @Override
                 public InputStream getStream() throws IOException {
