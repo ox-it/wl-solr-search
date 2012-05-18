@@ -7,6 +7,8 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
@@ -25,6 +27,7 @@ public class BinaryContentHostingContentProducer implements BinaryEntityContentP
     private SearchIndexBuilder searchIndexBuilder;
     private ContentHostingService contentHostingService;
     private EntityManager entityManager;
+    private List<String> supportedContentTypes;
 
     public void init() {
         if (serverConfigurationService.getBoolean("search.enable", false)) {
@@ -65,6 +68,9 @@ public class BinaryContentHostingContentProducer implements BinaryEntityContentP
 
     @Override
     public Integer getAction(Event event) {
+        if (!isContentTypeSupported(event.getResource()))
+            return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
+
         String eventName = event.getEvent();
         if ((ContentHostingService.EVENT_RESOURCE_ADD.equals(eventName)
                 || ContentHostingService.EVENT_RESOURCE_WRITE.equals(eventName)) && isForIndex(event.getResource())) {
@@ -74,6 +80,18 @@ public class BinaryContentHostingContentProducer implements BinaryEntityContentP
         } else {
             return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
         }
+    }
+
+    private boolean isContentTypeSupported(String reference) {
+        try {
+            if (!supportedContentTypes.contains(contentHostingService.getResource(getId(reference)).getContentType()))
+                return false;
+        } catch (IdUnusedException e) {
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to resolve resource ", e);
+        }
+        return true;
     }
 
     @Override
@@ -246,5 +264,9 @@ public class BinaryContentHostingContentProducer implements BinaryEntityContentP
 
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    public void setSupportedContentTypes(List<String> supportedContentTypes) {
+        this.supportedContentTypes = supportedContentTypes;
     }
 }

@@ -8,5 +8,10 @@
         <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="supportedContentTypes">
+            <list>
+                <value>org.sakaiproject.content.types.fileUpload</value>
+            </list>
+        </property>
     </bean>
 </beans>
