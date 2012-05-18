@@ -48,7 +48,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public Integer getAction(Event event) {
-        if (!isContentTypeSupported(event.getResource()))
+        if (!isContentTypeSupported(getResourceType(event.getResource())))
             return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
 
         String eventName = event.getEvent();
@@ -62,7 +62,17 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
         }
     }
 
-    protected abstract boolean isContentTypeSupported(String reference);
+    private String getResourceType(String reference) {
+        try {
+            return contentHostingService.getResource(getId(reference)).getContentType();
+        } catch (IdUnusedException e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to resolve resource ", e);
+        }
+    }
+
+    protected abstract boolean isContentTypeSupported(String contentType);
 
     @Override
     public boolean matches(Event event) {
@@ -141,7 +151,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     }
 
     @Override
-    public Map<String, ?> getCustomProperties(String ref) {
+    public Map<String, Collection<String>> getCustomProperties(String ref) {
         try {
             Map<String, Collection<String>> props = new HashMap<String, Collection<String>>();
 

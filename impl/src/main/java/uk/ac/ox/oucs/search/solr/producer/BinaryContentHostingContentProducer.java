@@ -29,16 +29,8 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
         return null;
     }
 
-    protected boolean isContentTypeSupported(String reference) {
-        try {
-            if (!supportedContentTypes.contains(contentHostingService.getResource(getId(reference)).getContentType()))
-                return false;
-        } catch (IdUnusedException e) {
-            return false;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to resolve resource ", e);
-        }
-        return true;
+    protected boolean isContentTypeSupported(String contentType) {
+        return supportedContentTypes.contains(contentType);
     }
 
     @Override
