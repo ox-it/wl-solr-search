@@ -29,7 +29,7 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
         return null;
     }
 
-    protected boolean isContentTypeSupported(String contentType) {
+    protected boolean isResourceTypeSupported(String contentType) {
         return supportedContentTypes.contains(contentType);
     }
 

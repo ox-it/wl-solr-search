@@ -48,7 +48,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public Integer getAction(Event event) {
-        if (!isContentTypeSupported(getContentType(event.getResource())))
+        if (!isResourceTypeSupported(getResourceType(event.getResource())))
             return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
 
         String eventName = event.getEvent();
@@ -62,9 +62,9 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
         }
     }
 
-    private String getContentType(String reference) {
+    private String getResourceType(String reference) {
         try {
-            return contentHostingService.getResource(getId(reference)).getContentType();
+            return contentHostingService.getResource(getId(reference)).getResourceType();
         } catch (IdUnusedException e) {
             return null;
         } catch (Exception e) {
@@ -72,7 +72,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
         }
     }
 
-    protected abstract boolean isContentTypeSupported(String contentType);
+    protected abstract boolean isResourceTypeSupported(String contentType);
 
     @Override
     public boolean matches(Event event) {
@@ -120,8 +120,8 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
             private void checkForNext() {
                 while (scIterator.hasNext()) {
                     String reference = scIterator.next().getReference();
-                    String contentType = getContentType(reference);
-                    if (isContentTypeSupported(contentType)) {
+                    String resourceType = getResourceType(reference);
+                    if (isResourceTypeSupported(resourceType)) {
                         nextReference = reference;
                         return;
                     }

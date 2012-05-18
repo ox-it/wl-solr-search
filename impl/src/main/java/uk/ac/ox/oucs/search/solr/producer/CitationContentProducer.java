@@ -15,7 +15,7 @@ public class CitationContentProducer extends ContentHostingContentProducer {
     private CitationService citationService;
 
     @Override
-    protected boolean isContentTypeSupported(String contentType) {
+    protected boolean isResourceTypeSupported(String contentType) {
         return CitationService.CITATION_LIST_ID.equals(contentType);
     }
 
