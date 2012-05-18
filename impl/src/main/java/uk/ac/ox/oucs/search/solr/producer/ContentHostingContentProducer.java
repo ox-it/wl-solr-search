@@ -18,11 +18,11 @@ import java.util.*;
  * @author Colin Hebert
  */
 public abstract class ContentHostingContentProducer implements EntityContentProducer {
-    private ServerConfigurationService serverConfigurationService;
-    private SearchService searchService;
-    private SearchIndexBuilder searchIndexBuilder;
-    private ContentHostingService contentHostingService;
-    private EntityManager entityManager;
+    protected ServerConfigurationService serverConfigurationService;
+    protected SearchService searchService;
+    protected SearchIndexBuilder searchIndexBuilder;
+    protected ContentHostingService contentHostingService;
+    protected EntityManager entityManager;
 
     public void init() {
         if (serverConfigurationService.getBoolean("search.enable", false)) {
