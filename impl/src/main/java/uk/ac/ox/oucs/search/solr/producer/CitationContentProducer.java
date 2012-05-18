@@ -54,4 +54,9 @@ public class CitationContentProducer extends ContentHostingContentProducer {
     public void setCitationService(CitationService citationService) {
         this.citationService = citationService;
     }
+
+    @Override
+    public boolean matches(String reference) {
+        return entityManager.newReference(reference).getEntityProducer() instanceof CitationService;
+    }
 }
