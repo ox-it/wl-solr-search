@@ -32,7 +32,7 @@ public class CitationContentProducer extends ContentHostingContentProducer {
     @Override
     public String getContent(String reference) {
         try {
-            String citationCollectionId  = new String(contentHostingService.getResource(getId(reference)).getContent());
+            String citationCollectionId = new String(contentHostingService.getResource(getId(reference)).getContent());
             CitationCollection collection = citationService.getCollection(citationCollectionId);
 
             StringBuilder sb = new StringBuilder();

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="uk.ac.ox.oucs.search.solr.entitybroker.SearchEntityProvider">
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
+</beans>
