@@ -48,7 +48,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public Integer getAction(Event event) {
-        if (!isContentTypeSupported(getResourceType(event.getResource())))
+        if (!isContentTypeSupported(getContentType(event.getResource())))
             return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
 
         String eventName = event.getEvent();
@@ -62,7 +62,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
         }
     }
 
-    private String getResourceType(String reference) {
+    private String getContentType(String reference) {
         try {
             return contentHostingService.getResource(getId(reference)).getContentType();
         } catch (IdUnusedException e) {
@@ -93,17 +93,40 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
         return new Iterator<String>() {
             Iterator<ContentResource> scIterator = siteContent.iterator();
+            String nextReference;
+            boolean hasNext = true;
+
+            {
+                checkForNext();
+            }
 
             public boolean hasNext() {
-                return scIterator.hasNext();
+                return hasNext;
             }
 
             public String next() {
-                return scIterator.next().getReference();
+                if(!hasNext)
+                    throw new NoSuchElementException();
+
+                String nextReference = this.nextReference;
+                checkForNext();
+                return nextReference;
             }
 
             public void remove() {
                 throw new UnsupportedOperationException("Remove is not implemented ");
+            }
+
+            private void checkForNext() {
+                while (scIterator.hasNext()) {
+                    String reference = scIterator.next().getReference();
+                    String contentType = getContentType(reference);
+                    if (isContentTypeSupported(contentType)) {
+                        nextReference = reference;
+                        return;
+                    }
+                }
+                hasNext = false;
             }
         };
     }
