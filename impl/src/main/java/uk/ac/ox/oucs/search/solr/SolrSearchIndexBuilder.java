@@ -362,19 +362,21 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             //Send to tika
             ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
             contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
-            contentStreamUpdateRequest.setParam("uprefix=property_tika_", SearchService.FIELD_CONTENTS);
-            contentStreamUpdateRequest.addContentStream(new ContentStreamBase() {
+            contentStreamUpdateRequest.setParam("uprefix", "property_tika_");
+            ContentStreamBase contentStreamBase = new ContentStreamBase() {
                 @Override
                 public InputStream getStream() throws IOException {
                     return binaryContentProducer.getContentStream(resourceName);
                 }
-            });
-            for (SolrInputField field : document)
+            };
+            contentStreamUpdateRequest.addContentStream(contentStreamBase);
+            for (SolrInputField field : document) {
+                contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
                 for (Object o : field) {
                     //The "sakai_" part is due to SOLR-3386, this fix should be temporary
                     contentStreamUpdateRequest.setParam(LITERAL + "sakai_" + field.getName(), o.toString());
-                    contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
                 }
+            }
             request = contentStreamUpdateRequest;
         } else if (contentProducer.isContentFromReader(resourceName)) {
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
