@@ -16,9 +16,7 @@
     </requestHandler>
     <requestHandler name="/update/extract" startup="lazy" class="solr.extraction.ExtractingRequestHandler">
         <lst name="defaults">
-            <str name="fmap.title">tika_title</str>
             <str name="lowernames">true</str>
-            <str name="uprefix">ignored_</str>
         </lst>
     </requestHandler>
 
