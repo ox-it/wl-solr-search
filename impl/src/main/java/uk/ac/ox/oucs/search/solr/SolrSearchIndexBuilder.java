@@ -340,7 +340,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
         if (m != null) {
             for (Map.Entry<String, ?> entry : m.entrySet()) {
-                String key = entry.getKey();
+                String solrField = toSolrFieldName(entry.getKey());
                 Object value = entry.getValue();
                 Collection<String> values;
 
@@ -353,7 +353,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 else
                     values = Collections.emptyList();
 
-                document.addField("property_" + key, values);
+                document.addField("property_" + solrField, values);
             }
         }
 
@@ -385,6 +385,24 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
 
         return request;
+    }
+
+    /**
+     * Replace special characters, turn to lower case and avoid repetitive '_'
+     * @param propertyName String to filter
+     * @return a filtered name more appropriate to use with solr
+     */
+    private String toSolrFieldName(String propertyName) {
+        StringBuilder sb = new StringBuilder(propertyName.length());
+        boolean lastUnderscore = false;
+        for (Character c : propertyName.toLowerCase().toCharArray()) {
+            if ((c < 'a' || c > 'z') && (c < '0' || c > '9'))
+                c = '_';
+            if (!lastUnderscore || c != '_')
+                sb.append(c);
+            lastUnderscore = (c == '_');
+        }
+        return sb.toString();
     }
 
     public void setSiteService(SiteService siteService) {
