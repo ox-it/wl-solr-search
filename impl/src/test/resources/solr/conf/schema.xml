@@ -51,7 +51,6 @@
 
         <dynamicField name="unknown_*" type="ignored" multiValued="true"/>
         <dynamicField name="property_*" type="text_en" indexed="true" stored="true" multiValued="true"/>
-        <dynamicField name="*" type="ignored" multiValued="true"/>
     </fields>
     <uniqueKey>id</uniqueKey>
     <defaultSearchField>text</defaultSearchField>
