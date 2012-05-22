@@ -19,6 +19,8 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
@@ -32,12 +34,16 @@ import java.util.*;
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String COMMON_TOOL_ID = "sakai.search";
     public static final String LITERAL = "literal.";
+    public static final String UPREFIX = "property_tika_";
+    public static final String SOLRCELL_PATH = "/update/extract";
+    private final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private final Collection<EntityContentProducer> entityContentProducers = new HashSet<EntityContentProducer>();
     private SiteService siteService;
     private SolrServer solrServer;
 
     @Override
     public void addResource(Notification notification, Event event) {
+        logger.debug("Attempt to add or remove a resource from the index");
         String resourceName = event.getResource();
         //Set the resource name to empty instead of null
         if (resourceName == null)
@@ -45,8 +51,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         EntityContentProducer entityContentProducer = newEntityContentProducer(event);
         //If there is no matching entity content producer or no associated site, return
-        if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null)
+        if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
+            logger.debug("Can't find an entityContentProducer for '" + resourceName + "'");
             return;
+        }
 
         String siteId = entityContentProducer.getSiteId(resourceName);
 
@@ -56,12 +64,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 if (siteService.getSite(siteId).getToolForCommonId(COMMON_TOOL_ID) == null)
                     return;
             } catch (Exception ex) {
+                logger.debug("Can't index content if the search tool isn't activated. Site: " + siteId);
                 return;
             }
         }
 
         try {
             ItemAction action = ItemAction.getAction(entityContentProducer.getAction(event));
+            logger.debug("Action on '" + resourceName + "' detected as " + action.name());
             SolrRequest request;
             switch (action) {
                 case ADD:
@@ -76,14 +86,15 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             solrServer.request(request);
             solrServer.commit();
         } catch (SolrServerException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.warn("Couldn't execute the request", e);
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.error("Can't contact the search server", e);
         }
     }
 
     @Override
     public void registerEntityContentProducer(EntityContentProducer ecp) {
+        logger.info(ecp.getClass() + " registered to provide content to the search index from " + ecp.getTool());
         entityContentProducers.add(ecp);
     }
 
@@ -114,33 +125,39 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
+        logger.info("Refreshing the index for '" + currentSiteId + "'");
         try {
-            //TODO: Obtain actual resources names!
             Collection<String> resourceNames = getResourceNames(currentSiteId);
+            logger.info(resourceNames.size() + " elements will be refreshed");
             removeSiteIndexContent(currentSiteId);
             for (String resourceName : resourceNames) {
                 EntityContentProducer entityContentProducer = newEntityContentProducer(resourceName);
 
                 //If there is no matching entity content producer or no associated site, skip the resource
                 //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
-                if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null)
+                if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
+                    logger.info("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
                     continue;
+                }
 
                 try {
                     solrServer.request(toSolrRequest(resourceName, entityContentProducer));
                 } catch (Exception e) {
-                    //Ignore document
+                    logger.warn("Unexpected exception while preparing the solr request for '" + resourceName + "'", e);
                 }
             }
 
             solrServer.commit();
-        } catch (Exception e) {
+        } catch (SolrServerException e) {
+            logger.warn("Couldn't refresh the index for site '" + currentSiteId + "'", e);
+        } catch (IOException e) {
+            logger.error("Couln't access the solr server", e);
         }
-
     }
 
     private Collection<String> getResourceNames(String currentSiteId) {
         try {
+            logger.debug("Obtaining indexed elements for site: '" + currentSiteId + "'");
             SolrQuery query = new SolrQuery()
                     .setQuery(SearchService.FIELD_SITEID + ':' + currentSiteId)
                     .addField(SearchService.FIELD_REFERENCE);
@@ -151,14 +168,16 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
             return resourceNames;
         } catch (SolrServerException e) {
+            logger.warn("Couldn't get indexed elements for site: '" + currentSiteId + "'", e);
             return Collections.emptyList();
         }
     }
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
-        removeSiteIndexContent(currentSiteId);
+        logger.info("Rebuilding the index for '" + currentSiteId + "'");
 
+        removeSiteIndexContent(currentSiteId);
         for (final EntityContentProducer entityContentProducer : getContentProducers()) {
             try {
                 Iterable<String> resourceNames = new Iterable<String>() {
@@ -172,27 +191,34 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                     try {
                         solrServer.request(toSolrRequest(resourceName, entityContentProducer));
                     } catch (Exception e) {
-                        //Ignore document
+                        logger.warn("Unexpected exception while preparing the solr request for '" + resourceName + "'", e);
                     }
                 }
 
                 solrServer.commit();
-            } catch (Exception e) {
-                //Oops?
+            } catch (SolrServerException e) {
+                logger.warn("Couldn't rebuild the index for site '" + currentSiteId + "'", e);
+            } catch (IOException e) {
+                logger.error("Couln't access the solr server", e);
             }
         }
     }
 
     private void removeSiteIndexContent(String currentSiteId) {
+        logger.info("Removing content for site '" + currentSiteId + "'");
         try {
             solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
             solrServer.commit();
-        } catch (Exception e) {
+        } catch (SolrServerException e) {
+            logger.warn("Couldn't clean the index for site '" + currentSiteId + "'", e);
+        } catch (IOException e) {
+            logger.error("Couln't access the solr server", e);
         }
     }
 
     @Override
     public void refreshIndex() {
+        logger.info("Refreshing the index for every indexable site");
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
             if (isSiteIndexable(s)) {
                 refreshIndex(s.getId());
@@ -207,6 +233,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex() {
+        logger.info("Rebuilding the index for every indexable site");
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
             if (isSiteIndexable(s)) {
                 rebuildIndex(s.getId());
@@ -215,6 +242,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     private boolean isSiteIndexable(Site s) {
+        logger.debug("Check if '" + s.getId() + "' is indexable.");
         // Do not index:
         //  - Special sites
         //  - Sites without the search tool (if the option is enabled)
@@ -320,6 +348,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     private SolrRequest toSolrRequest(final String resourceName, EntityContentProducer contentProducer) {
+        logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
         SolrInputDocument document = new SolrInputDocument();
 
@@ -344,11 +373,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
+            logger.debug("Create a SolrCell request");
             request = prepareSolrCellRequest(resourceName, (BinaryEntityContentProducer) contentProducer, document);
         } else if (contentProducer.isContentFromReader(resourceName)) {
+            logger.debug("Create a request with a Reader");
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
             request = new UpdateRequestReader().add(document);
         } else {
+            logger.debug("Create a request based on a String");
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(resourceName));
             request = new UpdateRequest().add(document);
         }
@@ -370,9 +402,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
                                                SolrInputDocument document) {
         //Send to tika
-        ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
+        ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
         contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
-        contentStreamUpdateRequest.setParam("uprefix", "property_tika_");
+        contentStreamUpdateRequest.setParam("uprefix", UPREFIX);
         ContentStreamBase contentStreamBase = new ContentStreamBase() {
             @Override
             public InputStream getStream() throws IOException {
@@ -399,18 +431,23 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         Map<String, Collection<String>> properties = new HashMap<String, Collection<String>>(m.size());
         for (Map.Entry<String, ?> propertyEntry : m.entrySet()) {
             String propertyName = toSolrFieldName(propertyEntry.getKey());
+            Object propertyValue = propertyEntry.getValue();
             Collection<String> values;
 
-            if (propertyEntry.getValue() instanceof String)
-                values = Collections.singleton((String) propertyEntry.getValue());
-            else if (propertyEntry.getValue() instanceof String[])
-                values = Arrays.asList((String[]) propertyEntry.getValue());
-            else if (propertyEntry.getValue() instanceof Collection)
-                values = (Collection<String>) propertyEntry.getValue();
-            else
+            if (propertyValue instanceof String)
+                values = Collections.singleton((String) propertyValue);
+            else if (propertyValue instanceof String[])
+                values = Arrays.asList((String[]) propertyValue);
+            else if (propertyValue instanceof Collection)
+                values = (Collection<String>) propertyValue;
+            else {
+                if (propertyValue != null)
+                    logger.warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored. " + propertyName.getClass());
                 values = Collections.emptyList();
+            }
 
             if (properties.containsKey(propertyName)) {
+                logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
                 values = new ArrayList<String>(values);
                 values.addAll(properties.get(propertyName));
             }
@@ -437,6 +474,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 sb.append(c);
             lastUnderscore = (c == '_');
         }
+        logger.debug("Transformed the '" + propertyName + "' property into: '" + sb + "'");
         return sb.toString();
     }
 
