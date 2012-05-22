@@ -6,8 +6,9 @@ import java.io.InputStream;
 
 /**
  * Adds the possibility to load a binary stream from {@link EntityContentProducer}.
- *
+ * <p>
  * This can be useful when the content has to be digested and indexed at the same time.
+ * </p>
  *
  * @author Colin Hebert
  */

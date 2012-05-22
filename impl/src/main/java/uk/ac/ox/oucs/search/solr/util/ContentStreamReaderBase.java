@@ -15,11 +15,11 @@ import java.io.Reader;
  * @author Colin Hebert
  */
 public abstract class ContentStreamReaderBase extends ContentStreamBase {
-    public abstract Reader getReader() throws IOException ;
+    public abstract Reader getReader() throws IOException;
 
     @Override
     public InputStream getStream() throws IOException {
-        String charset = getCharsetFromContentType( getContentType() );
+        String charset = getCharsetFromContentType(getContentType());
         return charset == null
                 ? new ReaderInputStream(getReader(), DEFAULT_CHARSET)
                 : new ReaderInputStream(getReader(), charset);

@@ -105,7 +105,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
             }
 
             public String next() {
-                if(!hasNext)
+                if (!hasNext)
                     throw new NoSuchElementException();
 
                 String nextReference = this.nextReference;

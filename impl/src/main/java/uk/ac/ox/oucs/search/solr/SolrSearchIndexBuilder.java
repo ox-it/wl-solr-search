@@ -391,6 +391,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     /**
      * Replace special characters, turn to lower case and avoid repetitive '_'
+     *
      * @param propertyName String to filter
      * @return a filtered name more appropriate to use with solr
      */

@@ -1,7 +1,6 @@
 package uk.ac.ox.oucs.search.solr.producer;
 
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
 
 import java.io.InputStream;

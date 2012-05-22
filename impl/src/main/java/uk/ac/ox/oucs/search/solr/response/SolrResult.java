@@ -80,9 +80,9 @@ public class SolrResult implements SearchResult {
     @Override
     public String getSearchResult() {
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry<String, List<String>> fieldEntry : highlights.entrySet()){
+        for (Map.Entry<String, List<String>> fieldEntry : highlights.entrySet()) {
             sb.append(fieldEntry.getKey()).append(": ");
-            for(String highlight : fieldEntry.getValue())
+            for (String highlight : fieldEntry.getValue())
                 sb.append(highlight).append("... ");
         }
         return sb.toString();
@@ -137,6 +137,7 @@ public class SolrResult implements SearchResult {
 
     @Override
     public boolean hasPortalUrl() {
+        //TODO: Implement this method
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -175,7 +176,7 @@ public class SolrResult implements SearchResult {
         SortedSet<Map.Entry<String, Long>> sortedFrequencies = new TreeSet<Map.Entry<String, Long>>(new Comparator<Map.Entry<String, Long>>() {
             @Override
             public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
-                int longComparison = - o1.getValue().compareTo(o2.getValue());
+                int longComparison = -o1.getValue().compareTo(o2.getValue());
                 return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
             }
         });
