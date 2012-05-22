@@ -12,6 +12,8 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.*;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.filter.SearchItemFilter;
 import uk.ac.ox.oucs.search.solr.notification.SearchNotificationAction;
 import uk.ac.ox.oucs.search.solr.response.SolrSearchList;
@@ -23,6 +25,7 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class SolrSearchService implements SearchService {
+    private final Logger logger = LoggerFactory.getLogger(SolrSearchService.class);
     private SolrServer solrServer;
     private NotificationEdit notification;
     private SearchIndexBuilder searchIndexBuilder;
@@ -40,6 +43,7 @@ public class SolrSearchService implements SearchService {
      * index
      */
     public void init() {
+        logger.debug("Register a notification to trigger indexation on new elements");
         // register a transient notification for resources
         notification = notificationService.addTransientNotification();
 
@@ -64,7 +68,6 @@ public class SolrSearchService implements SearchService {
     @Override
     public SearchList search(String searchTerms, List<String> contexts, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
         try {
-            //TODO: Handle filterName, sorterName
             SolrQuery query = new SolrQuery();
 
             query.setStart(start);
@@ -93,16 +96,18 @@ public class SolrSearchService implements SearchService {
                 query.setFilterQueries(sb.toString());
             }
 
+            logger.debug("Searching with Solr : " + searchTerms);
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
             return new SolrSearchList(rsp, searchItemFilter);
         } catch (SolrServerException e) {
-            throw new RuntimeException(e);
+            throw new InvalidSearchQueryException("Failed to parse Query ", e);
         }
     }
 
     @Override
     public void registerFunction(String function) {
+        logger.info("Register " + function + " as a trigger for the search service");
         notification.addFunction(function);
     }
 
@@ -133,6 +138,7 @@ public class SolrSearchService implements SearchService {
     @Override
     public String getStatus() {
         try {
+            logger.debug("Obtaining search server status");
             return String.valueOf(new SolrPing().process(solrServer).getStatus());
         } catch (Exception e) {
             return e.getLocalizedMessage();
@@ -142,6 +148,7 @@ public class SolrSearchService implements SearchService {
     @Override
     public int getNDocs() {
         try {
+            logger.debug("Obtaining the number of documents available on the server");
             QueryResponse rsp = solrServer.query(new SolrQuery().setRows(0).setQuery("*:*"));
             return (int) rsp.getResults().getNumFound();
         } catch (SolrServerException e) {
@@ -246,6 +253,7 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public String getSearchSuggestion(String searchString) {
+        logger.debug("Search a suggestion for : " + searchString);
         try {
             ModifiableSolrParams params = new ModifiableSolrParams();
             params.set("qt", "/spell");
@@ -257,6 +265,7 @@ public class SolrSearchService implements SearchService {
             SpellCheckResponse spellCheckResponse = response.getSpellCheckResponse();
             return spellCheckResponse.isCorrectlySpelled() ? null : spellCheckResponse.getCollatedResult();
         } catch (SolrServerException e) {
+            logger.warn("Failed to obtain a suggestion", e);
             return null;
         }
     }
