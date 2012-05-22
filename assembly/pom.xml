@@ -16,6 +16,10 @@
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>solr-pack</artifactId>
             <type>sakai-component</type>
