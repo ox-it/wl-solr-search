@@ -336,48 +336,15 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         document.addField(SearchService.FIELD_URL, contentProducer.getUrl(resourceName));
         document.addField(SearchService.FIELD_SITEID, contentProducer.getSiteId(resourceName));
 
-        // add the custom properties
-        Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
-        if (m != null) {
-            for (Map.Entry<String, ?> entry : m.entrySet()) {
-                String solrField = toSolrFieldName(entry.getKey());
-                Object value = entry.getValue();
-                Collection<String> values;
-
-                if (value instanceof String)
-                    values = Collections.singleton((String) value);
-                else if (value instanceof String[])
-                    values = Arrays.asList((String[]) value);
-                else if (value instanceof Collection)
-                    values = (Collection<String>) value;
-                else
-                    values = Collections.emptyList();
-
-                document.addField("property_" + solrField, values);
-            }
+        //Add the custom properties
+        Map<String, Collection<String>> properties = extractCustomProperties(resourceName, contentProducer);
+        for (Map.Entry<String, Collection<String>> entry : properties.entrySet()) {
+            document.addField("property_" + entry.getKey(), entry.getValue());
         }
 
+        //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
-            final BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
-            //Send to tika
-            ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
-            contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
-            contentStreamUpdateRequest.setParam("uprefix", "property_tika_");
-            ContentStreamBase contentStreamBase = new ContentStreamBase() {
-                @Override
-                public InputStream getStream() throws IOException {
-                    return binaryContentProducer.getContentStream(resourceName);
-                }
-            };
-            contentStreamUpdateRequest.addContentStream(contentStreamBase);
-            for (SolrInputField field : document) {
-                contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
-                for (Object o : field) {
-                    //The "sakai_" part is due to SOLR-3386, this fix should be temporary
-                    contentStreamUpdateRequest.setParam(LITERAL + "sakai_" + field.getName(), o.toString());
-                }
-            }
-            request = contentStreamUpdateRequest;
+            request = prepareSolrCellRequest(resourceName, (BinaryEntityContentProducer) contentProducer, document);
         } else if (contentProducer.isContentFromReader(resourceName)) {
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
             request = new UpdateRequestReader().add(document);
@@ -387,6 +354,71 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
 
         return request;
+    }
+
+    /**
+     * Prepare a request toward SolrCell to parse a binary document.
+     * <p>
+     * The given document will be send in its binary form to apache tika to be analysed and stored in the index.
+     * </p>
+     *
+     * @param resourceName    name of the document
+     * @param contentProducer associated content producer providing a binary stream of data
+     * @param document        {@link SolrInputDocument} used to prepare index fields
+     * @return a solrCell request
+     */
+    private SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
+                                               SolrInputDocument document) {
+        //Send to tika
+        ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest("/update/extract");
+        contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
+        contentStreamUpdateRequest.setParam("uprefix", "property_tika_");
+        ContentStreamBase contentStreamBase = new ContentStreamBase() {
+            @Override
+            public InputStream getStream() throws IOException {
+                return contentProducer.getContentStream(resourceName);
+            }
+        };
+        contentStreamUpdateRequest.addContentStream(contentStreamBase);
+        for (SolrInputField field : document) {
+            contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
+            for (Object o : field) {
+                //The "sakai_" part is due to SOLR-3386, this fix should be temporary
+                contentStreamUpdateRequest.setParam(LITERAL + "sakai_" + field.getName(), o.toString());
+            }
+        }
+        return contentStreamUpdateRequest;
+    }
+
+    private Map<String, Collection<String>> extractCustomProperties(String resourceName, EntityContentProducer contentProducer) {
+        Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
+
+        if (m == null)
+            return Collections.emptyMap();
+
+        Map<String, Collection<String>> properties = new HashMap<String, Collection<String>>(m.size());
+        for (Map.Entry<String, ?> propertyEntry : m.entrySet()) {
+            String propertyName = toSolrFieldName(propertyEntry.getKey());
+            Collection<String> values;
+
+            if (propertyEntry.getValue() instanceof String)
+                values = Collections.singleton((String) propertyEntry.getValue());
+            else if (propertyEntry.getValue() instanceof String[])
+                values = Arrays.asList((String[]) propertyEntry.getValue());
+            else if (propertyEntry.getValue() instanceof Collection)
+                values = (Collection<String>) propertyEntry.getValue();
+            else
+                values = Collections.emptyList();
+
+            if (properties.containsKey(propertyName)) {
+                values = new ArrayList<String>(values);
+                values.addAll(properties.get(propertyName));
+            }
+
+            properties.put(propertyName, values);
+        }
+
+        return properties;
     }
 
     /**
