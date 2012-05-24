@@ -34,7 +34,8 @@ import java.util.*;
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String COMMON_TOOL_ID = "sakai.search";
     public static final String LITERAL = "literal.";
-    public static final String UPREFIX = "property_tika_";
+    public static final String PROPERTY_PREFIX = "property_";
+    public static final String UPREFIX = PROPERTY_PREFIX+"tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
     private final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private final Collection<EntityContentProducer> entityContentProducers = new HashSet<EntityContentProducer>();
@@ -368,7 +369,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         //Add the custom properties
         Map<String, Collection<String>> properties = extractCustomProperties(resourceName, contentProducer);
         for (Map.Entry<String, Collection<String>> entry : properties.entrySet()) {
-            document.addField("property_" + entry.getKey(), entry.getValue());
+            document.addField(PROPERTY_PREFIX + entry.getKey(), entry.getValue());
         }
 
         //Prepare the actual request based on a stream/reader/string
