@@ -48,7 +48,6 @@
         <module>assembly</module>
         <module>impl</module>
         <module>pack</module>
-        <module>compatibility</module>
     </modules>
 
     <dependencyManagement>
