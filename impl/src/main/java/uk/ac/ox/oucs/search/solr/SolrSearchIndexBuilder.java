@@ -41,6 +41,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private final Collection<EntityContentProducer> entityContentProducers = new HashSet<EntityContentProducer>();
     private SiteService siteService;
     private SolrServer solrServer;
+    private boolean searchToolRequired;
 
     @Override
     public void addResource(Notification notification, Event event) {
@@ -275,7 +276,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
      */
     @Override
     public boolean isOnlyIndexSearchToolSites() {
-        return true;
+        return searchToolRequired;
     }
 
     @Override
@@ -485,5 +486,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setSolrServer(SolrServer solrServer) {
         this.solrServer = solrServer;
+    }
+
+    public void setSearchToolRequired(boolean searchToolRequired) {
+        this.searchToolRequired = searchToolRequired;
     }
 }

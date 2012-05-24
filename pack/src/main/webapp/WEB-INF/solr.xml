@@ -20,6 +20,12 @@
           class="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="solrServer" ref="solrIndexingServer"/>
+        <property name="searchToolRequired">
+            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getBoolean">
+                <constructor-arg value="search.tool.required"/>
+                <constructor-arg value="true"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
