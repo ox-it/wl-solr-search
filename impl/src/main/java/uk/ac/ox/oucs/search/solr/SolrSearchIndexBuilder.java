@@ -11,6 +11,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.ContentStreamBase;
+import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -22,6 +23,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
+import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
 import java.io.IOException;
@@ -262,8 +264,22 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public int getPendingDocuments() {
-        //TODO: If documents are handled by SolR we don't have any pending document
-        return 0;
+        try {
+            AdminStatRequest adminStatRequest = new AdminStatRequest();
+            adminStatRequest.setParam("key", "updateHandler");
+            NamedList<Object> result = solrServer.request(adminStatRequest);
+            NamedList<Object> mbeans = (NamedList<Object>) result.get("solr-mbeans");
+            NamedList<Object> updateHandler = (NamedList<Object>) mbeans.get("UPDATEHANDLER");
+            NamedList<Object> updateHandler2 = (NamedList<Object>) updateHandler.get("updateHandler");
+            NamedList<Object> stats = (NamedList<Object>) updateHandler2.get("stats");
+            return ((Long) stats.get("docsPending")).intValue();
+        } catch (SolrServerException e) {
+            logger.warn("Couldn't obtain the number of pending documents", e);
+            return 0;
+        } catch (IOException e) {
+            logger.error("Couln't access the solr server", e);
+            return 0;
+        }
     }
 
     @Override
