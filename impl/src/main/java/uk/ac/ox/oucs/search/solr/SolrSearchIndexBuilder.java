@@ -37,7 +37,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String COMMON_TOOL_ID = "sakai.search";
     public static final String LITERAL = "literal.";
     public static final String PROPERTY_PREFIX = "property_";
-    public static final String UPREFIX = PROPERTY_PREFIX+"tika_";
+    public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
     private final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private final Collection<EntityContentProducer> entityContentProducers = new HashSet<EntityContentProducer>();
@@ -125,6 +125,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public List<EntityContentProducer> getContentProducers() {
+        //A new list is created to avoid concurrent modification.
         return new ArrayList<EntityContentProducer>(entityContentProducers);
     }
 
@@ -132,9 +133,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex(String currentSiteId) {
         logger.info("Refreshing the index for '" + currentSiteId + "'");
         try {
+            //Get the currently indexed resources for this site
             Collection<String> resourceNames = getResourceNames(currentSiteId);
             logger.info(resourceNames.size() + " elements will be refreshed");
-            removeSiteIndexContent(currentSiteId);
+            cleanSiteIndex(currentSiteId);
             for (String resourceName : resourceNames) {
                 EntityContentProducer entityContentProducer = newEntityContentProducer(resourceName);
 
@@ -160,11 +162,17 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
-    private Collection<String> getResourceNames(String currentSiteId) {
+    /**
+     * Get all indexed resources for a site
+     *
+     * @param siteId Site containing indexed resources
+     * @return a collection of resource references or an empty collection if no resource was found
+     */
+    private Collection<String> getResourceNames(String siteId) {
         try {
-            logger.debug("Obtaining indexed elements for site: '" + currentSiteId + "'");
+            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
             SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_SITEID + ':' + currentSiteId)
+                    .setQuery(SearchService.FIELD_SITEID + ':' + siteId)
                     .addField(SearchService.FIELD_REFERENCE);
             SolrDocumentList results = solrServer.query(query).getResults();
             Collection<String> resourceNames = new ArrayList<String>(results.size());
@@ -173,7 +181,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
             return resourceNames;
         } catch (SolrServerException e) {
-            logger.warn("Couldn't get indexed elements for site: '" + currentSiteId + "'", e);
+            logger.warn("Couldn't get indexed elements for site: '" + siteId + "'", e);
             return Collections.emptyList();
         }
     }
@@ -182,7 +190,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void rebuildIndex(final String currentSiteId) {
         logger.info("Rebuilding the index for '" + currentSiteId + "'");
 
-        removeSiteIndexContent(currentSiteId);
+        cleanSiteIndex(currentSiteId);
         for (final EntityContentProducer entityContentProducer : getContentProducers()) {
             try {
                 Iterable<String> resourceNames = new Iterable<String>() {
@@ -209,13 +217,17 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
-    private void removeSiteIndexContent(String currentSiteId) {
-        logger.info("Removing content for site '" + currentSiteId + "'");
+    /**
+     * Remove every indexed content belonging to a site
+     *
+     * @param siteId indexed site
+     */
+    private void cleanSiteIndex(String siteId) {
+        logger.info("Removing content for site '" + siteId + "'");
         try {
-            solrServer.request(new UpdateRequest().deleteByQuery(SearchService.FIELD_SITEID + ':' + currentSiteId));
-            solrServer.commit();
+            solrServer.deleteByQuery(SearchService.FIELD_SITEID + ':' + siteId);
         } catch (SolrServerException e) {
-            logger.warn("Couldn't clean the index for site '" + currentSiteId + "'", e);
+            logger.warn("Couldn't clean the index for site '" + siteId + "'", e);
         } catch (IOException e) {
             logger.error("Couln't access the solr server", e);
         }
@@ -246,15 +258,25 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
-    private boolean isSiteIndexable(Site s) {
-        logger.debug("Check if '" + s.getId() + "' is indexable.");
-        // Do not index:
-        //  - Special sites
-        //  - Sites without the search tool (if the option is enabled)
-        //  - User sites (if the option is enabled)
-        return !(siteService.isSpecialSite(s.getId()) ||
-                (isOnlyIndexSearchToolSites() && s.getToolForCommonId("sakai.search") == null) ||
-                (isExcludeUserSites() && siteService.isUserSite(s.getId())));
+    /**
+     * Check if a site is considered as indexable based on the current server configuration.
+     * <p>
+     * Not indexable sites are:
+     * <ul>
+     * <li>Special sites</li>
+     * <li>Sites without the search tool (if the option is enabled)</li>
+     * <li>User sites (if the option is enabled)</li>
+     * </ul>
+     * </p>
+     *
+     * @param site site which may be indexable
+     * @return true if the site can be index, false otherwise
+     */
+    private boolean isSiteIndexable(Site site) {
+        logger.debug("Check if '" + site.getId() + "' is indexable.");
+        return !(siteService.isSpecialSite(site.getId()) ||
+                (isOnlyIndexSearchToolSites() && site.getToolForCommonId("sakai.search") == null) ||
+                (isExcludeUserSites() && siteService.isUserSite(site.getId())));
     }
 
     @Override
@@ -287,9 +309,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         return ignoreUserSites;
     }
 
-    /**
-     * Enable indexing only on sites with the search tool enabled
-     */
     @Override
     public boolean isOnlyIndexSearchToolSites() {
         return searchToolRequired;
@@ -298,19 +317,19 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     @Override
     public List<SearchBuilderItem> getGlobalMasterSearchItems() {
         //TODO: Don't return any item now as the indexing is handled by solr
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public List<SearchBuilderItem> getAllSearchItems() {
         //TODO: Don't return any item now as the indexing is handled by solr
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public List<SearchBuilderItem> getSiteMasterSearchItems() {
         //TODO: Don't return any item now as the indexing is handled by solr
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public static enum ItemAction {
@@ -365,6 +384,13 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
+    /**
+     * Generate a  {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
+     *
+     * @param resourceName    resource to index
+     * @param contentProducer content producer associated with the resource
+     * @return an update request for the resource
+     */
     private SolrRequest toSolrRequest(final String resourceName, EntityContentProducer contentProducer) {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
@@ -440,6 +466,18 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         return contentStreamUpdateRequest;
     }
 
+    /**
+     * Extract properties from the {@link EntityContentProducer}
+     * <p>
+     * The {@link EntityContentProducer#getCustomProperties(String)} method returns a map of different kind of elements.
+     * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work and returns a formated
+     * map containing only {@link Collection<String>}.
+     * </p>
+     *
+     * @param resourceName    affected resource
+     * @param contentProducer producer providing properties for the given resource
+     * @return a formated map of {@link Collection<String>}
+     */
     private Map<String, Collection<String>> extractCustomProperties(String resourceName, EntityContentProducer contentProducer) {
         Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
 
@@ -452,6 +490,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             Object propertyValue = propertyEntry.getValue();
             Collection<String> values;
 
+            //Check for basic data type that could be provided by the EntityContentProducer
+            //If the data type can't be defined, nothing is stored. The toString method could be called, but some values
+            //could be not meant to be indexed.
             if (propertyValue instanceof String)
                 values = Collections.singleton((String) propertyValue);
             else if (propertyValue instanceof String[])
@@ -464,6 +505,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 values = Collections.emptyList();
             }
 
+            //If this property was already present there (this shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
                 logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
                 values = new ArrayList<String>(values);
