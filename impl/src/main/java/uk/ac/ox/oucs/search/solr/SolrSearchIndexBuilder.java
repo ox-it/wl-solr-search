@@ -42,6 +42,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private SiteService siteService;
     private SolrServer solrServer;
     private boolean searchToolRequired;
+    private boolean ignoreUserSites;
 
     @Override
     public void addResource(Notification notification, Event event) {
@@ -267,8 +268,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public boolean isExcludeUserSites() {
-        //TODO: In the first time, user sites aren't a part of rebuilds
-        return true;
+        return ignoreUserSites;
     }
 
     /**
@@ -490,5 +490,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setSearchToolRequired(boolean searchToolRequired) {
         this.searchToolRequired = searchToolRequired;
+    }
+
+    public void setIgnoreUserSites(boolean ignoreUserSites) {
+        this.ignoreUserSites = ignoreUserSites;
     }
 }

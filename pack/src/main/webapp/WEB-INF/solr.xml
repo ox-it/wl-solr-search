@@ -26,6 +26,12 @@
                 <constructor-arg value="true"/>
             </bean>
         </property>
+        <property name="ignoreUserSites">
+            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getBoolean">
+                <constructor-arg value="search.usersites.ignored"/>
+                <constructor-arg value="true"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
