@@ -29,6 +29,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
             searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_ADD);
             searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_WRITE);
             searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_REMOVE);
+            //TODO: Replace this with a registration on a factory
             searchIndexBuilder.registerEntityContentProducer(this);
         }
     }

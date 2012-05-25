@@ -11,7 +11,7 @@
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="searchItemFilter">
             <bean class="uk.ac.ox.oucs.search.solr.filter.SecuritySearchFilter">
-                <constructor-arg ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+                <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
             </bean>
         </property>
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
@@ -38,7 +38,7 @@
 
     <bean id="uk.ac.ox.oucs.search.solr.ContentProducerFactory" class="uk.ac.ox.oucs.search.solr.ContentProducerFactory" />
 
-    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
         <constructor-arg>
             <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getString">
                 <constructor-arg value="solr.server"/>

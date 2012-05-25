@@ -49,6 +49,7 @@ public class SiteContentProducer implements EntityContentProducer {
             for (String removeEvent : removeEvents) {
                 searchService.registerFunction(removeEvent);
             }
+            //TODO: Replace this with a registration on a factory
             searchIndexBuilder.registerEntityContentProducer(this);
         }
     }

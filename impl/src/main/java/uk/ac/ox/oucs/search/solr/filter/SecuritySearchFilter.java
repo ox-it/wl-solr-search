@@ -4,24 +4,21 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.TermFrequency;
+import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
 public class SecuritySearchFilter implements SearchItemFilter {
-    private final SearchIndexBuilder searchIndexBuilder;
     public static final SearchResult censoredSearchResult = new CensoredSearchResult();
-
-    public SecuritySearchFilter(SearchIndexBuilder searchIndexBuilder) {
-        this.searchIndexBuilder = searchIndexBuilder;
-    }
+    private ContentProducerFactory contentProducerFactory;
 
     @Override
     public SearchResult filter(SearchResult result) {
         String reference = result.getReference();
-        EntityContentProducer ecp = searchIndexBuilder.newEntityContentProducer(reference);
-        return ecp == null || !ecp.canRead(reference) ? censoredSearchResult : result;
+        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
+        return contentProducer == null || !contentProducer.canRead(reference) ? censoredSearchResult : result;
     }
 
 
@@ -120,5 +117,9 @@ public class SecuritySearchFilter implements SearchItemFilter {
         public boolean hasPortalUrl() {
             return false;
         }
+    }
+
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
     }
 }

@@ -98,21 +98,37 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     @Override
+    @Deprecated
+    /**
+     * @deprecated Use {@link ContentProducerFactory#addContentProducer(org.sakaiproject.search.api.EntityContentProducer)} instead
+     */
     public void registerEntityContentProducer(EntityContentProducer ecp) {
         contentProducerFactory.addContentProducer(ecp);
     }
 
     @Override
+    @Deprecated
+    /**
+     * @deprecated Use {@link ContentProducerFactory#getContentProducerForElement(String)} instead
+     */
     public EntityContentProducer newEntityContentProducer(String ref) {
         return contentProducerFactory.getContentProducerForElement(ref);
     }
 
     @Override
+    @Deprecated
+    /**
+     * @deprecated Use {@link ContentProducerFactory#getContentProducerForEvent(org.sakaiproject.event.api.Event)} instead
+     */
     public EntityContentProducer newEntityContentProducer(Event event) {
         return contentProducerFactory.getContentProducerForEvent(event);
     }
 
     @Override
+    @Deprecated
+    /**
+     * @deprecated Use {@link ContentProducerFactory#getContentProducers()} instead
+     */
     public List<EntityContentProducer> getContentProducers() {
         return new ArrayList<EntityContentProducer>(contentProducerFactory.getContentProducers());
     }
@@ -179,7 +195,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         logger.info("Rebuilding the index for '" + currentSiteId + "'");
 
         cleanSiteIndex(currentSiteId);
-        for (final EntityContentProducer entityContentProducer : getContentProducers()) {
+        for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
             try {
                 Iterable<String> resourceNames = new Iterable<String>() {
                     @Override

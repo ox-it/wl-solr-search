@@ -44,15 +44,15 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
 
         solrSearchIndexBuilder = new SolrSearchIndexBuilder();
+        ContentProducerFactory contentProducerFactory = new ContentProducerFactory();
         SiteService siteService = mock(SiteService.class);
-        binaryContentProducer = mock(BinaryEntityContentProducer.class);
-        contentProducer = mock(EntityContentProducer.class);
+        contentProducerFactory.addContentProducer(mock(BinaryEntityContentProducer.class));
+        contentProducerFactory.addContentProducer(mock(EntityContentProducer.class));
         notification = mock(Notification.class);
 
         solrSearchIndexBuilder.setSolrServer(solrServer);
         solrSearchIndexBuilder.setSiteService(siteService);
-        solrSearchIndexBuilder.registerEntityContentProducer(binaryContentProducer);
-        solrSearchIndexBuilder.registerEntityContentProducer(contentProducer);
+        solrSearchIndexBuilder.setContentProducerFactory(contentProducerFactory);
 
         // SiteService think that all sites have the search tool enabled
         when(siteService.getSite(anyString())).then(new Answer<Site>() {
