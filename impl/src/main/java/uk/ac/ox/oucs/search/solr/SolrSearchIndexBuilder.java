@@ -40,9 +40,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
     private final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
-    private final Collection<EntityContentProducer> entityContentProducers = new HashSet<EntityContentProducer>();
     private SiteService siteService;
     private SolrServer solrServer;
+    private ContentProducerFactory contentProducerFactory;
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
 
@@ -54,7 +54,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         if (resourceName == null)
             resourceName = "";
 
-        EntityContentProducer entityContentProducer = newEntityContentProducer(event);
+        EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForEvent(event);
         //If there is no matching entity content producer or no associated site, return
         if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
             logger.debug("Can't find an entityContentProducer for '" + resourceName + "'");
@@ -99,34 +99,22 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void registerEntityContentProducer(EntityContentProducer ecp) {
-        logger.info(ecp.getClass() + " registered to provide content to the search index from " + ecp.getTool());
-        entityContentProducers.add(ecp);
+        contentProducerFactory.addContentProducer(ecp);
     }
 
     @Override
     public EntityContentProducer newEntityContentProducer(String ref) {
-        for (EntityContentProducer ecp : entityContentProducers) {
-            if (ecp.matches(ref)) {
-                return ecp;
-            }
-        }
-        return null;
+        return contentProducerFactory.getContentProducerForElement(ref);
     }
 
     @Override
     public EntityContentProducer newEntityContentProducer(Event event) {
-        for (EntityContentProducer ecp : entityContentProducers) {
-            if (ecp.matches(event)) {
-                return ecp;
-            }
-        }
-        return null;
+        return contentProducerFactory.getContentProducerForEvent(event);
     }
 
     @Override
     public List<EntityContentProducer> getContentProducers() {
-        //A new list is created to avoid concurrent modification.
-        return new ArrayList<EntityContentProducer>(entityContentProducers);
+        return new ArrayList<EntityContentProducer>(contentProducerFactory.getContentProducers());
     }
 
     @Override
@@ -138,7 +126,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             logger.info(resourceNames.size() + " elements will be refreshed");
             cleanSiteIndex(currentSiteId);
             for (String resourceName : resourceNames) {
-                EntityContentProducer entityContentProducer = newEntityContentProducer(resourceName);
+                EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
 
                 //If there is no matching entity content producer or no associated site, skip the resource
                 //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
@@ -552,5 +540,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setIgnoreUserSites(boolean ignoreUserSites) {
         this.ignoreUserSites = ignoreUserSites;
+    }
+
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
     }
 }

@@ -14,6 +14,7 @@
                 <constructor-arg ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
             </bean>
         </property>
+        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
     </bean>
 
     <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
@@ -32,7 +33,10 @@
                 <constructor-arg value="true"/>
             </bean>
         </property>
+        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
     </bean>
+
+    <bean id="uk.ac.ox.oucs.search.solr.ContentProducerFactory" class="uk.ac.ox.oucs.search.solr.ContentProducerFactory" />
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
         <constructor-arg>

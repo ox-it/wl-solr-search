@@ -3,32 +3,44 @@ package uk.ac.ox.oucs.search.solr.response;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.solr.common.SolrDocument;
-import org.sakaiproject.search.api.SearchResult;
-import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.api.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-import static uk.ac.ox.oucs.search.solr.response.QueryResponseTermVectorExtractor.TermInfo;
+import static uk.ac.ox.oucs.search.solr.response.TermVectorExtractor.TermInfo;
 
 /**
  * @author Colin Hebert
  */
 public class SolrResult implements SearchResult {
     public static final String SCORE_FIELD = "score";
-    private final int index;
-    private final SolrDocument document;
-    private final Map<String, List<String>> highlights;
-    private final TermFrequency terms;
+    private int index;
+    private SolrDocument document;
+    private Map<String, List<String>> highlights;
+    private TermFrequency terms;
     private String newUrl;
+    private EntityContentProducer contentProducer;
 
-    public SolrResult(int index, SolrDocument document, Map<String, List<String>> highlights, Map<String, Map<String, TermInfo>> terms) {
+    public void setIndex(int index) {
         this.index = index;
+    }
+
+    public void setDocument(SolrDocument document) {
         this.document = document;
-        this.highlights = highlights;
+    }
+
+    public void setTerms(Map<String, Map<String, TermInfo>> terms) {
         this.terms = extractTermFrequency(terms);
+    }
+
+    public void setHighlights(Map<String, List<String>> highlights) {
+        this.highlights = highlights;
+    }
+
+    public void setContentProducer(EntityContentProducer contentProducer) {
+        this.contentProducer = contentProducer;
     }
 
     @Override
@@ -137,8 +149,7 @@ public class SolrResult implements SearchResult {
 
     @Override
     public boolean hasPortalUrl() {
-        //TODO: Implement this method
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return contentProducer instanceof PortalUrlEnabledProducer;
     }
 
     private static String[] collectionToStringArray(Collection<?> objectValues) {

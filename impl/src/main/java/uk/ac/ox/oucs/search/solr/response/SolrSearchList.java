@@ -7,11 +7,12 @@ import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.filter.SearchItemFilter;
 
 import java.util.*;
 
-import static uk.ac.ox.oucs.search.solr.response.QueryResponseTermVectorExtractor.TermInfo;
+import static uk.ac.ox.oucs.search.solr.response.TermVectorExtractor.TermInfo;
 
 /**
  * @author Colin Hebert
@@ -21,7 +22,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
     private final QueryResponse rsp;
     private final int start;
 
-    public SolrSearchList(QueryResponse rsp, SearchItemFilter filter) {
+    public SolrSearchList(QueryResponse rsp, SearchItemFilter filter, ContentProducerFactory contentProducerFactory) {
         this.rsp = rsp;
 
         //Get the 'start' value. If not set, use 0
@@ -30,15 +31,22 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
 
         solrResults = new ArrayList<SearchResult>(rsp.getResults().size());
 
-        //Extract TermVector informations from the response
-        QueryResponseTermVectorExtractor qrtve = new QueryResponseTermVectorExtractor(rsp);
-        Map<String, Map<String, Map<String, TermInfo>>> termsPerDocument = qrtve.getTermVectorInfo();
+        //Extract TermVector information from the response
+        TermVectorExtractor termVectorExtractor = new TermVectorExtractor(rsp);
+        Map<String, Map<String, Map<String, TermInfo>>> termsPerDocument = termVectorExtractor.getTermVectorInfo();
 
         for (SolrDocument document : rsp.getResults()) {
             String id = (String) document.getFieldValue(SearchService.FIELD_ID);
-            Map<String, List<String>> highlight = rsp.getHighlighting().get(id);
-            Map<String, Map<String, TermInfo>> terms = termsPerDocument.get(id);
-            solrResults.add(filter.filter(new SolrResult(solrResults.size(), document, highlight, terms)));
+            String reference = (String) document.getFieldValue(SearchService.FIELD_REFERENCE);
+
+            SolrResult solrResult = new SolrResult();
+            solrResult.setIndex(solrResults.size());
+            solrResult.setDocument(document);
+            solrResult.setHighlights(rsp.getHighlighting().get(id));
+            solrResult.setTerms(termsPerDocument.get(id));
+            solrResult.setContentProducer(contentProducerFactory.getContentProducerForElement(reference));
+
+            solrResults.add(filter.filter(solrResult));
         }
     }
 

@@ -29,6 +29,7 @@ public class SolrSearchService implements SearchService {
     private SolrServer solrServer;
     private NotificationEdit notification;
     private SearchIndexBuilder searchIndexBuilder;
+    private ContentProducerFactory contentProducerFactory;
     private List<String> triggerFunctions;
     private NotificationService notificationService;
     private SearchItemFilter searchItemFilter = new SearchItemFilter() {
@@ -99,7 +100,7 @@ public class SolrSearchService implements SearchService {
             logger.debug("Searching with Solr : " + searchTerms);
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
-            return new SolrSearchList(rsp, searchItemFilter);
+            return new SolrSearchList(rsp, searchItemFilter, contentProducerFactory);
         } catch (SolrServerException e) {
             throw new InvalidSearchQueryException("Failed to parse Query ", e);
         }
@@ -307,5 +308,9 @@ public class SolrSearchService implements SearchService {
 
     public void setNotificationService(NotificationService notificationService) {
         this.notificationService = notificationService;
+    }
+
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
     }
 }
