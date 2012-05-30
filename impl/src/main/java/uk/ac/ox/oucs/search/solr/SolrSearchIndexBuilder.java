@@ -29,6 +29,7 @@ import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 /**
  * @author Colin Hebert
@@ -45,6 +46,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private ContentProducerFactory contentProducerFactory;
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
+    private Executor indexingExecutor;
 
     @Override
     public void addResource(Notification notification, Event event) {
@@ -74,27 +76,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
         }
 
-        try {
-            ItemAction action = ItemAction.getAction(entityContentProducer.getAction(event));
-            logger.debug("Action on '" + resourceName + "' detected as " + action.name());
-            SolrRequest request;
-            switch (action) {
-                case ADD:
-                    request = toSolrRequest(resourceName, entityContentProducer);
-                    break;
-                case DELETE:
-                    request = new UpdateRequest().deleteById(entityContentProducer.getId(resourceName));
-                    break;
-                default:
-                    throw new UnsupportedOperationException(action + " is not yet supported");
-            }
-            solrServer.request(request);
-            solrServer.commit();
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't execute the request", e);
-        } catch (IOException e) {
-            logger.error("Can't contact the search server", e);
-        }
+        ItemAction action = ItemAction.getAction(entityContentProducer.getAction(event));
+        indexingExecutor.execute(new DocumentIndexer(entityContentProducer, action, resourceName));
     }
 
     @Override
@@ -135,35 +118,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        logger.info("Refreshing the index for '" + currentSiteId + "'");
-        try {
-            //Get the currently indexed resources for this site
-            Collection<String> resourceNames = getResourceNames(currentSiteId);
-            logger.info(resourceNames.size() + " elements will be refreshed");
-            cleanSiteIndex(currentSiteId);
-            for (String resourceName : resourceNames) {
-                EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-
-                //If there is no matching entity content producer or no associated site, skip the resource
-                //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
-                if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
-                    logger.info("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
-                    continue;
-                }
-
-                try {
-                    solrServer.request(toSolrRequest(resourceName, entityContentProducer));
-                } catch (Exception e) {
-                    logger.warn("Unexpected exception while preparing the solr request for '" + resourceName + "'", e);
-                }
-            }
-
-            solrServer.commit();
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't refresh the index for site '" + currentSiteId + "'", e);
-        } catch (IOException e) {
-            logger.error("Couln't access the solr server", e);
-        }
+        indexingExecutor.execute(new SiteIndexRefresher(currentSiteId));
     }
 
     /**
@@ -192,33 +147,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
-        logger.info("Rebuilding the index for '" + currentSiteId + "'");
-
-        cleanSiteIndex(currentSiteId);
-        for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
-            try {
-                Iterable<String> resourceNames = new Iterable<String>() {
-                    @Override
-                    public Iterator<String> iterator() {
-                        return entityContentProducer.getSiteContentIterator(currentSiteId);
-                    }
-                };
-
-                for (String resourceName : resourceNames) {
-                    try {
-                        solrServer.request(toSolrRequest(resourceName, entityContentProducer));
-                    } catch (Exception e) {
-                        logger.warn("Unexpected exception while preparing the solr request for '" + resourceName + "'", e);
-                    }
-                }
-
-                solrServer.commit();
-            } catch (SolrServerException e) {
-                logger.warn("Couldn't rebuild the index for site '" + currentSiteId + "'", e);
-            } catch (IOException e) {
-                logger.error("Couln't access the solr server", e);
-            }
-        }
+        indexingExecutor.execute(new SiteIndexBuilder(currentSiteId));
     }
 
     /**
@@ -560,5 +489,135 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
         this.contentProducerFactory = contentProducerFactory;
+    }
+
+    public void setIndexingExecutor(Executor indexingExecutor) {
+        this.indexingExecutor = indexingExecutor;
+    }
+
+    /**
+     * Runnable class handling the indexation or removal of one document
+     */
+    private class DocumentIndexer implements Runnable {
+        private final EntityContentProducer entityContentProducer;
+        private final ItemAction action;
+        private final String resourceName;
+
+        public DocumentIndexer(EntityContentProducer entityContentProducer, ItemAction action, String resourceName) {
+            this.entityContentProducer = entityContentProducer;
+            this.action = action;
+            this.resourceName = resourceName;
+        }
+
+        @Override
+        public void run() {
+            try {
+                logger.debug("Action on '" + resourceName + "' detected as " + action.name());
+                SolrRequest request;
+                switch (action) {
+                    case ADD:
+                        request = toSolrRequest(resourceName, entityContentProducer);
+                        break;
+                    case DELETE:
+                        request = new UpdateRequest().deleteById(entityContentProducer.getId(resourceName));
+                        break;
+                    default:
+                        throw new UnsupportedOperationException(action + " is not yet supported");
+                }
+                solrServer.request(request);
+                solrServer.commit();
+            } catch (SolrServerException e) {
+                logger.warn("Couldn't execute the request", e);
+            } catch (IOException e) {
+                logger.error("Can't contact the search server", e);
+            }
+        }
+    }
+
+    /**
+     * Runnable class refreshing one site's index
+     */
+    private class SiteIndexRefresher implements Runnable {
+        private final String siteId;
+
+        public SiteIndexRefresher(String siteId) {
+            this.siteId = siteId;
+        }
+
+        @Override
+        public void run() {
+            logger.info("Refreshing the index for '" + siteId + "'");
+            try {
+                //Get the currently indexed resources for this site
+                Collection<String> resourceNames = getResourceNames(siteId);
+                logger.info(resourceNames.size() + " elements will be refreshed");
+                cleanSiteIndex(siteId);
+                for (String resourceName : resourceNames) {
+                    EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
+
+                    //If there is no matching entity content producer or no associated site, skip the resource
+                    //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
+                    if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
+                        logger.info("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
+                        continue;
+                    }
+
+                    try {
+                        solrServer.request(toSolrRequest(resourceName, entityContentProducer));
+                    } catch (Exception e) {
+                        logger.warn("Unexpected exception while preparing the solr request for '" + resourceName + "'", e);
+                    }
+                }
+
+                solrServer.commit();
+            } catch (SolrServerException e) {
+                logger.warn("Couldn't refresh the index for site '" + siteId + "'", e);
+            } catch (IOException e) {
+                logger.error("Couln't access the solr server", e);
+            }
+        }
+    }
+
+    /**
+     * Runnable class handling one site re-indexation
+     */
+    private class SiteIndexBuilder implements Runnable {
+        private final String siteId;
+
+        public SiteIndexBuilder(String siteId) {
+            this.siteId = siteId;
+        }
+
+        @Override
+        public void run() {
+            logger.info("Rebuilding the index for '" + siteId + "'");
+
+            cleanSiteIndex(siteId);
+            for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
+                try {
+                    Iterable<String> resourceNames = new Iterable<String>() {
+                        @Override
+                        public Iterator<String> iterator() {
+                            return entityContentProducer.getSiteContentIterator(siteId);
+                        }
+                    };
+
+                    for (String resourceName : resourceNames) {
+                        try {
+                            solrServer.request(toSolrRequest(resourceName, entityContentProducer));
+                        } catch (Exception e) {
+                            logger.warn("Unexpected exception while preparing the solr request for '" + resourceName + "'", e);
+                        }
+                    }
+
+                    solrServer.commit();
+                } catch (SolrServerException e) {
+                    logger.warn("Couldn't rebuild the index for site '" + siteId + "'", e);
+                } catch (IOException e) {
+                    logger.error("Couln't access the solr server", e);
+                }
+
+            }
+        }
     }
 }

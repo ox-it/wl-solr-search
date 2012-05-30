@@ -34,9 +34,11 @@
             </bean>
         </property>
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
+        <property name="indexingExecutor" ref="solrIndexingExecutor"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.solr.ContentProducerFactory" class="uk.ac.ox.oucs.search.solr.ContentProducerFactory" />
+    <bean id="uk.ac.ox.oucs.search.solr.ContentProducerFactory"
+          class="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
         <constructor-arg>
@@ -47,4 +49,13 @@
     </bean>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
 
+    <!-- Executor responsible for handling heavy requests toward solr -->
+    <!--
+        The maxPoolSize has to be set to one to avoid concurrency issues
+    -->
+    <bean id="solrIndexingExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="0"/>
+        <property name="maxPoolSize" value="1"/>
+        <property name="keepAliveSeconds" value="30"/>
+    </bean>
 </beans>
