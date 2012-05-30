@@ -264,7 +264,10 @@ public class SolrSearchService implements SearchService {
 
             QueryResponse response = solrServer.query(params);
             SpellCheckResponse spellCheckResponse = response.getSpellCheckResponse();
-            return spellCheckResponse.isCorrectlySpelled() ? null : spellCheckResponse.getCollatedResult();
+            if(spellCheckResponse == null || !spellCheckResponse.isCorrectlySpelled())
+                return null;
+            else
+                return spellCheckResponse.getCollatedResult();
         } catch (SolrServerException e) {
             logger.warn("Failed to obtain a suggestion", e);
             return null;
