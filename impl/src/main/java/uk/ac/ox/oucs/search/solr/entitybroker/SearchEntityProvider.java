@@ -24,6 +24,7 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class SearchEntityProvider extends AbstractEntityProvider implements ActionsExecutable, Outputable, Describeable {
+    private static final int DEFAULT_RESULT_COUNT = 10;
     private SearchService searchService;
     private SearchIndexBuilder searchIndexBuilder;
     private SiteService siteService;
@@ -61,8 +62,12 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
         try {
             //Get the query sent by the client
             String query = extractQuery(search.getRestrictionByProperty("searchTerms"));
-            //Get the list of contexts (sites) used for this search, or every accessible site if the user hasn't provided a context lsit
+            //Get the list of contexts (sites) used for this search, or every accessible site if the user hasn't provided a context list
             List<String> contexts = extractContexts(search.getRestrictionByProperty("contexts"));
+
+            //Set the limit if it hasn't been set already
+            if(search.getLimit() < 0)
+                search.setLimit(DEFAULT_RESULT_COUNT);
 
             //Actual search
             SearchList searchResults = searchService.search(query, contexts, (int) search.getStart(), (int) search.getLimit());
