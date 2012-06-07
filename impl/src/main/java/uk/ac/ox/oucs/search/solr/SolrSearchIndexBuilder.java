@@ -40,7 +40,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String PROPERTY_PREFIX = "property_";
     public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
-    private final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private SiteService siteService;
     private SolrServer solrServer;
     private ContentProducerFactory contentProducerFactory;

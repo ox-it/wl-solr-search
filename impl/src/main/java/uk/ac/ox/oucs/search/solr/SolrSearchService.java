@@ -25,7 +25,7 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class SolrSearchService implements SearchService {
-    private final Logger logger = LoggerFactory.getLogger(SolrSearchService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SolrSearchService.class);
     private SolrServer solrServer;
     private NotificationEdit notification;
     private SearchIndexBuilder searchIndexBuilder;

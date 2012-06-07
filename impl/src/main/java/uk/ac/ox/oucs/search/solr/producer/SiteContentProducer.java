@@ -1,7 +1,5 @@
 package uk.ac.ox.oucs.search.solr.producer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
@@ -13,6 +11,8 @@ import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class SiteContentProducer implements EntityContentProducer {
 
-    private static final Log log = LogFactory.getLog(SiteContentProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SiteContentProducer.class);
     private EntityManager entityManager;
     private Collection<String> addEvents;
     private Collection<String> removeEvents;
@@ -63,7 +63,7 @@ public class SiteContentProducer implements EntityContentProducer {
                 ((SiteService) ep).getSite(ref.getId());
                 return true;
             } catch (Exception ex) {
-                log.debug(ex);
+                logger.debug("Unexpected exception", ex);
             }
         }
         return false;
@@ -142,7 +142,7 @@ public class SiteContentProducer implements EntityContentProducer {
         try {
             return Collections.singletonList(siteService.getSite(context).getReference()).iterator();
         } catch (IdUnusedException idu) {
-            log.debug("Site Not Found for context " + context, idu);
+            logger.debug("Site Not Found for context " + context, idu);
             return Collections.<String>emptyList().iterator();
         }
     }
