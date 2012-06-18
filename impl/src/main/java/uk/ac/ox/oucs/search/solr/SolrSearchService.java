@@ -264,7 +264,7 @@ public class SolrSearchService implements SearchService {
 
             QueryResponse response = solrServer.query(params);
             SpellCheckResponse spellCheckResponse = response.getSpellCheckResponse();
-            if(spellCheckResponse == null || !spellCheckResponse.isCorrectlySpelled())
+            if (spellCheckResponse == null || !spellCheckResponse.isCorrectlySpelled())
                 return null;
             else
                 return spellCheckResponse.getCollatedResult();

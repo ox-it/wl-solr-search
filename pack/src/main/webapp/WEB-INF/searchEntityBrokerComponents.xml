@@ -6,6 +6,6 @@
         <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
     </bean>
 </beans>

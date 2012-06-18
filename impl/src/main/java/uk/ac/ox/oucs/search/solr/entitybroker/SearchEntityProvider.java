@@ -66,7 +66,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
             List<String> contexts = extractContexts(search.getRestrictionByProperty("contexts"));
 
             //Set the limit if it hasn't been set already
-            if(search.getLimit() < 0)
+            if (search.getLimit() < 0)
                 search.setLimit(DEFAULT_RESULT_COUNT);
 
             //Actual search

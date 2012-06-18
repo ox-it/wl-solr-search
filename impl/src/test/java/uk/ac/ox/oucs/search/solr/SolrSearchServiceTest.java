@@ -56,7 +56,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
     }
 
     @Test
-    public void testSearchOneDocumentContent() throws Exception  {
+    public void testSearchOneDocumentContent() throws Exception {
         presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("contents:zsh", null, 0, 10);
         assertEquals(1, searchList.getFullSize());
@@ -68,7 +68,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
     }
 
     @Test
-    public void testSearchOneDocumentMultipleFields() throws Exception  {
+    public void testSearchOneDocumentMultipleFields() throws Exception {
         presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("refcard", null, 0, 10);
         assertEquals(1, searchList.getFullSize());
@@ -80,7 +80,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
     }
 
     @Test
-    public void testSearchMultipleDocumentsContent() throws Exception  {
+    public void testSearchMultipleDocumentsContent() throws Exception {
         presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("contents:solr", null, 1, 2);
         assertEquals(2, searchList.getFullSize());
@@ -93,7 +93,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
     }
 
     @Test
-    public void testSearchMultipleDocumentsMultipleFields() throws Exception  {
+    public void testSearchMultipleDocumentsMultipleFields() throws Exception {
         presetIndex(solrServer);
         SearchList searchList = solrSearchService.search("java", null, 1, 3);
         assertEquals(4, searchList.getFullSize());
@@ -106,7 +106,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
     }
 
     @Test
-    public void testStatus() throws Exception  {
+    public void testStatus() throws Exception {
         //Just a ping, 0 is expected when everything is ok, something else otherwise
         assertEquals("0", solrSearchService.getStatus());
         //Works with solr 3.6
@@ -122,7 +122,7 @@ public class SolrSearchServiceTest extends AbstractSolrTestCase {
     }
 
     @Test
-    public void testGetSearchSuggestion() throws Exception  {
+    public void testGetSearchSuggestion() throws Exception {
         presetIndex(solrServer);
         String suggestion = solrSearchService.getSearchSuggestion("Jav");
         assertTrue("java".equalsIgnoreCase(suggestion));

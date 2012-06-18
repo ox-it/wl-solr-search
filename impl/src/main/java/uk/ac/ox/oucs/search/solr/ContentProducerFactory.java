@@ -27,7 +27,7 @@ public class ContentProducerFactory {
                 return contentProducer;
             }
         }
-        logger.info("Couldn't find a content producer for reference '"+reference+"'");
+        logger.info("Couldn't find a content producer for reference '" + reference + "'");
         return null;
     }
 
@@ -37,11 +37,11 @@ public class ContentProducerFactory {
                 return contentProducer;
             }
         }
-        logger.info("Couldn't find a content producer for event '"+event+"'");
+        logger.info("Couldn't find a content producer for event '" + event + "'");
         return null;
     }
 
-    public Collection<EntityContentProducer> getContentProducers(){
+    public Collection<EntityContentProducer> getContentProducers() {
         return Collections.unmodifiableCollection(contentProducers);
     }
 }
