@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-    <bean id="org.sakaiproject.search.api.SearchService"
+    <alias alias="org.sakaiproject.search.api.SearchService" name="${search.service.impl}"/>
+    <alias alias="org.sakaiproject.search.api.SearchIndexBuilder" name="${search.indexbuilder.impl}"/>
+
+    <bean id="uk.ac.ox.oucs.search.solr.SolrSearchService"
           class="uk.ac.ox.oucs.search.solr.SolrSearchService" init-method="init">
         <property name="triggerFunctions">
             <list/>
@@ -17,22 +20,12 @@
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
     </bean>
 
-    <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+    <bean id="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder"
           class="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="solrServer" ref="solrIndexingServer"/>
-        <property name="searchToolRequired">
-            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getBoolean">
-                <constructor-arg value="search.tool.required"/>
-                <constructor-arg value="true"/>
-            </bean>
-        </property>
-        <property name="ignoreUserSites">
-            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getBoolean">
-                <constructor-arg value="search.usersites.ignored"/>
-                <constructor-arg value="true"/>
-            </bean>
-        </property>
+        <property name="searchToolRequired" value="${search.tool.required}"/>
+        <property name="ignoreUserSites"  value="${search.usersites.ignored}" />
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
         <property name="indexingExecutor" ref="solrIndexingExecutor"/>
     </bean>
@@ -41,11 +34,7 @@
           class="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-        <constructor-arg>
-            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getString">
-                <constructor-arg value="solr.server"/>
-            </bean>
-        </constructor-arg>
+        <constructor-arg value="${solr.server}" />
     </bean>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
 
