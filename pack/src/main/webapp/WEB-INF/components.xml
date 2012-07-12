@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+    <alias alias="org.sakaiproject.search.api.SearchService" name="${search.service.impl}"/>
+    <alias alias="org.sakaiproject.search.api.SearchIndexBuilder" name="${search.indexbuilder.impl}"/>
+
     <import resource="solr.xml"/>
     <import resource="binaryContentAdapterComponents.xml"/>
     <import resource="citationContentAdapterComponents.xml"/>
