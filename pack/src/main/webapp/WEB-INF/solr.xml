@@ -7,7 +7,7 @@
             <list/>
         </property>
         <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
-        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="searchIndexBuilder" ref="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="searchItemFilter">
             <bean class="uk.ac.ox.oucs.search.solr.filter.SecuritySearchFilter">
