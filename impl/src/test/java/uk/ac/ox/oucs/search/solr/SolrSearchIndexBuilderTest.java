@@ -16,6 +16,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 
 import java.io.InputStream;
@@ -55,6 +56,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         solrSearchIndexBuilder.setSolrServer(solrServer);
         solrSearchIndexBuilder.setSiteService(siteService);
         solrSearchIndexBuilder.setContentProducerFactory(contentProducerFactory);
+        solrSearchIndexBuilder.setIndexingExecutor(new ThreadPoolTaskExecutor());
 
         // SiteService think that all sites have the search tool enabled
         when(siteService.getSite(anyString())).then(new Answer<Site>() {
