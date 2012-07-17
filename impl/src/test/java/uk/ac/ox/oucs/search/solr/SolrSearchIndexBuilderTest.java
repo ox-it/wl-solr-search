@@ -16,7 +16,6 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 
 import java.io.InputStream;
@@ -24,6 +23,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -56,7 +58,7 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         solrSearchIndexBuilder.setSolrServer(solrServer);
         solrSearchIndexBuilder.setSiteService(siteService);
         solrSearchIndexBuilder.setContentProducerFactory(contentProducerFactory);
-        solrSearchIndexBuilder.setIndexingExecutor(new ThreadPoolTaskExecutor());
+        solrSearchIndexBuilder.setIndexingExecutor(new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new PriorityBlockingQueue<Runnable>()));
 
         // SiteService think that all sites have the search tool enabled
         when(siteService.getSite(anyString())).then(new Answer<Site>() {
