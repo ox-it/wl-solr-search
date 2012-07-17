@@ -46,8 +46,10 @@ public class SolrSearchIndexBuilderTest extends AbstractSolrTestCase {
         solrSearchIndexBuilder = new SolrSearchIndexBuilder();
         ContentProducerFactory contentProducerFactory = new ContentProducerFactory();
         SiteService siteService = mock(SiteService.class);
-        contentProducerFactory.addContentProducer(mock(BinaryEntityContentProducer.class));
-        contentProducerFactory.addContentProducer(mock(EntityContentProducer.class));
+        binaryContentProducer = mock(BinaryEntityContentProducer.class);
+        contentProducerFactory.addContentProducer(binaryContentProducer);
+        contentProducer = mock(EntityContentProducer.class);
+        contentProducerFactory.addContentProducer(contentProducer);
         notification = mock(Notification.class);
 
         solrSearchIndexBuilder.setSolrServer(solrServer);
