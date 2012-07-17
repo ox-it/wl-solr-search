@@ -23,8 +23,12 @@ public class ContentProducerFactory {
 
     public EntityContentProducer getContentProducerForElement(String reference) {
         for (EntityContentProducer contentProducer : contentProducers) {
-            if (contentProducer.matches(reference)) {
-                return contentProducer;
+            try {
+                if (contentProducer.matches(reference)) {
+                    return contentProducer;
+                }
+            } catch (Exception e) {
+                logger.warn("The content producer '" + contentProducer.getClass() + "' has thrown an exception", e);
             }
         }
         logger.info("Couldn't find a content producer for reference '" + reference + "'");
@@ -33,8 +37,12 @@ public class ContentProducerFactory {
 
     public EntityContentProducer getContentProducerForEvent(Event event) {
         for (EntityContentProducer contentProducer : contentProducers) {
-            if (contentProducer.matches(event)) {
-                return contentProducer;
+            try {
+                if (contentProducer.matches(event)) {
+                    return contentProducer;
+                }
+            } catch (Exception e) {
+                logger.warn("The content producer '" + contentProducer.getClass() + "' has thrown an exception", e);
             }
         }
         logger.info("Couldn't find a content producer for event '" + event + "'");
