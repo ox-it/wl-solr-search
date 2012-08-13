@@ -20,6 +20,8 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
@@ -44,6 +46,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private SiteService siteService;
     private SolrServer solrServer;
     private ContentProducerFactory contentProducerFactory;
+    private SessionManager sessionManager;
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
     private Executor indexingExecutor;
@@ -513,6 +516,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         public void run() {
             try {
                 logger.debug("Action on '" + resourceName + "' detected as " + action.name());
+                setCurrentSessionUserAdmin();
                 SolrRequest request;
                 switch (action) {
                     case ADD:
@@ -547,6 +551,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         @Override
         public void run() {
             logger.info("Refreshing the index for '" + siteId + "'");
+            setCurrentSessionUserAdmin();
             try {
                 //Get the currently indexed resources for this site
                 Collection<String> resourceNames = getResourceNames(siteId);
@@ -591,6 +596,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         @Override
         public void run() {
             logger.info("Rebuilding the index for '" + siteId + "'");
+            setCurrentSessionUserAdmin();
 
             cleanSiteIndex(siteId);
             for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
@@ -619,5 +625,11 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
             }
         }
+    }
+
+    private void setCurrentSessionUserAdmin() {
+        Session session = sessionManager.getCurrentSession();
+        session.setUserId("admin");
+        session.setUserEid("admin");
     }
 }
