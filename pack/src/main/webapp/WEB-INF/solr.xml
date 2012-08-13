@@ -31,7 +31,7 @@
           class="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-        <constructor-arg value="${solr.server}" />
+        <constructor-arg value="${search.solr.server}" />
     </bean>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
 
