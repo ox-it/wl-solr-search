@@ -498,6 +498,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         this.indexingExecutor = indexingExecutor;
     }
 
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
     /**
      * Runnable class handling the indexation or removal of one document
      */
