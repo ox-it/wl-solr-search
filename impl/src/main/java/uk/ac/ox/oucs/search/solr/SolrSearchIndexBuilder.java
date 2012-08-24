@@ -161,7 +161,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private void cleanSiteIndex(String siteId) {
         logger.info("Removing content for site '" + siteId + "'");
         try {
-            solrServer.deleteByQuery(SearchService.FIELD_SITEID + ':' + siteId);
+            solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":\"" + siteId + "\"");
         } catch (SolrServerException e) {
             logger.warn("Couldn't clean the index for site '" + siteId + "'", e);
         } catch (IOException e) {
