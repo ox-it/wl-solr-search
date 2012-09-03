@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
     <abortOnConfigurationError>true</abortOnConfigurationError>
-    <directoryFactory name="DirectoryFactory" class="solr.RAMDirectoryFactory"/>
+    <directoryFactory name="DirectoryFactory" class="solr.StandardDirectoryFactory"/>
+    <luceneMatchVersion>LUCENE_36</luceneMatchVersion>
+
+    <requestDispatcher handleSelect="true">
+        <requestParsers enableRemoteStreaming="true"
+                        multipartUploadLimitInKB="2048000"/>
+        <httpCaching never304="true"/>
+    </requestDispatcher>
 
     <requestHandler name="search" class="solr.SearchHandler" default="true">
         <lst name="defaults">
@@ -12,15 +19,20 @@
             <str>tv</str>
         </arr>
     </requestHandler>
-    <requestHandler name="/update" class="solr.XmlUpdateRequestHandler">
-    </requestHandler>
+
+    <requestHandler name="/update" class="solr.XmlUpdateRequestHandler"/>
+
     <requestHandler name="/update/extract" startup="lazy" class="solr.extraction.ExtractingRequestHandler">
         <lst name="defaults">
+            <str name="fmap.title">tika_title</str>
             <str name="lowernames">true</str>
+            <str name="uprefix">ignored_</str>
         </lst>
     </requestHandler>
 
-    <!-- ping/healthcheck -->
+    <!-- Administration, statistics and Ping/healthcheck -->
+    <requestHandler name="/admin/" class="solr.admin.AdminHandlers"/>
+    <requestHandler name="/admin/stats" class="solr.admin.SolrInfoMBeanHandler"/>
     <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
         <lst name="invariants">
             <str name="qt">search</str>
@@ -37,8 +49,7 @@
             <str name="name">default</str>
             <str name="field">text</str>
             <str name="spellcheckIndexDir">spellchecker</str>
-            <!-- Testing only -->
-            <str name="buildOnCommit">true</str>
+            <str name="buildOnOptimize">true</str>
         </lst>
     </searchComponent>
 
