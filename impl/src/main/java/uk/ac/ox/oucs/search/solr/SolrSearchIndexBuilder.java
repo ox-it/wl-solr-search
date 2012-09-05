@@ -187,11 +187,30 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     @Override
     public void rebuildIndex() {
         logger.info("Rebuilding the index for every indexable site");
+        final Collection<String> reindexedSites = new LinkedList<String>();
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
             if (isSiteIndexable(s)) {
+                reindexedSites.add(s.getId());
                 rebuildIndex(s.getId());
             }
         }
+        indexingExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("Remove indexed documents for unindexable or non-existing sites");
+                StringBuilder sb = new StringBuilder();
+                for (String siteId : reindexedSites) {
+                    sb.append(" -\"").append(siteId).append('"');
+                }
+                try {
+                    solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":( " + sb + " )");
+                } catch (SolrServerException e) {
+                    logger.warn("Couldn't remove obsoletes sites from the index", e);
+                } catch (IOException e) {
+                    logger.error("Couln't access the solr server", e);
+                }
+            }
+        });
     }
 
     /**
