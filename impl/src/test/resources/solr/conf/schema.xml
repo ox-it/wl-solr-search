@@ -27,7 +27,6 @@
         <field name="type" type="string" indexed="true" stored="true" required="true"/>
         <field name="subtype" type="string" indexed="true" stored="true" required="true"/>
         <field name="reference" type="string" indexed="true" stored="true" required="true"/>
-        <field name="context" type="string" indexed="true" stored="true" required="true"/>
         <field name="title" type="text_en" indexed="true" stored="true" required="true"/>
         <field name="tool" type="string" indexed="true" stored="true" required="true"/>
         <field name="url" type="text_en" indexed="true" stored="true" required="true"/>
