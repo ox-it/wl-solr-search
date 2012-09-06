@@ -62,12 +62,12 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> contexts, int searchStart, int searchEnd) throws InvalidSearchQueryException {
-        return search(searchTerms, contexts, searchStart, searchEnd, null, null);
+    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
+        return search(searchTerms, siteIds, searchStart, searchEnd, null, null);
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> contexts, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
         try {
             SolrQuery query = new SolrQuery();
 
@@ -84,13 +84,13 @@ public class SolrSearchService implements SearchService {
             query.setParam("tv.fl", SearchService.FIELD_CONTENTS);
             query.setParam("tv.tf", true);
 
-            if (contexts != null && !contexts.isEmpty()) {
+            if (siteIds != null && !siteIds.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                sb.append('+').append(SearchService.FIELD_CONTEXT).append(":");
+                sb.append('+').append(SearchService.FIELD_SITEID).append(":");
                 sb.append('(');
-                for (Iterator<String> contextIterator = contexts.iterator(); contextIterator.hasNext(); ) {
-                    sb.append('"').append(contextIterator.next()).append('"');
-                    if (contextIterator.hasNext())
+                for (Iterator<String> siteIdsIterator = siteIds.iterator(); siteIdsIterator.hasNext(); ) {
+                    sb.append('"').append(siteIdsIterator.next()).append('"');
+                    if (siteIdsIterator.hasNext())
                         sb.append(" OR ");
                 }
                 sb.append(')');
