@@ -351,8 +351,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         SolrRequest request;
         SolrInputDocument document = new SolrInputDocument();
 
-        //TODO: Solr handles dates, use that instead of a string timestamp...
-        document.addField(SearchService.DATE_STAMP, String.valueOf(System.currentTimeMillis()));
+        //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't
+        //document.addField(SearchService.DATE_STAMP, new Date());
         document.addField(SearchService.FIELD_CONTAINER, contentProducer.getContainer(resourceName));
         document.addField(SearchService.FIELD_ID, contentProducer.getId(resourceName));
         document.addField(SearchService.FIELD_TYPE, contentProducer.getType(resourceName));
