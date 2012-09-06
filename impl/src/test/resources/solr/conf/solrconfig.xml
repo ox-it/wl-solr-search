@@ -2,6 +2,7 @@
 <config>
     <abortOnConfigurationError>true</abortOnConfigurationError>
     <directoryFactory name="DirectoryFactory" class="solr.StandardDirectoryFactory"/>
+    <dataDir>${solr.search.data.dir:}</dataDir>
     <luceneMatchVersion>LUCENE_36</luceneMatchVersion>
 
     <requestDispatcher handleSelect="true">
