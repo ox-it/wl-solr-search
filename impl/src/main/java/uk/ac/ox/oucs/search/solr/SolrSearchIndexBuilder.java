@@ -61,15 +61,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForEvent(event);
         //If there is no matching entity content producer or no associated site, return
-        if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
+        if (entityContentProducer == null) {
             logger.debug("Can't find an entityContentProducer for '" + resourceName + "'");
             return;
         }
 
-        String siteId = entityContentProducer.getSiteId(resourceName);
-
         //If the indexing is only enabled on sites with search tool, check that the tool is actually enabled
         if (isOnlyIndexSearchToolSites()) {
+            String siteId = entityContentProducer.getSiteId(resourceName);
             try {
                 if (siteService.getSite(siteId).getToolForCommonId(COMMON_TOOL_ID) == null)
                     return;
