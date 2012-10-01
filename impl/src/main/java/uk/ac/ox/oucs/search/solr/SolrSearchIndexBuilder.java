@@ -37,7 +37,7 @@ import java.util.concurrent.Executor;
  * @author Colin Hebert
  */
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
-    public static final String COMMON_TOOL_ID = "sakai.search";
+    public static final String SEARCH_TOOL_ID = "sakai.search";
     public static final String LITERAL = "literal.";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
@@ -70,7 +70,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         if (isOnlyIndexSearchToolSites()) {
             String siteId = entityContentProducer.getSiteId(resourceName);
             try {
-                if (siteService.getSite(siteId).getToolForCommonId(COMMON_TOOL_ID) == null)
+                if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null)
                     return;
             } catch (Exception ex) {
                 logger.debug("Can't index content if the search tool isn't activated. Site: " + siteId);
