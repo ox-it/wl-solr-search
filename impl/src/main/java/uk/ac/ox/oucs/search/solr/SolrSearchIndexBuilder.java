@@ -14,6 +14,7 @@ import org.apache.solr.common.util.ContentStreamBase;
 import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -72,8 +73,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             try {
                 if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null)
                     return;
-            } catch (Exception ex) {
-                logger.debug("Can't index content if the search tool isn't activated. Site: " + siteId);
+            } catch (IdUnusedException e) {
+                logger.warn("Couldn't find the site '"+siteId+"'", e);
                 return;
             }
         }
