@@ -50,16 +50,16 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     @Override
     public Integer getAction(Event event) {
         if (!isResourceTypeSupported(getResourceType(event.getResource())))
-            return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
+            return SolrSearchIndexBuilder.IndexAction.UNKNOWN.getItemAction();
 
         String eventName = event.getEvent();
         if ((ContentHostingService.EVENT_RESOURCE_ADD.equals(eventName)
                 || ContentHostingService.EVENT_RESOURCE_WRITE.equals(eventName)) && isForIndex(event.getResource())) {
-            return SolrSearchIndexBuilder.ItemAction.ADD.getItemAction();
+            return SolrSearchIndexBuilder.IndexAction.ADD.getItemAction();
         } else if (ContentHostingService.EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
-            return SolrSearchIndexBuilder.ItemAction.DELETE.getItemAction();
+            return SolrSearchIndexBuilder.IndexAction.DELETE.getItemAction();
         } else {
-            return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction();
+            return SolrSearchIndexBuilder.IndexAction.UNKNOWN.getItemAction();
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public boolean matches(Event event) {
-        return SolrSearchIndexBuilder.ItemAction.UNKNOWN.getItemAction() != getAction(event);
+        return SolrSearchIndexBuilder.IndexAction.UNKNOWN.getItemAction() != getAction(event);
     }
 
     @Override

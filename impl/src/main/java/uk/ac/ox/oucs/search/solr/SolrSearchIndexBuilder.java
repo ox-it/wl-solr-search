@@ -80,7 +80,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
         }
 
-        ItemAction action = ItemAction.getAction(entityContentProducer.getAction(event));
+        IndexAction action = IndexAction.getAction(entityContentProducer.getAction(event));
         indexingExecutor.execute(new DocumentIndexer(entityContentProducer, action, resourceName));
     }
 
@@ -288,7 +288,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         return null;
     }
 
-    public static enum ItemAction {
+    public static enum IndexAction {
         /**
          * Action Unknown, usually because the record has just been created
          */
@@ -322,14 +322,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         private final int itemAction;
 
-        private ItemAction(int itemAction) {
+        private IndexAction(int itemAction) {
             this.itemAction = itemAction;
         }
 
-        public static ItemAction getAction(int itemActionId) {
-            for (ItemAction itemAction : values()) {
-                if (itemAction.getItemAction() == itemActionId)
-                    return itemAction;
+        public static IndexAction getAction(int itemActionId) {
+            for (IndexAction indexAction : values()) {
+                if (indexAction.getItemAction() == itemActionId)
+                    return indexAction;
             }
 
             return null;
@@ -526,10 +526,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
      */
     private class DocumentIndexer implements Runnable {
         private final EntityContentProducer entityContentProducer;
-        private final ItemAction action;
+        private final IndexAction action;
         private final String resourceName;
 
-        public DocumentIndexer(EntityContentProducer entityContentProducer, ItemAction action, String resourceName) {
+        public DocumentIndexer(EntityContentProducer entityContentProducer, IndexAction action, String resourceName) {
             this.entityContentProducer = entityContentProducer;
             this.action = action;
             this.resourceName = resourceName;
