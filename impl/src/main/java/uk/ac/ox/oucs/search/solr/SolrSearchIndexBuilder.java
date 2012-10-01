@@ -72,6 +72,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             String siteId = entityContentProducer.getSiteId(resourceName);
             try {
                 if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null)
+                    logger.debug("Can't index content if the search tool isn't activated. Site: " + siteId);
                     return;
             } catch (IdUnusedException e) {
                 logger.warn("Couldn't find the site '"+siteId+"'", e);
@@ -165,7 +166,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         } catch (SolrServerException e) {
             logger.warn("Couldn't clean the index for site '" + siteId + "'", e);
         } catch (IOException e) {
-            logger.error("Couln't access the solr server", e);
+            logger.error("Can't contact the search server", e);
         }
     }
 
@@ -207,7 +208,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 } catch (SolrServerException e) {
                     logger.warn("Couldn't remove obsoletes sites from the index", e);
                 } catch (IOException e) {
-                    logger.error("Couln't access the solr server", e);
+                    logger.error("Can't contact the search server", e);
                 }
             }
         });
@@ -254,7 +255,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             logger.warn("Couldn't obtain the number of pending documents", e);
             return 0;
         } catch (IOException e) {
-            logger.error("Couln't access the solr server", e);
+            logger.error("Can't contact the search server", e);
             return 0;
         }
     }
@@ -600,7 +601,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             } catch (SolrServerException e) {
                 logger.warn("Couldn't refresh the index for site '" + siteId + "'", e);
             } catch (IOException e) {
-                logger.error("Couln't access the solr server", e);
+                logger.error("Can't contact the search server", e);
             }
         }
     }
@@ -642,7 +643,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 } catch (SolrServerException e) {
                     logger.warn("Couldn't rebuild the index for site '" + siteId + "'", e);
                 } catch (IOException e) {
-                    logger.error("Couln't access the solr server", e);
+                    logger.error("Can't contact the search server", e);
                 }
 
             }
