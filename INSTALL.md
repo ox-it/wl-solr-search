@@ -97,5 +97,5 @@ a custom name for the property:
     <copyField source="property_creationdate" dest="creationdate" />
 
 
-Tika properties (document's metadata) will behave the same way but will be stored in `tika_*` instead (to avoid
+Tika properties (document's metadata) will behave the same way but will be stored in `property_tika_*` instead (to avoid
 collisions).
