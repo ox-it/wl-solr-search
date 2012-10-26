@@ -43,6 +43,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         String resourceName = event.getResource();
         //Set the resource name to empty instead of null
         if (resourceName == null)
+            //TODO: Shouldn't addResource just stop there instead?
             resourceName = "";
 
         EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForEvent(event);
