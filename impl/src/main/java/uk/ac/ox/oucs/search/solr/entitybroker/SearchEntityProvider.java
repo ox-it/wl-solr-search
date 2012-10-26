@@ -168,7 +168,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
             this.searchResult = searchResult;
         }
 
-        public String getReference(){
+        public String getReference() {
             return searchResult.getReference();
         }
 

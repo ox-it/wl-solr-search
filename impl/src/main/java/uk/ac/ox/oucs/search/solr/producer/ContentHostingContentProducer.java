@@ -65,7 +65,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     private String getResourceType(String reference) {
         try {
-            if(reference == null)
+            if (reference == null)
                 return null;
             return contentHostingService.getResource(getId(reference)).getResourceType();
         } catch (IdUnusedException e) {
