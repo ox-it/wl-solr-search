@@ -1,12 +1,9 @@
 package uk.ac.ox.oucs.search.solr;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -23,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.process.CleanSiteIndexProcess;
 import uk.ac.ox.oucs.search.solr.process.IndexDocumentProcess;
+import uk.ac.ox.oucs.search.solr.process.RefreshSiteIndexProcess;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
@@ -117,42 +115,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         indexingExecutor.execute(new SiteIndexRefresher(currentSiteId));
     }
 
-    /**
-     * Get all indexed resources for a site
-     *
-     * @param siteId Site containing indexed resources
-     * @return a collection of resource references or an empty collection if no resource was found
-     */
-    private Collection<String> getResourceNames(String siteId) {
-        try {
-            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
-            SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_SITEID + ':' + siteId)
-                    .addField(SearchService.FIELD_REFERENCE);
-            SolrDocumentList results = solrServer.query(query).getResults();
-            Collection<String> resourceNames = new ArrayList<String>(results.size());
-            for (SolrDocument document : results) {
-                resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
-            }
-            return resourceNames;
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't get indexed elements for site: '" + siteId + "'", e);
-            return Collections.emptyList();
-        }
-    }
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
         indexingExecutor.execute(new SiteIndexBuilder(currentSiteId));
-    }
-
-    /**
-     * Remove every indexed content belonging to a site
-     *
-     * @param siteId indexed site
-     */
-    private void cleanSiteIndex(String siteId) {
-        new CleanSiteIndexProcess(solrServer, siteId).execute();
     }
 
     @Override
@@ -405,32 +371,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         @Override
         public void run() {
-            logger.info("Refreshing the index for '" + siteId + "'");
             setCurrentSessionUserAdmin();
-            try {
-                //Get the currently indexed resources for this site
-                Collection<String> resourceNames = getResourceNames(siteId);
-                logger.info(resourceNames.size() + " elements will be refreshed");
-                cleanSiteIndex(siteId);
-                for (String resourceName : resourceNames) {
-                    EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-
-                    //If there is no matching entity content producer or no associated site, skip the resource
-                    //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
-                    if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
-                        logger.info("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
-                        continue;
-                    }
-
-                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
-                }
-
-                solrServer.commit();
-            } catch (SolrServerException e) {
-                logger.warn("Couldn't refresh the index for site '" + siteId + "'", e);
-            } catch (IOException e) {
-                logger.error("Can't contact the search server", e);
-            }
+            new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
         }
     }
 
