@@ -448,8 +448,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         public void run() {
             logger.info("Rebuilding the index for '" + siteId + "'");
             setCurrentSessionUserAdmin();
-
-            cleanSiteIndex(siteId);
+            new CleanSiteIndexProcess(solrServer, siteId).execute();
             for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
                 try {
                     Iterable<String> resourceNames = new Iterable<String>() {
