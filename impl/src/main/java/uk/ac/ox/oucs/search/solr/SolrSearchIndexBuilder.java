@@ -81,7 +81,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             default:
                 throw new UnsupportedOperationException(action + " is not yet supported");
         }
-        indexingExecutor.execute(new ProcessRunner(solrProcess));
+        indexingExecutor.execute(solrProcess);
     }
 
     @Override
@@ -122,13 +122,13 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        indexingExecutor.execute(new ProcessRunner(new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId)));
+        indexingExecutor.execute(new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId));
     }
 
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
-        indexingExecutor.execute(new ProcessRunner(new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId)));
+        indexingExecutor.execute(new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId));
     }
 
     @Override

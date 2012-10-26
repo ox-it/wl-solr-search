@@ -45,7 +45,7 @@ public class IndexDocumentProcess implements SolrProcess {
     }
 
     @Override
-    public void execute() {
+    public void run() {
         try {
             logger.debug("Add '" + resourceName + "' to the index");
             SolrRequest request = toSolrRequest(resourceName, entityContentProducer);

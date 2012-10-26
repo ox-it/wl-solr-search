@@ -30,7 +30,7 @@ public class RemoveDocumentProcess implements SolrProcess {
     }
 
     @Override
-    public void execute() {
+    public void run() {
         logger.debug("Remove '" + resourceName + "' from the index");
         try {
             solrServer.deleteById(entityContentProducer.getId(resourceName));

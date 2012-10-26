@@ -26,9 +26,9 @@ public class BuildSiteIndexProcess implements SolrProcess {
     }
 
     @Override
-    public void execute() {
+    public void run() {
         logger.info("Rebuilding the index for '" + siteId + "'");
-        new CleanSiteIndexProcess(solrServer, siteId).execute();
+        new CleanSiteIndexProcess(solrServer, siteId).run();
         for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
             try {
                 Iterable<String> resourceNames = new Iterable<String>() {
@@ -39,7 +39,7 @@ public class BuildSiteIndexProcess implements SolrProcess {
                 };
 
                 for (String resourceName : resourceNames) {
-                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
+                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).run();
                 }
 
                 solrServer.commit();

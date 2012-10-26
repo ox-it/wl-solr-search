@@ -32,13 +32,13 @@ public class RefreshSiteIndexProcess implements SolrProcess {
     }
 
     @Override
-    public void execute() {
+    public void run() {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
             //Get the currently indexed resources for this site
             Collection<String> resourceNames = getResourceNames(siteId);
             logger.info(resourceNames.size() + " elements will be refreshed");
-            new CleanSiteIndexProcess(solrServer, siteId).execute();
+            new CleanSiteIndexProcess(solrServer, siteId).run();
             for (String resourceName : resourceNames) {
                 EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
 
@@ -49,7 +49,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
                     continue;
                 }
 
-                new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
+                new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).run();
             }
 
             solrServer.commit();

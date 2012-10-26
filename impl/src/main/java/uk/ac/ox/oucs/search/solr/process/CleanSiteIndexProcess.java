@@ -22,7 +22,7 @@ public class CleanSiteIndexProcess implements SolrProcess {
     }
 
     @Override
-    public void execute() {
+    public void run() {
         logger.info("Removing content for site '" + siteId + "'");
         try {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":\"" + siteId + "\"");
