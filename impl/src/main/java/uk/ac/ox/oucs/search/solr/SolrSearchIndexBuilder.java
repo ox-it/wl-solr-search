@@ -422,7 +422,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                         continue;
                     }
 
-                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
+                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
                 }
 
                 solrServer.commit();

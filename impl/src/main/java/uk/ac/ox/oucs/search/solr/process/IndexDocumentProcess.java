@@ -31,11 +31,17 @@ public class IndexDocumentProcess implements SolrProcess {
     private final SolrServer solrServer;
     private final EntityContentProducer entityContentProducer;
     private final String resourceName;
+    private final boolean commit;
 
     public IndexDocumentProcess(SolrServer solrServer, EntityContentProducer entityContentProducer, String resourceName) {
+        this(solrServer, entityContentProducer, resourceName, true);
+    }
+
+    public IndexDocumentProcess(SolrServer solrServer, EntityContentProducer entityContentProducer, String resourceName, boolean commit) {
         this.solrServer = solrServer;
         this.entityContentProducer = entityContentProducer;
         this.resourceName = resourceName;
+        this.commit = commit;
     }
 
     @Override
@@ -44,7 +50,8 @@ public class IndexDocumentProcess implements SolrProcess {
             logger.debug("Add '" + resourceName + "' to the index");
             SolrRequest request = toSolrRequest(resourceName, entityContentProducer);
             solrServer.request(request);
-            solrServer.commit();
+            if (commit)
+                solrServer.commit();
         } catch (SolrServerException e) {
             logger.warn("Couldn't execute the request", e);
         } catch (IOException e) {
