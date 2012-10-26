@@ -25,6 +25,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.solr.process.CleanSiteIndexProcess;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
@@ -161,14 +162,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
      * @param siteId indexed site
      */
     private void cleanSiteIndex(String siteId) {
-        logger.info("Removing content for site '" + siteId + "'");
-        try {
-            solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":\"" + siteId + "\"");
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't clean the index for site '" + siteId + "'", e);
-        } catch (IOException e) {
-            logger.error("Can't contact the search server", e);
-        }
+        new CleanSiteIndexProcess(solrServer, siteId).execute();
     }
 
     @Override
