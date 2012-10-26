@@ -18,13 +18,16 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.solr.process.CleanSiteIndexProcess;
+import uk.ac.ox.oucs.search.solr.process.BuildSiteIndexProcess;
 import uk.ac.ox.oucs.search.solr.process.IndexDocumentProcess;
 import uk.ac.ox.oucs.search.solr.process.RefreshSiteIndexProcess;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -388,30 +391,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         @Override
         public void run() {
-            logger.info("Rebuilding the index for '" + siteId + "'");
             setCurrentSessionUserAdmin();
-            new CleanSiteIndexProcess(solrServer, siteId).execute();
-            for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
-                try {
-                    Iterable<String> resourceNames = new Iterable<String>() {
-                        @Override
-                        public Iterator<String> iterator() {
-                            return entityContentProducer.getSiteContentIterator(siteId);
-                        }
-                    };
-
-                    for (String resourceName : resourceNames) {
-                        new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
-                    }
-
-                    solrServer.commit();
-                } catch (SolrServerException e) {
-                    logger.warn("Couldn't rebuild the index for site '" + siteId + "'", e);
-                } catch (IOException e) {
-                    logger.error("Can't contact the search server", e);
-                }
-
-            }
+            new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
         }
     }
 
