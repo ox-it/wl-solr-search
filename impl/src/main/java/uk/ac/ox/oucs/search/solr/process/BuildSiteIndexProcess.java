@@ -14,7 +14,7 @@ import java.util.Iterator;
  * @author Colin Hebert
  */
 public class BuildSiteIndexProcess implements SolrProcess {
-    private static final Logger logger = LoggerFactory.getLogger(RefreshSiteIndexProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(BuildSiteIndexProcess.class);
     private final SolrServer solrServer;
     private final ContentProducerFactory contentProducerFactory;
     private final String siteId;
