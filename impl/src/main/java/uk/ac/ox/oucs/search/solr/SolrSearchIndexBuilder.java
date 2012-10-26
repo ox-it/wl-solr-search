@@ -71,11 +71,12 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         if (isOnlyIndexSearchToolSites()) {
             String siteId = entityContentProducer.getSiteId(resourceName);
             try {
-                if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null)
+                if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null) {
                     logger.debug("Can't index content if the search tool isn't activated. Site: " + siteId);
                     return;
+                }
             } catch (IdUnusedException e) {
-                logger.warn("Couldn't find the site '"+siteId+"'", e);
+                logger.warn("Couldn't find the site '" + siteId + "'", e);
                 return;
             }
         }
