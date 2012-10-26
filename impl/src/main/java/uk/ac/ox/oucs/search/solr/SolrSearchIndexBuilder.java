@@ -12,14 +12,9 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.solr.process.BuildSiteIndexProcess;
-import uk.ac.ox.oucs.search.solr.process.IndexDocumentProcess;
-import uk.ac.ox.oucs.search.solr.process.RefreshSiteIndexProcess;
-import uk.ac.ox.oucs.search.solr.process.RemoveDocumentProcess;
+import uk.ac.ox.oucs.search.solr.process.*;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
@@ -38,7 +33,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private SiteService siteService;
     private SolrServer solrServer;
     private ContentProducerFactory contentProducerFactory;
-    private SessionManager sessionManager;
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
     private Executor indexingExecutor;
@@ -73,7 +67,20 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
 
         IndexAction action = IndexAction.getAction(entityContentProducer.getAction(event));
-        indexingExecutor.execute(new DocumentIndexer(entityContentProducer, action, resourceName));
+        logger.debug("Action on '" + resourceName + "' detected as " + action.name());
+
+        SolrProcess solrProcess;
+        switch (action) {
+            case ADD:
+                solrProcess = new IndexDocumentProcess(solrServer, entityContentProducer, resourceName);
+                break;
+            case DELETE:
+                solrProcess = new RemoveDocumentProcess(solrServer, entityContentProducer, resourceName);
+                break;
+            default:
+                throw new UnsupportedOperationException(action + " is not yet supported");
+        }
+        indexingExecutor.execute(new ProcessRunner(solrProcess));
     }
 
     @Override
@@ -114,13 +121,13 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        indexingExecutor.execute(new SiteIndexRefresher(currentSiteId));
+        indexingExecutor.execute(new ProcessRunner(new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId)));
     }
 
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
-        indexingExecutor.execute(new SiteIndexBuilder(currentSiteId));
+        indexingExecutor.execute(new ProcessRunner(new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId)));
     }
 
     @Override
@@ -315,80 +322,5 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setIndexingExecutor(Executor indexingExecutor) {
         this.indexingExecutor = indexingExecutor;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
-    /**
-     * Runnable class handling the indexation or removal of one document
-     */
-    private class DocumentIndexer implements Runnable {
-        private final EntityContentProducer entityContentProducer;
-        private final IndexAction action;
-        private final String resourceName;
-
-        public DocumentIndexer(EntityContentProducer entityContentProducer, IndexAction action, String resourceName) {
-            this.entityContentProducer = entityContentProducer;
-            this.action = action;
-            this.resourceName = resourceName;
-        }
-
-        @Override
-        public void run() {
-            logger.debug("Action on '" + resourceName + "' detected as " + action.name());
-            setCurrentSessionUserAdmin();
-            switch (action) {
-                case ADD:
-                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
-                    return;
-                case DELETE:
-                    new RemoveDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
-                    break;
-                default:
-                    throw new UnsupportedOperationException(action + " is not yet supported");
-            }
-        }
-    }
-
-    /**
-     * Runnable class refreshing one site's index
-     */
-    private class SiteIndexRefresher implements Runnable {
-        private final String siteId;
-
-        public SiteIndexRefresher(String siteId) {
-            this.siteId = siteId;
-        }
-
-        @Override
-        public void run() {
-            setCurrentSessionUserAdmin();
-            new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
-        }
-    }
-
-    /**
-     * Runnable class handling one site re-indexation
-     */
-    private class SiteIndexBuilder implements Runnable {
-        private final String siteId;
-
-        public SiteIndexBuilder(String siteId) {
-            this.siteId = siteId;
-        }
-
-        @Override
-        public void run() {
-            setCurrentSessionUserAdmin();
-            new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
-        }
-    }
-
-    private void setCurrentSessionUserAdmin() {
-        Session session = sessionManager.getCurrentSession();
-        session.setUserId("admin");
-        session.setUserEid("admin");
     }
 }
