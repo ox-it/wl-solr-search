@@ -1,9 +1,7 @@
 package uk.ac.ox.oucs.search.solr;
 
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -21,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.process.BuildSiteIndexProcess;
 import uk.ac.ox.oucs.search.solr.process.IndexDocumentProcess;
 import uk.ac.ox.oucs.search.solr.process.RefreshSiteIndexProcess;
+import uk.ac.ox.oucs.search.solr.process.RemoveDocumentProcess;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
@@ -338,26 +337,17 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         @Override
         public void run() {
-            try {
-                logger.debug("Action on '" + resourceName + "' detected as " + action.name());
-                setCurrentSessionUserAdmin();
-                SolrRequest request;
-                switch (action) {
-                    case ADD:
-                        new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
-                        return;
-                    case DELETE:
-                        request = new UpdateRequest().deleteById(entityContentProducer.getId(resourceName));
-                        break;
-                    default:
-                        throw new UnsupportedOperationException(action + " is not yet supported");
-                }
-                solrServer.request(request);
-                solrServer.commit();
-            } catch (SolrServerException e) {
-                logger.warn("Couldn't execute the request", e);
-            } catch (IOException e) {
-                logger.error("Can't contact the search server", e);
+            logger.debug("Action on '" + resourceName + "' detected as " + action.name());
+            setCurrentSessionUserAdmin();
+            switch (action) {
+                case ADD:
+                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
+                    return;
+                case DELETE:
+                    new RemoveDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
+                    break;
+                default:
+                    throw new UnsupportedOperationException(action + " is not yet supported");
             }
         }
     }
