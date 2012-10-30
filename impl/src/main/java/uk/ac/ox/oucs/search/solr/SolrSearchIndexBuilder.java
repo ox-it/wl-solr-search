@@ -192,7 +192,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private boolean isSiteIndexable(Site site) {
         logger.debug("Check if '" + site.getId() + "' is indexable.");
         return !(siteService.isSpecialSite(site.getId()) ||
-                (isOnlyIndexSearchToolSites() && site.getToolForCommonId("sakai.search") == null) ||
+                (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SEARCH_TOOL_ID) == null) ||
                 (isExcludeUserSites() && siteService.isUserSite(site.getId())));
     }
 
