@@ -69,6 +69,26 @@ public class IndexDocumentProcess implements SolrProcess {
     private SolrRequest toSolrRequest(final String resourceName, EntityContentProducer contentProducer) {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
+        SolrInputDocument document = generateBaseSolrDocument(resourceName, contentProducer);
+
+        //Prepare the actual request based on a stream/reader/string
+        if (contentProducer instanceof BinaryEntityContentProducer) {
+            logger.debug("Create a SolrCell request");
+            request = prepareSolrCellRequest(resourceName, (BinaryEntityContentProducer) contentProducer, document);
+        } else if (contentProducer.isContentFromReader(resourceName)) {
+            logger.debug("Create a request with a Reader");
+            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
+            request = new UpdateRequestReader().add(document);
+        } else {
+            logger.debug("Create a request based on a String");
+            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(resourceName));
+            request = new UpdateRequest().add(document);
+        }
+
+        return request;
+    }
+
+    private SolrInputDocument generateBaseSolrDocument(String resourceName, EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
         //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't
@@ -88,22 +108,7 @@ public class IndexDocumentProcess implements SolrProcess {
         for (Map.Entry<String, Collection<String>> entry : properties.entrySet()) {
             document.addField(PROPERTY_PREFIX + entry.getKey(), entry.getValue());
         }
-
-        //Prepare the actual request based on a stream/reader/string
-        if (contentProducer instanceof BinaryEntityContentProducer) {
-            logger.debug("Create a SolrCell request");
-            request = prepareSolrCellRequest(resourceName, (BinaryEntityContentProducer) contentProducer, document);
-        } else if (contentProducer.isContentFromReader(resourceName)) {
-            logger.debug("Create a request with a Reader");
-            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
-            request = new UpdateRequestReader().add(document);
-        } else {
-            logger.debug("Create a request based on a String");
-            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(resourceName));
-            request = new UpdateRequest().add(document);
-        }
-
-        return request;
+        return document;
     }
 
 
