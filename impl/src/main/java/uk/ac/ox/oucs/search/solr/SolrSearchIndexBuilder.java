@@ -292,6 +292,12 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             this.itemAction = itemAction;
         }
 
+        /**
+         * Generate an IndexAction based on an action ID provided by the Search API
+         *
+         * @param itemActionId action ID used by the Search API
+         * @return IndexAction matching the given ID, null if nothing has been found
+         */
         public static IndexAction getAction(int itemActionId) {
             for (IndexAction indexAction : values()) {
                 if (indexAction.getItemAction() == itemActionId)
