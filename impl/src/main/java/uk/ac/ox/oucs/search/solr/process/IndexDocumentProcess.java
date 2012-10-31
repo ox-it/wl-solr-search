@@ -60,7 +60,7 @@ public class IndexDocumentProcess implements SolrProcess {
     }
 
     /**
-     * Generate a  {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
+     * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
      *
      * @param resourceName    resource to index
      * @param contentProducer content producer associated with the resource
@@ -88,6 +88,13 @@ public class IndexDocumentProcess implements SolrProcess {
         return request;
     }
 
+    /**
+     * Create a solrDocument for a specific resource
+     *
+     * @param resourceName    resource used to generate the document
+     * @param contentProducer contentProducer in charge of extracting the data
+     * @return a SolrDocument
+     */
     private SolrInputDocument generateBaseSolrDocument(String resourceName, EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
@@ -110,7 +117,6 @@ public class IndexDocumentProcess implements SolrProcess {
         }
         return document;
     }
-
 
     /**
      * Prepare a request toward SolrCell to parse a binary document.
