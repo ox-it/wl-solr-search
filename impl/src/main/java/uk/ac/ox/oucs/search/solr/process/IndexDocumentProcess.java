@@ -70,6 +70,7 @@ public class IndexDocumentProcess implements SolrProcess {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
         SolrInputDocument document = generateBaseSolrDocument(resourceName, contentProducer);
+        logger.debug("Base solr document created ." + document);
 
         //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
@@ -194,6 +195,7 @@ public class IndexDocumentProcess implements SolrProcess {
             //If this property was already present there (this shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
                 logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
+                logger.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
                 values = new ArrayList<String>(values);
                 values.addAll(properties.get(propertyName));
             }
