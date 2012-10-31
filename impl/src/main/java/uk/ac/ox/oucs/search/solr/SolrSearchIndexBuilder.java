@@ -39,8 +39,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void addResource(Notification notification, Event event) {
-        logger.debug("Attempt to add or remove a resource from the index");
         String resourceName = event.getResource();
+        logger.debug("Attempt to add or remove a resource from the index '" + resourceName + "'");
         //Set the resource name to empty instead of null
         if (resourceName == null)
             //TODO: Shouldn't addResource just stop there instead?
@@ -58,7 +58,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             String siteId = entityContentProducer.getSiteId(resourceName);
             try {
                 if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null) {
-                    logger.debug("Can't index content if the search tool isn't activated. Site: " + siteId);
+                    logger.debug("Impossible to index the content of the site '" + siteId + "' because the search tool hasn't been added");
                     return;
                 }
             } catch (IdUnusedException e) {
@@ -81,6 +81,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             default:
                 throw new UnsupportedOperationException(action + " is not yet supported");
         }
+        logger.debug("Add the task '" + solrProcess + "' to the executor");
         indexingExecutor.execute(solrProcess);
     }
 
@@ -122,13 +123,17 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        indexingExecutor.execute(new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId));
+        RefreshSiteIndexProcess refreshSiteIndexProcess = new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
+        logger.debug("Add the task '" + refreshSiteIndexProcess + "' to the executor");
+        indexingExecutor.execute(refreshSiteIndexProcess);
     }
 
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
-        indexingExecutor.execute(new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId));
+        BuildSiteIndexProcess buildSiteIndexProcess = new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
+        logger.debug("Add the task '" + buildSiteIndexProcess + "' to the executor");
+        indexingExecutor.execute(buildSiteIndexProcess);
     }
 
     @Override
@@ -190,7 +195,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
      * @return true if the site can be index, false otherwise
      */
     private boolean isSiteIndexable(Site site) {
-        logger.debug("Check if '" + site.getId() + "' is indexable.");
+        logger.debug("Check if '" + site + "' is indexable.");
         return !(siteService.isSpecialSite(site.getId()) ||
                 (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SEARCH_TOOL_ID) == null) ||
                 (isExcludeUserSites() && siteService.isUserSite(site.getId())));
