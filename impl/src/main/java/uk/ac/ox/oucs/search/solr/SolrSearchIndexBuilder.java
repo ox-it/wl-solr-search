@@ -42,6 +42,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void addResource(Notification notification, Event event) {
+        try {
+            processEvent(event);
+        } catch (Exception e) {
+            logger.error("Event handling failed (this should NEVER happen)", e);
+        }
+    }
+
+    private void processEvent(Event event) {
         String resourceName = event.getResource();
         logger.debug("Attempt to add or remove a resource from the index '" + resourceName + "'");
         //Set the resource name to empty instead of null
