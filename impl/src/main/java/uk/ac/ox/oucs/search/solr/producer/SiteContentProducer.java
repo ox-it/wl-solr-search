@@ -218,7 +218,6 @@ public class SiteContentProducer implements EntityContentProducer {
         return addEvents.contains(event.getEvent()) || removeEvents.contains(event.getEvent());
     }
 
-
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }

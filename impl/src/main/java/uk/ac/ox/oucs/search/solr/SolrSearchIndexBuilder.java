@@ -128,7 +128,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         indexingExecutor.execute(refreshSiteIndexProcess);
     }
 
-
     @Override
     public void rebuildIndex(final String currentSiteId) {
         BuildSiteIndexProcess buildSiteIndexProcess = new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
@@ -254,6 +253,30 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         return null;
     }
 
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setSolrServer(SolrServer solrServer) {
+        this.solrServer = solrServer;
+    }
+
+    public void setSearchToolRequired(boolean searchToolRequired) {
+        this.searchToolRequired = searchToolRequired;
+    }
+
+    public void setIgnoreUserSites(boolean ignoreUserSites) {
+        this.ignoreUserSites = ignoreUserSites;
+    }
+
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
+    }
+
+    public void setIndexingExecutor(Executor indexingExecutor) {
+        this.indexingExecutor = indexingExecutor;
+    }
+
     public static enum IndexAction {
         /**
          * Action Unknown, usually because the record has just been created
@@ -285,7 +308,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
          * refresh will not override the rebuild
          */
         REFRESH(SearchBuilderItem.ACTION_REFRESH);
-
         private final int itemAction;
 
         private IndexAction(int itemAction) {
@@ -310,29 +332,5 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         public int getItemAction() {
             return itemAction;
         }
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public void setSolrServer(SolrServer solrServer) {
-        this.solrServer = solrServer;
-    }
-
-    public void setSearchToolRequired(boolean searchToolRequired) {
-        this.searchToolRequired = searchToolRequired;
-    }
-
-    public void setIgnoreUserSites(boolean ignoreUserSites) {
-        this.ignoreUserSites = ignoreUserSites;
-    }
-
-    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
-        this.contentProducerFactory = contentProducerFactory;
-    }
-
-    public void setIndexingExecutor(Executor indexingExecutor) {
-        this.indexingExecutor = indexingExecutor;
     }
 }

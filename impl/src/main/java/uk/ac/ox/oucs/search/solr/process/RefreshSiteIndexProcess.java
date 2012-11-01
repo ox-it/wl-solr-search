@@ -37,7 +37,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
         try {
             //Get the currently indexed resources for this site
             Collection<String> resourceNames = getResourceNames(siteId);
-            logger.info(resourceNames.size() + " elements will be refreshed");
+            logger.debug(resourceNames.size() + " elements will be refreshed");
             new CleanSiteIndexProcess(solrServer, siteId).run();
             for (String resourceName : resourceNames) {
                 EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
@@ -45,7 +45,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
                 //If there is no matching entity content producer or no associated site, skip the resource
                 //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
                 if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
-                    logger.info("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
+                    logger.warn("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
                     continue;
                 }
 
@@ -59,7 +59,6 @@ public class RefreshSiteIndexProcess implements SolrProcess {
             logger.error("Can't contact the search server", e);
         }
     }
-
 
     /**
      * Get all indexed resources for a site

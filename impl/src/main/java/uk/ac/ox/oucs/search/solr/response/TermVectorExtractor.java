@@ -31,7 +31,6 @@ public class TermVectorExtractor {
     private static final String UNIQUE_KEY = "uniqueKey";
     private static final String WARNINGS = "warnings";
     private static final String UNIQUE_KEY_FIELD_NAME = "uniqueKeyFieldName";
-
     /**
      * TermVector data in the form:
      * <pre>
@@ -176,36 +175,36 @@ public class TermVectorExtractor {
             return documentFrequency;
         }
 
-        public Long getTermFrequency() {
-            return termFrequency;
-        }
-
-        public Double getTermFrequencyInverseDocumentFrequency() {
-            return termFrequencyInverseDocumentFrequency;
-        }
-
-        public List<Offset> getOffsets() {
-            return offsets;
-        }
-
-        public List<Long> getPositions() {
-            return positions;
-        }
-
         private void setDocumentFrequency(Long documentFrequency) {
             this.documentFrequency = documentFrequency;
+        }
+
+        public Long getTermFrequency() {
+            return termFrequency;
         }
 
         private void setTermFrequency(Long termFrequency) {
             this.termFrequency = termFrequency;
         }
 
+        public Double getTermFrequencyInverseDocumentFrequency() {
+            return termFrequencyInverseDocumentFrequency;
+        }
+
         private void setTermFrequencyInverseDocumentFrequency(Double termFrequencyInverseDocumentFrequency) {
             this.termFrequencyInverseDocumentFrequency = termFrequencyInverseDocumentFrequency;
         }
 
+        public List<Offset> getOffsets() {
+            return offsets;
+        }
+
         private void setOffsets(List<Offset> offsets) {
             this.offsets = offsets;
+        }
+
+        public List<Long> getPositions() {
+            return positions;
         }
 
         private void setPositions(List<Long> positions) {
@@ -223,12 +222,12 @@ public class TermVectorExtractor {
                 return start;
             }
 
-            public Long getEnd() {
-                return end;
-            }
-
             private void setStart(Long start) {
                 this.start = start;
+            }
+
+            public Long getEnd() {
+                return end;
             }
 
             private void setEnd(Long end) {

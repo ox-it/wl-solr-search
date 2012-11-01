@@ -23,16 +23,8 @@ public class SolrResult implements SearchResult {
     private String newUrl;
     private EntityContentProducer contentProducer;
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     public void setDocument(SolrDocument document) {
         this.document = document;
-    }
-
-    public void setTerms(Map<String, Map<String, TermInfo>> terms) {
-        this.terms = extractTermFrequency(terms);
     }
 
     public void setHighlights(Map<String, List<String>> highlights) {
@@ -80,6 +72,11 @@ public class SolrResult implements SearchResult {
     }
 
     @Override
+    public void setUrl(String newUrl) {
+        this.newUrl = newUrl;
+    }
+
+    @Override
     public String getTitle() {
         return (String) document.getFieldValue(SearchService.FIELD_TITLE);
     }
@@ -87,6 +84,10 @@ public class SolrResult implements SearchResult {
     @Override
     public int getIndex() {
         return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     @Override
@@ -108,6 +109,10 @@ public class SolrResult implements SearchResult {
     @Override
     public TermFrequency getTerms() throws IOException {
         return terms;
+    }
+
+    public void setTerms(Map<String, Map<String, TermInfo>> terms) {
+        this.terms = extractTermFrequency(terms);
     }
 
     @Override
@@ -143,16 +148,11 @@ public class SolrResult implements SearchResult {
     }
 
     @Override
-    public void setUrl(String newUrl) {
-        this.newUrl = newUrl;
-    }
-
-    @Override
     public boolean hasPortalUrl() {
         return contentProducer instanceof PortalUrlEnabledProducer;
     }
 
-    private static String[] collectionToStringArray(Collection<?> objectValues) {
+    private String[] collectionToStringArray(Collection<?> objectValues) {
         String[] values = new String[objectValues.size()];
         int i = 0;
         for (Iterator<?> iterator = objectValues.iterator(); iterator.hasNext(); i++) {
@@ -167,7 +167,7 @@ public class SolrResult implements SearchResult {
      * @param termsByField A map of field/terms
      * @return
      */
-    private static TermFrequency extractTermFrequency(Map<String, Map<String, TermInfo>> termsByField) {
+    private TermFrequency extractTermFrequency(Map<String, Map<String, TermInfo>> termsByField) {
         Map<String, Long> termFrequencies = new HashMap<String, Long>();
         //Count the frequencies for each term, based on the sum of the frequency in each field
         for (Map<String, TermInfo> terms : termsByField.values()) {

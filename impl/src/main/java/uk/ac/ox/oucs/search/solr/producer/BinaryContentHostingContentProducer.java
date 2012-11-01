@@ -50,7 +50,6 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
         return stream;
     }
 
-
     public void setSupportedContentTypes(List<String> supportedContentTypes) {
         this.supportedContentTypes = supportedContentTypes;
     }

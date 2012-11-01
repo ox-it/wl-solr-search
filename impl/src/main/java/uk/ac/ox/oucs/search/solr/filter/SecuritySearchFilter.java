@@ -20,6 +20,9 @@ public class SecuritySearchFilter implements SearchItemFilter {
         return contentProducer == null || !contentProducer.canRead(reference) ? censoredSearchResult : result;
     }
 
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
+    }
 
     private static class CensoredSearchResult implements SearchResult {
         private static final TermFrequency termFrequency = new TermFrequency() {
@@ -62,6 +65,10 @@ public class SecuritySearchFilter implements SearchItemFilter {
         @Override
         public String getUrl() {
             return "";
+        }
+
+        @Override
+        public void setUrl(String newUrl) {
         }
 
         @Override
@@ -109,16 +116,8 @@ public class SecuritySearchFilter implements SearchItemFilter {
         }
 
         @Override
-        public void setUrl(String newUrl) {
-        }
-
-        @Override
         public boolean hasPortalUrl() {
             return false;
         }
-    }
-
-    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
-        this.contentProducerFactory = contentProducerFactory;
     }
 }

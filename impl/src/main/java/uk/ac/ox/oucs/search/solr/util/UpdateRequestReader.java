@@ -19,7 +19,7 @@ import java.util.*;
 
 /**
  * Based on {@link org.apache.solr.client.solrj.request.UpdateRequest}, this UpdateRequest will look into
- * each {@link SolrInputDocument} for Readers them instead of using plain Strings only.
+ * each {@link SolrInputDocument} for Readers instead of using plain Strings only.
  */
 public class UpdateRequestReader extends AbstractUpdateRequest {
     private List<SolrInputDocument> documents = null;
