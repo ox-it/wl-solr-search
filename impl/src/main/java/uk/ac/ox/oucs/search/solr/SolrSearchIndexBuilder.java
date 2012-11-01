@@ -12,6 +12,8 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.process.*;
@@ -36,6 +38,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
     private Executor indexingExecutor;
+    private SessionManager sessionManager;
 
     @Override
     public void addResource(Notification notification, Event event) {
@@ -82,7 +85,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 throw new UnsupportedOperationException(action + " is not yet supported");
         }
         logger.debug("Add the task '" + solrProcess + "' to the executor");
-        indexingExecutor.execute(solrProcess);
+        indexingExecutor.execute(new RunnableProcess(solrProcess));
     }
 
     @Override
@@ -125,14 +128,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex(String currentSiteId) {
         RefreshSiteIndexProcess refreshSiteIndexProcess = new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
         logger.debug("Add the task '" + refreshSiteIndexProcess + "' to the executor");
-        indexingExecutor.execute(refreshSiteIndexProcess);
+        indexingExecutor.execute(new RunnableProcess(refreshSiteIndexProcess));
     }
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
         BuildSiteIndexProcess buildSiteIndexProcess = new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
         logger.debug("Add the task '" + buildSiteIndexProcess + "' to the executor");
-        indexingExecutor.execute(buildSiteIndexProcess);
+        indexingExecutor.execute(new RunnableProcess(buildSiteIndexProcess));
     }
 
     @Override
@@ -277,6 +280,10 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         this.indexingExecutor = indexingExecutor;
     }
 
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
     public static enum IndexAction {
         /**
          * Action Unknown, usually because the record has just been created
@@ -331,6 +338,26 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         public int getItemAction() {
             return itemAction;
+        }
+    }
+
+    private class RunnableProcess implements Runnable {
+        private final SolrProcess solrProcess;
+
+        private RunnableProcess(SolrProcess solrProcess) {
+            this.solrProcess = solrProcess;
+        }
+
+        @Override
+        public void run() {
+            logAsAdmin();
+            solrProcess.execute();
+        }
+
+        private void logAsAdmin() {
+            Session session = sessionManager.getCurrentSession();
+            session.setUserId("admin");
+            session.setUserEid("admin");
         }
     }
 }
