@@ -52,7 +52,7 @@ public class IndexDocumentProcess implements SolrProcess {
             if (commit)
                 solrServer.commit();
         } catch (Exception e) {
-            logger.error("Error while indexing the document '" + resourceName + "'", e);
+            logger.error("An exception occurred while indexing the document '" + resourceName + "'", e);
         }
     }
 

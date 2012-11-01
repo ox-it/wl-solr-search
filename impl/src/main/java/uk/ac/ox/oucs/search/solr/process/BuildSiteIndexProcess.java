@@ -42,7 +42,7 @@ public class BuildSiteIndexProcess implements SolrProcess {
 
                 solrServer.commit();
             } catch (Exception e) {
-                logger.error("Error while rebuilding the index of '" + siteId + "'", e);
+                logger.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
             }
         }
     }

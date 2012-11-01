@@ -34,7 +34,7 @@ public class RemoveDocumentProcess implements SolrProcess {
             if (commit)
                 solrServer.commit();
         } catch (Exception e) {
-            logger.error("Error while removing the document '" + resourceName + "'", e);
+            logger.error("An exception occurred while removing the document '" + resourceName + "'", e);
         }
     }
 }

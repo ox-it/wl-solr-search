@@ -54,7 +54,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
 
             solrServer.commit();
         } catch (Exception e) {
-            logger.error("Error while refresh the index of '" + siteId + "'", e);
+            logger.error("An exception occurred while refresh the index of '" + siteId + "'", e);
         }
     }
 

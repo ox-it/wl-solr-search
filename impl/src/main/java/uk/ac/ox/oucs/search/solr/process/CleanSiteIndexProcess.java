@@ -25,7 +25,7 @@ public class CleanSiteIndexProcess implements SolrProcess {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":\"" + siteId + "\"");
             solrServer.commit();
         } catch (Exception e) {
-            logger.error("Error while cleaning the index of '" + siteId + "'", e);
+            logger.error("An exception occurred while cleaning the index of '" + siteId + "'", e);
         }
     }
 }
