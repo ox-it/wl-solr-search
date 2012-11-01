@@ -1,12 +1,9 @@
 package uk.ac.ox.oucs.search.solr.process;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author Colin Hebert
@@ -36,10 +33,8 @@ public class RemoveDocumentProcess implements SolrProcess {
             solrServer.deleteById(entityContentProducer.getId(resourceName));
             if (commit)
                 solrServer.commit();
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't execute the request", e);
-        } catch (IOException e) {
-            logger.error("Can't contact the search server", e);
+        } catch (Exception e) {
+            logger.error("Error while removing the document '" + resourceName + "'", e);
         }
     }
 }

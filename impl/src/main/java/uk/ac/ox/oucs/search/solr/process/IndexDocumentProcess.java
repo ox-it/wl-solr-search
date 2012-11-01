@@ -2,7 +2,6 @@ package uk.ac.ox.oucs.search.solr.process;
 
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
@@ -52,10 +51,8 @@ public class IndexDocumentProcess implements SolrProcess {
             solrServer.request(request);
             if (commit)
                 solrServer.commit();
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't execute the request", e);
-        } catch (IOException e) {
-            logger.error("Can't contact the search server", e);
+        } catch (Exception e) {
+            logger.error("Error while indexing the document '" + resourceName + "'", e);
         }
     }
 

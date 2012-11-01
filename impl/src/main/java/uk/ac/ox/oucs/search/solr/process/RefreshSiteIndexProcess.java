@@ -53,10 +53,8 @@ public class RefreshSiteIndexProcess implements SolrProcess {
             }
 
             solrServer.commit();
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't refresh the index for site '" + siteId + "'", e);
-        } catch (IOException e) {
-            logger.error("Can't contact the search server", e);
+        } catch (Exception e) {
+            logger.error("Error while refresh the index of '" + siteId + "'", e);
         }
     }
 
