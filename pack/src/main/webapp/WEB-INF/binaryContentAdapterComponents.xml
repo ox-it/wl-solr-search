@@ -11,6 +11,8 @@
         <property name="supportedContentTypes">
             <list>
                 <value>org.sakaiproject.content.types.fileUpload</value>
+                <value>org.sakaiproject.content.types.HtmlDocumentType</value>
+                <value>org.sakaiproject.content.types.TextDocumentType</value>
             </list>
         </property>
     </bean>
