@@ -88,7 +88,7 @@ public class SiteContentProducer implements EntityContentProducer {
 
     @Override
     public String getContainer(String ref) {
-        // the site document is contined by itself
+        // the site document is contained by itself
         return entityManager.newReference(ref).getId();
 
     }
@@ -149,29 +149,13 @@ public class SiteContentProducer implements EntityContentProducer {
 
     @Override
     public String getSiteId(String ref) {
-        // this is the site that the document is visible to,
-        // we need to look at the state of the site, and use special sites.
-        // INFO: this is using not standard scoping that might want to be
-        // reflected elsewhere
-        Entity entity = entityManager.newReference(ref).getEntity();
-        if (entity instanceof Site) {
-            Site s = (Site) entity;
-            if (s.isPublished() && s.isPubView()) {
-                return ".auth";
-            } else if (s.isPublished() && s.isJoinable()) {
-                return ".anon";
-            } else {
-                // make unjoinable sites as private
-                return ".private";
-            }
-        }
-        return null;
-
+        //An indexed site belongs to itself (so you can search for it if you're supposed to have an access to that site
+        return entityManager.newReference(ref).getId();
     }
 
     @Override
     public String getSubType(String ref) {
-        return "";
+        return entityManager.newReference(ref).getSubType();
     }
 
     @Override
