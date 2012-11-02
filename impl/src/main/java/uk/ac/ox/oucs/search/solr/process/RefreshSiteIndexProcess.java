@@ -68,7 +68,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
         try {
             logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
             SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_SITEID + ':' + siteId)
+                    .setQuery(SearchService.FIELD_SITEID + ":\"" + siteId+"\"")
                     .addField(SearchService.FIELD_REFERENCE);
             SolrDocumentList results = solrServer.query(query).getResults();
             Collection<String> resourceNames = new ArrayList<String>(results.size());
