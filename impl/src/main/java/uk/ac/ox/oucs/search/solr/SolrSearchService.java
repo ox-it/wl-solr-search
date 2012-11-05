@@ -200,17 +200,17 @@ public class SolrSearchService implements SearchService {
 
             @Override
             public String getCurrentWorker() {
-                return "External indexing, no locks ";
+                return "";
             }
 
             @Override
             public String getCurrentWorkerETC() {
-                return "List of current activity ";
+                return "";
             }
 
             @Override
             public List<Object[]> getWorkerNodes() {
-                return Collections.singletonList(new Object[]{"NodeName", new Date(), "running status "});
+                return Collections.emptyList();
             }
 
             @Override
@@ -232,7 +232,7 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public List<Object[]> getSegmentInfo() {
-        return Collections.singletonList(new Object[]{"Index Segment Info is not implemented", "", ""});
+        return Collections.emptyList();
     }
 
     @Override
