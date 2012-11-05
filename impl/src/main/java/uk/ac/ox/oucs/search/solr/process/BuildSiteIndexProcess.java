@@ -28,8 +28,8 @@ public class BuildSiteIndexProcess implements SolrProcess {
     public void execute() {
         logger.info("Rebuilding the index for '" + siteId + "'");
         new CleanSiteIndexProcess(solrServer, siteId).execute();
-        for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
-            try {
+        try {
+            for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
                 Iterable<String> resourceNames = new Iterable<String>() {
                     @Override
                     public Iterator<String> iterator() {
@@ -45,11 +45,10 @@ public class BuildSiteIndexProcess implements SolrProcess {
                         queued_documents = 0;
                     }
                 }
-
-                solrServer.commit();
-            } catch (Exception e) {
-                logger.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
             }
+            solrServer.commit();
+        } catch (Exception e) {
+            logger.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
         }
     }
 }
