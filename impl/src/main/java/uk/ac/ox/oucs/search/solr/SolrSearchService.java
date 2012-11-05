@@ -90,12 +90,12 @@ public class SolrSearchService implements SearchService {
             if (siteIds != null && !siteIds.isEmpty())
                 query.setFilterQueries(createSitesFilterQuery(siteIds));
 
-            logger.debug("Searching with Solr : " + searchTerms);
+            logger.debug("Searching with Solr: " + searchTerms);
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
             return new SolrSearchList(rsp, searchItemFilter, contentProducerFactory);
         } catch (SolrServerException e) {
-            throw new InvalidSearchQueryException("Failed to parse Query ", e);
+            throw new InvalidSearchQueryException("Failed to parse Query", e);
         }
     }
 
