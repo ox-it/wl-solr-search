@@ -19,7 +19,10 @@ import uk.ac.ox.oucs.search.solr.notification.SearchNotificationAction;
 import uk.ac.ox.oucs.search.solr.response.SolrSearchList;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Colin Hebert
@@ -84,18 +87,8 @@ public class SolrSearchService implements SearchService {
             query.setParam("tv.fl", SearchService.FIELD_CONTENTS);
             query.setParam("tv.tf", true);
 
-            if (siteIds != null && !siteIds.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append('+').append(SearchService.FIELD_SITEID).append(":");
-                sb.append('(');
-                for (Iterator<String> siteIdsIterator = siteIds.iterator(); siteIdsIterator.hasNext(); ) {
-                    sb.append('"').append(siteIdsIterator.next()).append('"');
-                    if (siteIdsIterator.hasNext())
-                        sb.append(" OR ");
-                }
-                sb.append(')');
-                query.setFilterQueries(sb.toString());
-            }
+            if (siteIds != null && !siteIds.isEmpty())
+                query.setFilterQueries(createSitesFilterQuery(siteIds));
 
             logger.debug("Searching with Solr : " + searchTerms);
             query.setQuery(searchTerms);
@@ -104,6 +97,20 @@ public class SolrSearchService implements SearchService {
         } catch (SolrServerException e) {
             throw new InvalidSearchQueryException("Failed to parse Query ", e);
         }
+    }
+
+    private String createSitesFilterQuery(List<String> siteIds) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('+').append(SearchService.FIELD_SITEID).append(":");
+        sb.append('(');
+        for (Iterator<String> siteIdsIterator = siteIds.iterator(); siteIdsIterator.hasNext(); ) {
+            sb.append('"').append(siteIdsIterator.next()).append('"');
+            if (siteIdsIterator.hasNext())
+                sb.append(" OR ");
+        }
+        sb.append(')');
+        logger.debug("Create filter query " + sb.toString());
+        return sb.toString();
     }
 
     @Override
