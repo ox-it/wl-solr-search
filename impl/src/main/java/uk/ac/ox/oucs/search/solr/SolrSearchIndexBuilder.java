@@ -93,7 +93,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 throw new UnsupportedOperationException(action + " is not yet supported");
         }
         logger.debug("Add the task '" + solrProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(solrProcess));
+        indexingExecutor.execute(new RunnableProcess(solrProcess, sessionManager));
     }
 
     @Override
@@ -136,14 +136,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex(String currentSiteId) {
         RefreshSiteIndexProcess refreshSiteIndexProcess = new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
         logger.debug("Add the task '" + refreshSiteIndexProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(refreshSiteIndexProcess));
+        indexingExecutor.execute(new RunnableProcess(refreshSiteIndexProcess, sessionManager));
     }
 
     @Override
     public void rebuildIndex(final String currentSiteId) {
         BuildSiteIndexProcess buildSiteIndexProcess = new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
         logger.debug("Add the task '" + buildSiteIndexProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(buildSiteIndexProcess));
+        indexingExecutor.execute(new RunnableProcess(buildSiteIndexProcess, sessionManager));
     }
 
     @Override
@@ -349,11 +349,13 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
     }
 
-    private class RunnableProcess implements Runnable {
+    private static class RunnableProcess implements Runnable {
         private final SolrProcess solrProcess;
+        private final SessionManager sessionManager;
 
-        private RunnableProcess(SolrProcess solrProcess) {
+        private RunnableProcess(SolrProcess solrProcess, SessionManager sessionManager) {
             this.solrProcess = solrProcess;
+            this.sessionManager = sessionManager;
         }
 
         @Override
