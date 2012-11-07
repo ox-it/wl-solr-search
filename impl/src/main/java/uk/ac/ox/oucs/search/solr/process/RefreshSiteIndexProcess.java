@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.search.solr.process;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -68,7 +69,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
         try {
             logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
             SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_SITEID + ":\"" + siteId+"\"")
+                    .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
                     .addField(SearchService.FIELD_REFERENCE);
             SolrDocumentList results = solrServer.query(query).getResults();
             Collection<String> resourceNames = new ArrayList<String>(results.size());
