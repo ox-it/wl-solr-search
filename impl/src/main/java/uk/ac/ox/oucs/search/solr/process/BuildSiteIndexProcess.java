@@ -28,6 +28,7 @@ public class BuildSiteIndexProcess implements SolrProcess {
     public void execute() {
         logger.info("Rebuilding the index for '" + siteId + "'");
         new CleanSiteIndexProcess(solrServer, siteId).execute();
+        logger.info("Indexing the content for site '" + siteId + "'");
         try {
             for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
                 Iterable<String> resourceNames = new Iterable<String>() {
