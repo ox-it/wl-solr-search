@@ -8,7 +8,6 @@ import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -148,12 +147,9 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex() {
-        logger.info("Refreshing the index for every indexable site");
-        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
-            if (isSiteIndexable(s)) {
-                refreshIndex(s.getId());
-            }
-        }
+        SolrProcess refreshProcess = new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory);
+        logger.debug("Add the task '" + refreshProcess + "' to the executor");
+        indexingExecutor.execute(new RunnableProcess(refreshProcess, sessionManager));
     }
 
     @Override
@@ -163,31 +159,19 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex() {
-        logger.info("Rebuilding the index for every indexable site");
-        final Collection<String> reindexedSites = new LinkedList<String>();
+        SolrProcess rebuildProcess = new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory);
+        logger.debug("Add the task '" + rebuildProcess + "' to the executor");
+        indexingExecutor.execute(new RunnableProcess(rebuildProcess, sessionManager));
+    }
+
+    private Collection<String> getIndexableSites() {
+        Collection<String> refreshedSites = new LinkedList<String>();
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
             if (isSiteIndexable(s)) {
-                reindexedSites.add(s.getId());
-                rebuildIndex(s.getId());
+                refreshedSites.add(s.getId());
             }
         }
-        indexingExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Remove indexed documents for unindexable or non-existing sites");
-                StringBuilder sb = new StringBuilder();
-                for (String siteId : reindexedSites) {
-                    sb.append(" -\"").append(siteId).append('"');
-                }
-                try {
-                    solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":( " + sb + " )");
-                } catch (SolrServerException e) {
-                    logger.warn("Couldn't remove obsoletes sites from the index", e);
-                } catch (IOException e) {
-                    logger.error("Can't contact the search server", e);
-                }
-            }
-        });
+        return refreshedSites;
     }
 
     /**
