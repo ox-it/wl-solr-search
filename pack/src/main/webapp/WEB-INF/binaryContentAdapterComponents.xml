@@ -13,6 +13,7 @@
                 <value>org.sakaiproject.content.types.fileUpload</value>
                 <value>org.sakaiproject.content.types.HtmlDocumentType</value>
                 <value>org.sakaiproject.content.types.TextDocumentType</value>
+                <value>org.sakaiproject.content.types.urlResource</value>
             </list>
         </property>
     </bean>
