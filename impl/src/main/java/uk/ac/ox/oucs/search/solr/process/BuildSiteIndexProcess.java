@@ -12,7 +12,6 @@ import java.util.Iterator;
  * @author Colin Hebert
  */
 public class BuildSiteIndexProcess implements SolrProcess {
-    public static final int MAX_QUEUED_DOCUMENTS = 10;
     private static final Logger logger = LoggerFactory.getLogger(BuildSiteIndexProcess.class);
     private final SolrServer solrServer;
     private final ContentProducerFactory contentProducerFactory;
@@ -38,13 +37,8 @@ public class BuildSiteIndexProcess implements SolrProcess {
                     }
                 };
 
-                int queued_documents = 0;
                 for (String resourceName : resourceNames) {
                     new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
-                    if (queued_documents++ >= MAX_QUEUED_DOCUMENTS) {
-                        solrServer.commit();
-                        queued_documents = 0;
-                    }
                 }
             }
             solrServer.commit();
