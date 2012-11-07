@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schema name="SakaiSearch-2.8-ox" version="1.6">
     <types>
+        <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
         <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
@@ -21,7 +22,7 @@
 
     <fields>
         <!-- TODO: Replace with an actual date time -->
-        <field name="indexdate" type="ignored"/>
+        <field name="indexdate" type="date" indexed="true" stored="true" default="NOW" multiValued="false" />
         <field name="container" type="string" indexed="true" stored="true"/>
         <field name="id" type="string" indexed="true" stored="true" required="true"/>
         <field name="type" type="string" indexed="true" stored="true" required="true"/>
