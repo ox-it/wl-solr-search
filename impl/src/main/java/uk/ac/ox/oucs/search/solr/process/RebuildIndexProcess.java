@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 
 import java.util.Collection;
+import java.util.Queue;
 
 /**
  * @author Colin Hebert
@@ -15,10 +16,10 @@ import java.util.Collection;
 public class RebuildIndexProcess implements SolrProcess {
     private static final Logger logger = LoggerFactory.getLogger(RebuildIndexProcess.class);
     private final SolrServer solrServer;
-    private final Collection<String> reindexedSites;
+    private final Queue<String> reindexedSites;
     private final ContentProducerFactory contentProducerFactory;
 
-    public RebuildIndexProcess(SolrServer solrServer, Collection<String> reindexedSites, ContentProducerFactory contentProducerFactory) {
+    public RebuildIndexProcess(SolrServer solrServer, Queue<String> reindexedSites, ContentProducerFactory contentProducerFactory) {
         this.solrServer = solrServer;
         this.reindexedSites = reindexedSites;
         this.contentProducerFactory = contentProducerFactory;
@@ -28,7 +29,8 @@ public class RebuildIndexProcess implements SolrProcess {
     public void execute() {
         logger.info("Rebuilding the index for every indexable site");
         StringBuilder sb = new StringBuilder();
-        for (String siteId : reindexedSites) {
+        while(!reindexedSites.isEmpty()){
+            String siteId = reindexedSites.poll();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             sb.append(" -").append(ClientUtils.escapeQueryChars(siteId));
         }

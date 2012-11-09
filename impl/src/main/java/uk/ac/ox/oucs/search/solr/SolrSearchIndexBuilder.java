@@ -19,10 +19,7 @@ import uk.ac.ox.oucs.search.solr.process.*;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 /**
@@ -164,11 +161,11 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         indexingExecutor.execute(new RunnableProcess(rebuildProcess, sessionManager));
     }
 
-    private Collection<String> getIndexableSites() {
-        Collection<String> refreshedSites = new LinkedList<String>();
+    private Queue<String> getIndexableSites() {
+        Queue<String> refreshedSites = new LinkedList<String>();
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
             if (isSiteIndexable(s)) {
-                refreshedSites.add(s.getId());
+                refreshedSites.offer(s.getId());
             }
         }
         return refreshedSites;
