@@ -1,7 +1,9 @@
 package uk.ac.ox.oucs.search.solr.process;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
@@ -44,6 +46,9 @@ public class BuildSiteIndexProcess implements SolrProcess {
             solrServer.commit();
         } catch (Exception e) {
             logger.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
+        } finally {
+            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
+            threadLocalManager.clear();
         }
     }
 }
