@@ -43,6 +43,7 @@
     <bean id="solrIndexingExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="0"/>
         <property name="maxPoolSize" value="1"/>
+        <property name="queueCapacity" value="100000" />
         <property name="keepAliveSeconds" value="30"/>
     </bean>
 </beans>
