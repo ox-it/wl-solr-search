@@ -2,12 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-lazy-init="true">
     <bean id="uk.ac.ox.oucs.search.solr.queueing.IndexQueueing" class="uk.ac.ox.oucs.search.solr.queueing.IndexQueueingImpl">
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
         <property name="indexingExecutor" ref="solrIndexingExecutor"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="solrServer" ref="solrIndexingServer"/>
+        <property name="indexProcesses" ref="uk.ac.ox.oucs.search.solr.indexing.IndexProcesses" />
     </bean>
     <!-- Executor responsible for handling indexing requests -->
     <!--

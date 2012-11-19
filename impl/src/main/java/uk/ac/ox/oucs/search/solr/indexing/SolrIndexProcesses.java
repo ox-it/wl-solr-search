@@ -5,6 +5,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.springframework.beans.factory.ObjectFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.process.*;
@@ -17,14 +18,14 @@ import java.util.Queue;
  */
 public class SolrIndexProcesses implements IndexProcesses {
     private ContentProducerFactory contentProducerFactory;
-    private SolrServerFactory solrServerFactory;
+    private ObjectFactory solrServerFactory;
     private SiteService siteService;
     private SearchIndexBuilder searchIndexBuilder;
 
     @Override
     public void indexDocument(String resourceName) {
         try {
-            SolrServer solrServer = solrServerFactory.getInstance();
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
             new IndexDocumentProcess(solrServer, contentProducer, resourceName, false).execute();
             solrServer.commit();
@@ -38,7 +39,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     @Override
     public void removeDocument(String resourceName) {
         try {
-            SolrServer solrServer = solrServerFactory.getInstance();
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
             new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
             solrServer.commit();
@@ -52,7 +53,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     @Override
     public void indexSite(String siteId) {
         try {
-            SolrServer solrServer = solrServerFactory.getInstance();
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             solrServer.commit();
         } catch (Exception e) {
@@ -65,7 +66,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     @Override
     public void refreshSite(String siteId) {
         try {
-            SolrServer solrServer = solrServerFactory.getInstance();
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             solrServer.commit();
         } catch (Exception e) {
@@ -78,7 +79,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     @Override
     public void indexAll() {
         try {
-            SolrServer solrServer = solrServerFactory.getInstance();
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
             solrServer.commit();
         } catch (Exception e) {
@@ -91,7 +92,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     @Override
     public void refreshAll() {
         try {
-            SolrServer solrServer = solrServerFactory.getInstance();
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
             solrServer.commit();
         } catch (Exception e) {
@@ -129,7 +130,7 @@ public class SolrIndexProcesses implements IndexProcesses {
         this.searchIndexBuilder = searchIndexBuilder;
     }
 
-    private interface SolrServerFactory {
-        SolrServer getInstance();
+    public void setSolrServerFactory(ObjectFactory solrServerFactory) {
+        this.solrServerFactory = solrServerFactory;
     }
 }
