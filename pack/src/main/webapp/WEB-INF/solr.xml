@@ -35,15 +35,4 @@
         <constructor-arg value="${search.solr.server}" />
     </bean>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
-
-    <!-- Executor responsible for handling heavy requests toward solr -->
-    <!--
-        The maxPoolSize has to be set to one to avoid concurrency issues
-    -->
-    <bean id="solrIndexingExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="0"/>
-        <property name="maxPoolSize" value="1"/>
-        <property name="queueCapacity" value="100000" />
-        <property name="keepAliveSeconds" value="30"/>
-    </bean>
 </beans>

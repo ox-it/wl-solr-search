@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-lazy-init="true">
+    <bean id="uk.ac.ox.oucs.search.solr.queueing.IndexQueueing" class="uk.ac.ox.oucs.search.solr.queueing.IndexQueueingImpl">
+        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
+        <property name="indexingExecutor" ref="solrIndexingExecutor"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="solrServer" ref="solrIndexingServer"/>
+    </bean>
+    <!-- Executor responsible for handling indexing requests -->
+    <!--
+        The maxPoolSize has to be set to one to avoid concurrency issues
+    -->
+    <bean id="solrIndexingExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="0"/>
+        <property name="maxPoolSize" value="1"/>
+        <property name="queueCapacity" value="100000" />
+        <property name="keepAliveSeconds" value="30"/>
+    </bean>
+</beans>

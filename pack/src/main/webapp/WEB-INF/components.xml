@@ -5,6 +5,7 @@
     <alias alias="org.sakaiproject.search.api.SearchIndexBuilder" name="${search.indexbuilder.impl}"/>
 
     <import resource="solr.xml"/>
+    <import resource="queueing.xml"/>
     <import resource="binaryContentAdapterComponents.xml"/>
     <import resource="citationContentAdapterComponents.xml"/>
     <import resource="siteContentAdapterComponents.xml"/>

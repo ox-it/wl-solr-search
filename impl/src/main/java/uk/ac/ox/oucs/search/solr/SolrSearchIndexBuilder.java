@@ -9,18 +9,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.solr.process.*;
+import uk.ac.ox.oucs.search.solr.queueing.IndexQueueing;
+import uk.ac.ox.oucs.search.solr.queueing.Task;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executor;
 
 /**
  * @author Colin Hebert
@@ -33,8 +30,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     private ContentProducerFactory contentProducerFactory;
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
-    private Executor indexingExecutor;
-    private SessionManager sessionManager;
+    private IndexQueueing indexQueueing;
 
     @Override
     public void addResource(Notification notification, Event event) {
@@ -77,19 +73,21 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         IndexAction action = IndexAction.getAction(entityContentProducer.getAction(event));
         logger.debug("Action on '" + resourceName + "' detected as " + action.name());
 
-        SolrProcess solrProcess;
+        Task task = new Task();
+        task.setRequestDate(event.getEventTime());
+        task.setResourceName(resourceName);
         switch (action) {
             case ADD:
-                solrProcess = new IndexDocumentProcess(solrServer, entityContentProducer, resourceName);
+                task.setTaskType(Task.TaskType.INDEX_DOCUMENT);
                 break;
             case DELETE:
-                solrProcess = new RemoveDocumentProcess(solrServer, entityContentProducer, resourceName);
+                task.setTaskType(Task.TaskType.UNINDEX_DOCUMENT);
                 break;
             default:
                 throw new UnsupportedOperationException(action + " is not yet supported");
         }
-        logger.debug("Add the task '" + solrProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(solrProcess, sessionManager));
+        logger.debug("Add the task '" + task + "' to the queuing system");
+        indexQueueing.addTaskToQueue(task);
     }
 
     @Override
@@ -130,23 +128,31 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        RefreshSiteIndexProcess refreshSiteIndexProcess = new RefreshSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
-        logger.debug("Add the task '" + refreshSiteIndexProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(refreshSiteIndexProcess, sessionManager));
+        Task task = new Task();
+        task.setTaskType(Task.TaskType.REINDEX_SITE);
+        task.setRequestDate(new Date());
+        task.setSiteId(currentSiteId);
+        logger.debug("Add the task '" + task + "' to the queuing system");
+        indexQueueing.addTaskToQueue(task);
     }
 
     @Override
-    public void rebuildIndex(final String currentSiteId) {
-        BuildSiteIndexProcess buildSiteIndexProcess = new BuildSiteIndexProcess(solrServer, contentProducerFactory, currentSiteId);
-        logger.debug("Add the task '" + buildSiteIndexProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(buildSiteIndexProcess, sessionManager));
+    public void rebuildIndex( String currentSiteId) {
+        Task task = new Task();
+        task.setTaskType(Task.TaskType.INDEX_SITE);
+        task.setRequestDate(new Date());
+        task.setSiteId(currentSiteId);
+        logger.debug("Add the task '" + task + "' to the queuing system");
+        indexQueueing.addTaskToQueue(task);
     }
 
     @Override
     public void refreshIndex() {
-        SolrProcess refreshProcess = new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory);
-        logger.debug("Add the task '" + refreshProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(refreshProcess, sessionManager));
+        Task task = new Task();
+        task.setTaskType(Task.TaskType.REINDEX_ALL);
+        task.setRequestDate(new Date());
+        logger.debug("Add the task '" + task + "' to the queuing system");
+        indexQueueing.addTaskToQueue(task);
     }
 
     @Override
@@ -156,41 +162,14 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex() {
-        SolrProcess rebuildProcess = new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory);
-        logger.debug("Add the task '" + rebuildProcess + "' to the executor");
-        indexingExecutor.execute(new RunnableProcess(rebuildProcess, sessionManager));
+
+        Task task = new Task();
+        task.setTaskType(Task.TaskType.INDEX_ALL);
+        task.setRequestDate(new Date());
+        logger.debug("Add the task '" + task + "' to the queuing system");
+        indexQueueing.addTaskToQueue(task);
     }
 
-    private Queue<String> getIndexableSites() {
-        Queue<String> refreshedSites = new LinkedList<String>();
-        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
-            if (isSiteIndexable(s)) {
-                refreshedSites.offer(s.getId());
-            }
-        }
-        return refreshedSites;
-    }
-
-    /**
-     * Check if a site is considered as indexable based on the current server configuration.
-     * <p>
-     * Not indexable sites are:
-     * <ul>
-     * <li>Special sites</li>
-     * <li>Sites without the search tool (if the option is enabled)</li>
-     * <li>User sites (if the option is enabled)</li>
-     * </ul>
-     * </p>
-     *
-     * @param site site which may be indexable
-     * @return true if the site can be index, false otherwise
-     */
-    private boolean isSiteIndexable(Site site) {
-        logger.debug("Check if '" + site + "' is indexable.");
-        return !(siteService.isSpecialSite(site.getId()) ||
-                (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SEARCH_TOOL_ID) == null) ||
-                (isExcludeUserSites() && siteService.isUserSite(site.getId())));
-    }
 
     @Override
     public void destroy() {
@@ -265,12 +244,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         this.contentProducerFactory = contentProducerFactory;
     }
 
-    public void setIndexingExecutor(Executor indexingExecutor) {
-        this.indexingExecutor = indexingExecutor;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
+    public void setIndexQueueing(IndexQueueing indexQueueing) {
+        this.indexQueueing = indexQueueing;
     }
 
     public static enum IndexAction {
@@ -327,28 +302,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
         public int getItemAction() {
             return itemAction;
-        }
-    }
-
-    private static class RunnableProcess implements Runnable {
-        private final SolrProcess solrProcess;
-        private final SessionManager sessionManager;
-
-        private RunnableProcess(SolrProcess solrProcess, SessionManager sessionManager) {
-            this.solrProcess = solrProcess;
-            this.sessionManager = sessionManager;
-        }
-
-        @Override
-        public void run() {
-            logAsAdmin();
-            solrProcess.execute();
-        }
-
-        private void logAsAdmin() {
-            Session session = sessionManager.getCurrentSession();
-            session.setUserId("admin");
-            session.setUserEid("admin");
         }
     }
 }
