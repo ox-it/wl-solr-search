@@ -93,25 +93,22 @@ public class IndexQueueingImpl implements IndexQueueing {
                     case INDEX_DOCUMENT:
                         process = new IndexDocumentProcess(solrServer, contentProducer, resourceName);
                         break;
-                    case UNINDEX_DOCUMENT:
+                    case REMOVE_DOCUMENT:
                         process = new RemoveDocumentProcess(solrServer, contentProducer, resourceName);
                         break;
                     case INDEX_SITE:
                         process = new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId);
                         break;
-                    case REINDEX_SITE:
+                    case REFRESH_SITE:
                         process = new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId);
                         break;
                     case INDEX_ALL:
                         process = new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory);
                         break;
-                    case REINDEX_ALL:
+                    case REFRESH_ALL:
                         process = new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory);
                         break;
 
-                    case REINDEX_DOCUMENT:
-                    case UNINDEX_ALL:
-                    case UNINDEX_SITE:
                     default:
                         //TODO: This exception shouldn't be caught here
                         throw new RuntimeException();

@@ -81,7 +81,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                 task.setTaskType(Task.TaskType.INDEX_DOCUMENT);
                 break;
             case DELETE:
-                task.setTaskType(Task.TaskType.UNINDEX_DOCUMENT);
+                task.setTaskType(Task.TaskType.REMOVE_DOCUMENT);
                 break;
             default:
                 throw new UnsupportedOperationException(action + " is not yet supported");
@@ -129,7 +129,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     @Override
     public void refreshIndex(String currentSiteId) {
         Task task = new Task();
-        task.setTaskType(Task.TaskType.REINDEX_SITE);
+        task.setTaskType(Task.TaskType.REFRESH_SITE);
         task.setRequestDate(new Date());
         task.setSiteId(currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
@@ -149,7 +149,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     @Override
     public void refreshIndex() {
         Task task = new Task();
-        task.setTaskType(Task.TaskType.REINDEX_ALL);
+        task.setTaskType(Task.TaskType.REFRESH_ALL);
         task.setRequestDate(new Date());
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);

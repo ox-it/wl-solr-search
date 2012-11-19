@@ -45,16 +45,13 @@ public class Task {
 
     public static enum TaskType {
         INDEX_DOCUMENT,
-        REINDEX_DOCUMENT,
-        UNINDEX_DOCUMENT,
+        REMOVE_DOCUMENT,
 
         INDEX_SITE,
-        REINDEX_SITE,
-        UNINDEX_SITE,
+        REFRESH_SITE,
 
         INDEX_ALL,
-        REINDEX_ALL,
-        UNINDEX_ALL
+        REFRESH_ALL
     }
 
 }
