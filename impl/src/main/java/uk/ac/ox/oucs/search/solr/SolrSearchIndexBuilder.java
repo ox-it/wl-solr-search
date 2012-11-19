@@ -264,21 +264,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
          * Action DELETE the record from the search engine, once complete delete the
          * record
          */
-        DELETE(SearchBuilderItem.ACTION_DELETE),
+        DELETE(SearchBuilderItem.ACTION_DELETE);
 
-        /**
-         * The action REBUILD causes the indexer thread to rebuild the index from
-         * scratch, re-fetching all entities This should only ever appear on the
-         * master record
-         */
-        REBUILD(SearchBuilderItem.ACTION_REBUILD),
-
-        /**
-         * The action REFRESH causes the indexer thread to refresh the search index
-         * from the current set of entities. If a Rebuild is in progress, the
-         * refresh will not override the rebuild
-         */
-        REFRESH(SearchBuilderItem.ACTION_REFRESH);
         private final int itemAction;
 
         private IndexAction(int itemAction) {
