@@ -24,8 +24,7 @@
         <property name="searchToolRequired" value="${search.tool.required}"/>
         <property name="ignoreUserSites" value="${search.usersites.ignored}"/>
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
-        <property name="indexingExecutor" ref="solrIndexingExecutor"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.solr.queueing.IndexQueueing"/>
     </bean>
 
     <bean id="uk.ac.ox.oucs.search.solr.indexing.IndexProcesses" class="uk.ac.ox.oucs.search.solr.indexing.SolrIndexProcesses">
