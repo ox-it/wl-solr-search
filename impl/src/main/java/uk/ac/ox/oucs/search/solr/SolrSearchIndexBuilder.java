@@ -17,7 +17,9 @@ import uk.ac.ox.oucs.search.solr.queueing.Task;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Colin Hebert
@@ -70,21 +72,18 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
         }
 
-        IndexAction action = IndexAction.getAction(entityContentProducer.getAction(event));
-        logger.debug("Action on '" + resourceName + "' detected as " + action.name());
-
         Task task = new Task();
         task.setRequestDate(event.getEventTime());
         task.setResourceName(resourceName);
-        switch (action) {
-            case ADD:
+        switch (entityContentProducer.getAction(event)) {
+            case 1: //SearchBuilderItem.ACTION_ADD
                 task.setTaskType(Task.TaskType.INDEX_DOCUMENT);
                 break;
-            case DELETE:
+            case 2: //SearchBuilderItem.ACTION_DELETE
                 task.setTaskType(Task.TaskType.REMOVE_DOCUMENT);
                 break;
             default:
-                throw new UnsupportedOperationException(action + " is not yet supported");
+                throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event) + " is not yet supported");
         }
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
@@ -137,7 +136,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     @Override
-    public void rebuildIndex( String currentSiteId) {
+    public void rebuildIndex(String currentSiteId) {
         Task task = new Task();
         task.setTaskType(Task.TaskType.INDEX_SITE);
         task.setRequestDate(new Date());
@@ -169,7 +168,6 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
     }
-
 
     @Override
     public void destroy() {
@@ -246,49 +244,5 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setIndexQueueing(IndexQueueing indexQueueing) {
         this.indexQueueing = indexQueueing;
-    }
-
-    public static enum IndexAction {
-        /**
-         * Action Unknown, usually because the record has just been created
-         */
-        UNKNOWN(SearchBuilderItem.ACTION_UNKNOWN),
-
-        /**
-         * Action ADD the record to the search engine, if the doc ID is set, then
-         * remove first, if not set, check its not there.
-         */
-        ADD(SearchBuilderItem.ACTION_ADD),
-
-        /**
-         * Action DELETE the record from the search engine, once complete delete the
-         * record
-         */
-        DELETE(SearchBuilderItem.ACTION_DELETE);
-
-        private final int itemAction;
-
-        private IndexAction(int itemAction) {
-            this.itemAction = itemAction;
-        }
-
-        /**
-         * Generate an IndexAction based on an action ID provided by the Search API
-         *
-         * @param itemActionId action ID used by the Search API
-         * @return IndexAction matching the given ID, null if nothing has been found
-         */
-        public static IndexAction getAction(int itemActionId) {
-            for (IndexAction indexAction : values()) {
-                if (indexAction.getItemAction() == itemActionId)
-                    return indexAction;
-            }
-
-            return null;
-        }
-
-        public int getItemAction() {
-            return itemAction;
-        }
     }
 }

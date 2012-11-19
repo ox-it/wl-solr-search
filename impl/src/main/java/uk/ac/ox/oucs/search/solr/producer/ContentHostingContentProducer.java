@@ -10,7 +10,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
-import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
+import org.sakaiproject.search.model.SearchBuilderItem;
 
 import java.util.*;
 
@@ -50,16 +50,16 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     @Override
     public Integer getAction(Event event) {
         if (!isResourceTypeSupported(getResourceType(event.getResource())))
-            return SolrSearchIndexBuilder.IndexAction.UNKNOWN.getItemAction();
+            return SearchBuilderItem.ACTION_UNKNOWN;
 
         String eventName = event.getEvent();
         if ((ContentHostingService.EVENT_RESOURCE_ADD.equals(eventName)
                 || ContentHostingService.EVENT_RESOURCE_WRITE.equals(eventName)) && isForIndex(event.getResource())) {
-            return SolrSearchIndexBuilder.IndexAction.ADD.getItemAction();
+            return SearchBuilderItem.ACTION_ADD;
         } else if (ContentHostingService.EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
-            return SolrSearchIndexBuilder.IndexAction.DELETE.getItemAction();
+            return SearchBuilderItem.ACTION_DELETE;
         } else {
-            return SolrSearchIndexBuilder.IndexAction.UNKNOWN.getItemAction();
+            return SearchBuilderItem.ACTION_UNKNOWN;
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public boolean matches(Event event) {
-        return SolrSearchIndexBuilder.IndexAction.UNKNOWN.getItemAction() != getAction(event);
+        return SearchBuilderItem.ACTION_UNKNOWN != getAction(event);
     }
 
     @Override
