@@ -13,8 +13,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.queueing.DefaultTask;
-import uk.ac.ox.oucs.search.solr.queueing.IndexQueueing;
-import uk.ac.ox.oucs.search.solr.queueing.Task;
+import uk.ac.ox.oucs.search.queueing.IndexQueueing;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;

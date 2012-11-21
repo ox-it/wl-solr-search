@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.queueing;
+package uk.ac.ox.oucs.search.queueing;
 
 import uk.ac.ox.oucs.search.indexing.IndexProcesses;
 

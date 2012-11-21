@@ -12,7 +12,7 @@ import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.solr.indexing.process.*;
-import uk.ac.ox.oucs.search.solr.queueing.Task;
+import uk.ac.ox.oucs.search.queueing.Task;
 
 import java.io.IOException;
 import java.util.Date;
