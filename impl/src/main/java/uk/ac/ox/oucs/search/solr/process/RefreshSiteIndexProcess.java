@@ -11,10 +11,10 @@ import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
+import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author Colin Hebert
@@ -71,8 +71,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
             }
             return resourceNames;
         } catch (SolrServerException e) {
-            logger.warn("Couldn't get indexed elements for site: '" + siteId + "'", e);
-            return Collections.emptyList();
+            throw new ProcessExecutionException("Couldn't get indexed elements for site: '" + siteId + "'", e);
         }
     }
 }
