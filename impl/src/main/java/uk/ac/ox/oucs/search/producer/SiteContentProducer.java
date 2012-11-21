@@ -1,7 +1,10 @@
 package uk.ac.ox.oucs.search.producer;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;

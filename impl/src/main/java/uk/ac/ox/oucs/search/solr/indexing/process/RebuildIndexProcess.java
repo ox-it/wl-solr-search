@@ -39,7 +39,7 @@ public class RebuildIndexProcess implements SolrProcess {
         logger.info("Remove indexed documents for unindexable or non-existing sites");
         try {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":( " + sb + " )");
-        }  catch (IOException e) {
+        } catch (IOException e) {
             throw new TemporaryProcessExecutionException("An exception occurred while removing obsoletes sites from the index", e);
         } catch (Exception e) {
             throw new ProcessExecutionException("An exception occurred while removing obsoletes sites from the index", e);
