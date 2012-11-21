@@ -24,10 +24,10 @@
         <property name="searchToolRequired" value="${search.tool.required}"/>
         <property name="ignoreUserSites" value="${search.usersites.ignored}"/>
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
-        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.solr.queueing.IndexQueueing"/>
+        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.IndexQueueing"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.solr.indexing.IndexProcesses" class="uk.ac.ox.oucs.search.solr.indexing.SolrIndexProcesses">
+    <bean id="uk.ac.ox.oucs.search.indexing.IndexProcesses" class="uk.ac.ox.oucs.search.solr.indexing.SolrIndexProcesses">
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.solr.ContentProducerFactory"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
