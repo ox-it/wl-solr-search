@@ -46,30 +46,7 @@ public class IndexQueueingImpl implements IndexQueueing {
         public void run() {
             logAsAdmin();
             try {
-                switch (task.getTaskType()) {
-                    case INDEX_DOCUMENT:
-                        indexProcesses.indexDocument(task.getResourceName(), task.getRequestDate());
-                        break;
-                    case REMOVE_DOCUMENT:
-                        indexProcesses.removeDocument(task.getResourceName(), task.getRequestDate());
-                        break;
-                    case INDEX_SITE:
-                        indexProcesses.indexSite(task.getSiteId(), task.getRequestDate());
-                        break;
-                    case REFRESH_SITE:
-                        indexProcesses.refreshSite(task.getSiteId(), task.getRequestDate());
-                        break;
-                    case INDEX_ALL:
-                        indexProcesses.indexAll(task.getRequestDate());
-                        break;
-                    case REFRESH_ALL:
-                        indexProcesses.refreshAll(task.getRequestDate());
-                        break;
-
-                    default:
-                        //TODO: This exception shouldn't be caught here
-                        throw new RuntimeException();
-                }
+                indexProcesses.executeTask(task);
             } catch (TemporaryProcessExecutionException e) {
                 logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
                 addTaskToQueue(task);

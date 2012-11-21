@@ -12,6 +12,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.solr.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.solr.queueing.IndexQueueing;
 import uk.ac.ox.oucs.search.solr.queueing.Task;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
@@ -72,15 +73,15 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
         }
 
-        Task task = new Task();
+        DefaultTask task = new DefaultTask();
         task.setRequestDate(event.getEventTime());
         task.setResourceName(resourceName);
         switch (entityContentProducer.getAction(event)) {
             case 1: //SearchBuilderItem.ACTION_ADD
-                task.setTaskType(Task.TaskType.INDEX_DOCUMENT);
+                task.setTaskType(DefaultTask.TaskType.INDEX_DOCUMENT);
                 break;
             case 2: //SearchBuilderItem.ACTION_DELETE
-                task.setTaskType(Task.TaskType.REMOVE_DOCUMENT);
+                task.setTaskType(DefaultTask.TaskType.REMOVE_DOCUMENT);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event) + " is not yet supported");
@@ -127,8 +128,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        Task task = new Task();
-        task.setTaskType(Task.TaskType.REFRESH_SITE);
+        DefaultTask task = new DefaultTask();
+        task.setTaskType(DefaultTask.TaskType.REFRESH_SITE);
         task.setRequestDate(new Date());
         task.setSiteId(currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
@@ -137,8 +138,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex(String currentSiteId) {
-        Task task = new Task();
-        task.setTaskType(Task.TaskType.INDEX_SITE);
+        DefaultTask task = new DefaultTask();
+        task.setTaskType(DefaultTask.TaskType.INDEX_SITE);
         task.setRequestDate(new Date());
         task.setSiteId(currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
@@ -147,8 +148,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex() {
-        Task task = new Task();
-        task.setTaskType(Task.TaskType.REFRESH_ALL);
+        DefaultTask task = new DefaultTask();
+        task.setTaskType(DefaultTask.TaskType.REFRESH_ALL);
         task.setRequestDate(new Date());
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
@@ -161,9 +162,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex() {
-
-        Task task = new Task();
-        task.setTaskType(Task.TaskType.INDEX_ALL);
+        DefaultTask task = new DefaultTask();
+        task.setTaskType(DefaultTask.TaskType.INDEX_ALL);
         task.setRequestDate(new Date());
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);

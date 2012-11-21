@@ -11,6 +11,7 @@ import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.process.*;
 import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
 import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.queueing.Task;
 
 import java.io.IOException;
 import java.util.Date;
@@ -25,6 +26,11 @@ public class SolrIndexProcesses implements IndexProcesses {
     private ObjectFactory solrServerFactory;
     private SiteService siteService;
     private SearchIndexBuilder searchIndexBuilder;
+
+    @Override
+    public void executeTask(Task task) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 
     @Override
     public void indexDocument(String resourceName, Date indexingDate) {

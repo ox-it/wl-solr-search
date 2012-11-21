@@ -1,11 +1,14 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
+import uk.ac.ox.oucs.search.solr.queueing.Task;
+
 import java.util.Date;
 
 /**
  * @author Colin Hebert
  */
 public interface IndexProcesses {
+    void executeTask(Task task);
     void indexDocument(String resourceName, Date indexingDate);
     void removeDocument(String resourceName, Date indexingDate);
     void indexSite(String siteId, Date indexingDate);
