@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.producer;
+package uk.ac.ox.oucs.search.producer;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.StoredDigestContentProducer;

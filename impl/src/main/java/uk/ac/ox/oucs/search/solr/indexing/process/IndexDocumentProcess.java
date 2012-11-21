@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.indexing.exception.ProcessExecutionException;
 import uk.ac.ox.oucs.search.solr.indexing.exception.TemporaryProcessExecutionException;
-import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
+import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
 import java.io.IOException;

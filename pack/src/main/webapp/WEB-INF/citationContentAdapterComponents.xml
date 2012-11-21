@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="uk.ac.ox.oucs.search.solr.producer.CitationContentProducer"
-          class="uk.ac.ox.oucs.search.solr.producer.CitationContentProducer" init-method="init">
+          class="uk.ac.ox.oucs.search.producer.CitationContentProducer" init-method="init">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>

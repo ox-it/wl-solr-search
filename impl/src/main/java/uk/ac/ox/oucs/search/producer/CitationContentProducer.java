@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.producer;
+package uk.ac.ox.oucs.search.producer;
 
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
