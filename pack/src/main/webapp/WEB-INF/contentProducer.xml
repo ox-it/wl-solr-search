@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="uk.ac.ox.oucs.search.ContentProducerFactory" class="uk.ac.ox.oucs.search.ContentProducerFactory"/>
+
+    <import resource="binaryContentAdapterComponents.xml"/>
+    <import resource="citationContentAdapterComponents.xml"/>
+    <import resource="siteContentAdapterComponents.xml"/>
+    <import resource="searchEntityBrokerComponents.xml"/>
+</beans>
