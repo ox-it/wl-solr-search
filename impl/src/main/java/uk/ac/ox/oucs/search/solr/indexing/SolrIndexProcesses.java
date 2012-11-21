@@ -28,7 +28,7 @@ public class SolrIndexProcesses implements IndexProcesses {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-            new IndexDocumentProcess(solrServer, contentProducer, resourceName, false).execute();
+            new IndexDocumentProcess(solrServer, contentProducer, resourceName).execute();
             solrServer.commit();
         } catch (Exception e) {
             //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt

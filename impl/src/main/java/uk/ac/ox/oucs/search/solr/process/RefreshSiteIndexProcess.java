@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,10 +49,8 @@ public class RefreshSiteIndexProcess implements SolrProcess {
                     continue;
                 }
 
-                new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
+                new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
             }
-
-            solrServer.commit();
         } catch (Exception e) {
             logger.error("An exception occurred while refresh the index of '" + siteId + "'", e);
         }

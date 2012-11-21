@@ -40,10 +40,9 @@ public class BuildSiteIndexProcess implements SolrProcess {
                 };
 
                 for (String resourceName : resourceNames) {
-                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName, false).execute();
+                    new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
                 }
             }
-            solrServer.commit();
         } catch (Exception e) {
             logger.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
         } finally {

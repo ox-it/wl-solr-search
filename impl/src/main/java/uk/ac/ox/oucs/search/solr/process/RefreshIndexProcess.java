@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Queue;
 
 /**
@@ -27,8 +25,12 @@ public class RefreshIndexProcess implements SolrProcess {
     @Override
     public void execute() {
         logger.info("Refreshing the index for every indexable site");
-        while (!refreshedSites.isEmpty()){
-            new RefreshSiteIndexProcess(solrServer, contentProducerFactory, refreshedSites.poll()).execute();
+        try {
+            while (!refreshedSites.isEmpty()) {
+                new RefreshSiteIndexProcess(solrServer, contentProducerFactory, refreshedSites.poll()).execute();
+            }
+        } catch (Exception e) {
+            logger.error("An exception occurred while refreshing the index", e);
         }
     }
 }

@@ -2,13 +2,11 @@ package uk.ac.ox.oucs.search.solr.process;
 
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.ContentStreamBase;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
@@ -32,17 +30,11 @@ public class IndexDocumentProcess implements SolrProcess {
     private final SolrServer solrServer;
     private final EntityContentProducer entityContentProducer;
     private final String resourceName;
-    private final boolean commit;
 
     public IndexDocumentProcess(SolrServer solrServer, EntityContentProducer entityContentProducer, String resourceName) {
-        this(solrServer, entityContentProducer, resourceName, true);
-    }
-
-    public IndexDocumentProcess(SolrServer solrServer, EntityContentProducer entityContentProducer, String resourceName, boolean commit) {
         this.solrServer = solrServer;
         this.entityContentProducer = entityContentProducer;
         this.resourceName = resourceName;
-        this.commit = commit;
     }
 
     @Override
@@ -51,8 +43,6 @@ public class IndexDocumentProcess implements SolrProcess {
             logger.debug("Add '" + resourceName + "' to the index");
             SolrRequest request = toSolrRequest(resourceName, entityContentProducer);
             solrServer.request(request);
-            if (commit)
-                solrServer.commit();
         } catch (Exception e) {
             logger.error("An exception occurred while indexing the document '" + resourceName + "'", e);
         }

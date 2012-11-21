@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 
-import java.util.Collection;
 import java.util.Queue;
 
 /**
@@ -29,7 +28,7 @@ public class RebuildIndexProcess implements SolrProcess {
     public void execute() {
         logger.info("Rebuilding the index for every indexable site");
         StringBuilder sb = new StringBuilder();
-        while(!reindexedSites.isEmpty()){
+        while (!reindexedSites.isEmpty()) {
             String siteId = reindexedSites.poll();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             sb.append(" -").append(ClientUtils.escapeQueryChars(siteId));
@@ -37,7 +36,6 @@ public class RebuildIndexProcess implements SolrProcess {
         logger.info("Remove indexed documents for unindexable or non-existing sites");
         try {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":( " + sb + " )");
-            solrServer.commit();
         } catch (Exception e) {
             logger.error("An exception occurred while removing obsoletes sites from the index", e);
         }
