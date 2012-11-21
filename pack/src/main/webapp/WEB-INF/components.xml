@@ -6,8 +6,5 @@
 
     <import resource="solr.xml"/>
     <import resource="queueing.xml"/>
-    <import resource="binaryContentAdapterComponents.xml"/>
-    <import resource="citationContentAdapterComponents.xml"/>
-    <import resource="siteContentAdapterComponents.xml"/>
-    <import resource="searchEntityBrokerComponents.xml"/>
+    <import resource="contentProducer.xml"/>
 </beans>

@@ -10,7 +10,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
+import uk.ac.ox.oucs.search.ContentProducerFactory;
 import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 
 import java.util.ArrayList;
