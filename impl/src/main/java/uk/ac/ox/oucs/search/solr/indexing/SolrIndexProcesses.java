@@ -6,13 +6,13 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
-import uk.ac.ox.oucs.search.indexing.IndexProcesses;
 import uk.ac.ox.oucs.search.ContentProducerFactory;
-import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
+import uk.ac.ox.oucs.search.indexing.IndexProcesses;
 import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
-import uk.ac.ox.oucs.search.solr.indexing.process.*;
 import uk.ac.ox.oucs.search.queueing.Task;
+import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
+import uk.ac.ox.oucs.search.solr.indexing.process.*;
 
 import java.io.IOException;
 import java.util.Date;
@@ -30,7 +30,7 @@ public class SolrIndexProcesses implements IndexProcesses {
 
     @Override
     public void executeTask(Task task) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        task.execute(this);
     }
 
     @Override
