@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.filter;
+package uk.ac.ox.oucs.search.solr.response.filter;
 
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchResult;

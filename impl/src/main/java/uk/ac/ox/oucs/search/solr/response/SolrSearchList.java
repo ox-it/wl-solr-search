@@ -8,7 +8,7 @@ import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
-import uk.ac.ox.oucs.search.solr.filter.SearchItemFilter;
+import uk.ac.ox.oucs.search.solr.response.filter.SearchItemFilter;
 
 import java.util.*;
 
