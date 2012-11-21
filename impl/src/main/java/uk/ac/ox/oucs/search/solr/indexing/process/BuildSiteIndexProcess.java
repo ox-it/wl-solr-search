@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.process;
+package uk.ac.ox.oucs.search.solr.indexing.process;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.sakaiproject.component.cover.ComponentManager;

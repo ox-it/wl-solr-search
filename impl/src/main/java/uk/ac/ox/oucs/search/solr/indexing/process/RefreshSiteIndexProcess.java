@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.process;
+package uk.ac.ox.oucs.search.solr.indexing.process;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -11,7 +11,7 @@ import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
-import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.indexing.exception.ProcessExecutionException;
 
 import java.util.ArrayList;
 import java.util.Collection;

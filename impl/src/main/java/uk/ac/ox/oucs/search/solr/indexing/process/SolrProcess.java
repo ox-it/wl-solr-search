@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.process;
+package uk.ac.ox.oucs.search.solr.indexing.process;
 
 /**
  * Process executing some Solr operations.

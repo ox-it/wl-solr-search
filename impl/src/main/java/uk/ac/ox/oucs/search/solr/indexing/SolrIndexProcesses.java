@@ -8,9 +8,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
-import uk.ac.ox.oucs.search.solr.process.*;
-import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
-import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.indexing.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.indexing.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.indexing.process.*;
 import uk.ac.ox.oucs.search.solr.queueing.Task;
 
 import java.io.IOException;

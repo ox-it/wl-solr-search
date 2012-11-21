@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.process;
+package uk.ac.ox.oucs.search.solr.indexing.process;
 
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
@@ -11,8 +11,8 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
-import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.indexing.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.indexing.exception.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
