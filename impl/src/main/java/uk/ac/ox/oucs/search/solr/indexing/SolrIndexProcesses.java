@@ -10,6 +10,7 @@ import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.process.*;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -23,7 +24,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     private SearchIndexBuilder searchIndexBuilder;
 
     @Override
-    public void indexDocument(String resourceName) {
+    public void indexDocument(String resourceName, Date indexingDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
@@ -37,7 +38,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void removeDocument(String resourceName) {
+    public void removeDocument(String resourceName, Date indexingDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
@@ -51,7 +52,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void indexSite(String siteId) {
+    public void indexSite(String siteId, Date indexingDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
@@ -64,7 +65,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void refreshSite(String siteId) {
+    public void refreshSite(String siteId, Date indexingDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
@@ -77,7 +78,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void indexAll() {
+    public void indexAll(Date indexingDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
@@ -90,7 +91,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void refreshAll() {
+    public void refreshAll(Date indexingDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();

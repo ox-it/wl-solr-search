@@ -44,22 +44,22 @@ public class IndexQueueingImpl implements IndexQueueing {
             try {
                 switch (task.getTaskType()) {
                     case INDEX_DOCUMENT:
-                        indexProcesses.indexDocument(task.getResourceName());
+                        indexProcesses.indexDocument(task.getResourceName(), task.getRequestDate());
                         break;
                     case REMOVE_DOCUMENT:
-                        indexProcesses.removeDocument(task.getResourceName());
+                        indexProcesses.removeDocument(task.getResourceName(), task.getRequestDate());
                         break;
                     case INDEX_SITE:
-                        indexProcesses.indexSite(task.getSiteId());
+                        indexProcesses.indexSite(task.getSiteId(), task.getRequestDate());
                         break;
                     case REFRESH_SITE:
-                        indexProcesses.refreshSite(task.getSiteId());
+                        indexProcesses.refreshSite(task.getSiteId(), task.getRequestDate());
                         break;
                     case INDEX_ALL:
-                        indexProcesses.indexAll();
+                        indexProcesses.indexAll(task.getRequestDate());
                         break;
                     case REFRESH_ALL:
-                        indexProcesses.refreshAll();
+                        indexProcesses.refreshAll(task.getRequestDate());
                         break;
 
                     default:
