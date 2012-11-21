@@ -9,7 +9,7 @@ import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.queueing.IndexQueueing;
 import uk.ac.ox.oucs.search.queueing.Task;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * @author Colin Hebert
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 public class IndexQueueingImpl implements IndexQueueing {
     private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
     private IndexProcesses indexProcesses;
-    private ExecutorService indexingExecutor;
+    private Executor indexingExecutor;
     private SessionManager sessionManager;
 
     @Override
@@ -25,7 +25,7 @@ public class IndexQueueingImpl implements IndexQueueing {
         indexingExecutor.execute(new RunnableTask(task));
     }
 
-    public void setIndexingExecutor(ExecutorService indexingExecutor) {
+    public void setIndexingExecutor(Executor indexingExecutor) {
         this.indexingExecutor = indexingExecutor;
     }
 
