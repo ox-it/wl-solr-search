@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.notification;
+package uk.ac.ox.oucs.search.notification;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
