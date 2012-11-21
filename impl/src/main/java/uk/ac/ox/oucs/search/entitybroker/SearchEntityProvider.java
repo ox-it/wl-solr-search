@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.entitybroker;
+package uk.ac.ox.oucs.search.entitybroker;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
