@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.indexing.exception;
+package uk.ac.ox.oucs.search.indexing;
 
 /**
  * @author Colin Hebert

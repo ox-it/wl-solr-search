@@ -6,10 +6,11 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
+import uk.ac.ox.oucs.search.indexing.IndexProcesses;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
-import uk.ac.ox.oucs.search.solr.indexing.exception.ProcessExecutionException;
-import uk.ac.ox.oucs.search.solr.indexing.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.solr.indexing.process.*;
 import uk.ac.ox.oucs.search.solr.queueing.Task;
 

@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.indexing;
+package uk.ac.ox.oucs.search.indexing;
 
 import uk.ac.ox.oucs.search.solr.queueing.Task;
 

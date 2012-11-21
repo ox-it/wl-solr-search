@@ -1,6 +1,6 @@
 package uk.ac.ox.oucs.search.solr.queueing;
 
-import uk.ac.ox.oucs.search.solr.indexing.IndexProcesses;
+import uk.ac.ox.oucs.search.indexing.IndexProcesses;
 
 import java.io.Serializable;
 
