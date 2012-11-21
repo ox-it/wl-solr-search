@@ -5,6 +5,10 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
+
+import java.io.IOException;
 
 /**
  * @author Colin Hebert
@@ -24,8 +28,10 @@ public class CleanSiteIndexProcess implements SolrProcess {
         logger.info("Removing content for site '" + siteId + "'");
         try {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("An exception occurred while cleaning the index of '" + siteId + "'", e);
         } catch (Exception e) {
-            logger.error("An exception occurred while cleaning the index of '" + siteId + "'", e);
+            throw new ProcessExecutionException("An exception occurred while cleaning the index of '" + siteId + "'", e);
         }
     }
 }

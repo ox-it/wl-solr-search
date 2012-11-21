@@ -43,8 +43,6 @@ public class BuildSiteIndexProcess implements SolrProcess {
                     new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
                 }
             }
-        } catch (Exception e) {
-            logger.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
         } finally {
             ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
             threadLocalManager.clear();

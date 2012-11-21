@@ -4,6 +4,10 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
+
+import java.io.IOException;
 
 /**
  * @author Colin Hebert
@@ -25,9 +29,10 @@ public class RemoveDocumentProcess implements SolrProcess {
         logger.debug("Remove '" + resourceName + "' from the index");
         try {
             solrServer.deleteById(entityContentProducer.getId(resourceName));
-            solrServer.commit();
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("An exception occurred while removing the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            logger.error("An exception occurred while removing the document '" + resourceName + "'", e);
+            throw new ProcessExecutionException("An exception occurred while removing the document '" + resourceName + "'", e);
         }
     }
 }

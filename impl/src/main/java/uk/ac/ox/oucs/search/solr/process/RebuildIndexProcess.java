@@ -6,7 +6,10 @@ import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
+import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
 
+import java.io.IOException;
 import java.util.Queue;
 
 /**
@@ -36,8 +39,10 @@ public class RebuildIndexProcess implements SolrProcess {
         logger.info("Remove indexed documents for unindexable or non-existing sites");
         try {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":( " + sb + " )");
+        }  catch (IOException e) {
+            throw new TemporaryProcessExecutionException("An exception occurred while removing obsoletes sites from the index", e);
         } catch (Exception e) {
-            logger.error("An exception occurred while removing obsoletes sites from the index", e);
+            throw new ProcessExecutionException("An exception occurred while removing obsoletes sites from the index", e);
         }
     }
 }

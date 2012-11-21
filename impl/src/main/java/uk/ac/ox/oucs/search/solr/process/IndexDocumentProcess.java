@@ -11,6 +11,8 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.solr.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
@@ -43,8 +45,10 @@ public class IndexDocumentProcess implements SolrProcess {
             logger.debug("Add '" + resourceName + "' to the index");
             SolrRequest request = toSolrRequest(resourceName, entityContentProducer);
             solrServer.request(request);
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("An exception occurred while indexing the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            logger.error("An exception occurred while indexing the document '" + resourceName + "'", e);
+            throw new ProcessExecutionException("An exception occurred while indexing the document '" + resourceName + "'", e);
         }
     }
 

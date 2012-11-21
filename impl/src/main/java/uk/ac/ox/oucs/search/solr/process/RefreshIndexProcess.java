@@ -25,12 +25,8 @@ public class RefreshIndexProcess implements SolrProcess {
     @Override
     public void execute() {
         logger.info("Refreshing the index for every indexable site");
-        try {
-            while (!refreshedSites.isEmpty()) {
-                new RefreshSiteIndexProcess(solrServer, contentProducerFactory, refreshedSites.poll()).execute();
-            }
-        } catch (Exception e) {
-            logger.error("An exception occurred while refreshing the index", e);
+        while (!refreshedSites.isEmpty()) {
+            new RefreshSiteIndexProcess(solrServer, contentProducerFactory, refreshedSites.poll()).execute();
         }
     }
 }

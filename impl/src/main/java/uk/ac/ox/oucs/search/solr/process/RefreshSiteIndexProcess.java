@@ -34,25 +34,21 @@ public class RefreshSiteIndexProcess implements SolrProcess {
     @Override
     public void execute() {
         logger.info("Refreshing the index for '" + siteId + "'");
-        try {
-            //Get the currently indexed resources for this site
-            Collection<String> resourceNames = getResourceNames(siteId);
-            logger.debug(resourceNames.size() + " elements will be refreshed");
-            new CleanSiteIndexProcess(solrServer, siteId).execute();
-            for (String resourceName : resourceNames) {
-                EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
+        //Get the currently indexed resources for this site
+        Collection<String> resourceNames = getResourceNames(siteId);
+        logger.debug(resourceNames.size() + " elements will be refreshed");
+        new CleanSiteIndexProcess(solrServer, siteId).execute();
+        for (String resourceName : resourceNames) {
+            EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
 
-                //If there is no matching entity content producer or no associated site, skip the resource
-                //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
-                if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
-                    logger.warn("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
-                    continue;
-                }
-
-                new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
+            //If there is no matching entity content producer or no associated site, skip the resource
+            //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
+            if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
+                logger.warn("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
+                continue;
             }
-        } catch (Exception e) {
-            logger.error("An exception occurred while refresh the index of '" + siteId + "'", e);
+
+            new IndexDocumentProcess(solrServer, entityContentProducer, resourceName).execute();
         }
     }
 

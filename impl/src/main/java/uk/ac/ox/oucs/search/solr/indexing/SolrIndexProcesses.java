@@ -9,7 +9,10 @@ import org.springframework.beans.factory.ObjectFactory;
 import uk.ac.ox.oucs.search.solr.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.process.*;
+import uk.ac.ox.oucs.search.solr.process.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -30,10 +33,12 @@ public class SolrIndexProcesses implements IndexProcesses {
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
             new IndexDocumentProcess(solrServer, contentProducer, resourceName).execute();
             solrServer.commit();
+        } catch (ProcessExecutionException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't index the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt
-            // one to specify that the request shoulnd't be sent again
-            e.printStackTrace();
+            throw new ProcessExecutionException("Couldn't index the document '" + resourceName + "'", e);
         }
     }
 
@@ -44,10 +49,12 @@ public class SolrIndexProcesses implements IndexProcesses {
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
             new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
             solrServer.commit();
+        } catch (ProcessExecutionException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't unindex the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt
-            // one to specify that the request shoulnd't be sent again
-            e.printStackTrace();
+            throw new ProcessExecutionException("Couldn't unindex the document '" + resourceName + "'", e);
         }
     }
 
@@ -57,10 +64,12 @@ public class SolrIndexProcesses implements IndexProcesses {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             solrServer.commit();
+        } catch (ProcessExecutionException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't index the site '" + siteId + "'", e);
         } catch (Exception e) {
-            //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt
-            // one to specify that the request shoulnd't be sent again
-            e.printStackTrace();
+            throw new ProcessExecutionException("Couldn't index the site '" + siteId + "'", e);
         }
     }
 
@@ -70,10 +79,12 @@ public class SolrIndexProcesses implements IndexProcesses {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             solrServer.commit();
+        } catch (ProcessExecutionException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't unindex the site '" + siteId + "'", e);
         } catch (Exception e) {
-            //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt
-            // one to specify that the request shoulnd't be sent again
-            e.printStackTrace();
+            throw new ProcessExecutionException("Couldn't unindex the site '" + siteId + "'", e);
         }
     }
 
@@ -83,10 +94,12 @@ public class SolrIndexProcesses implements IndexProcesses {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
             solrServer.commit();
+        } catch (ProcessExecutionException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't index the entire instance", e);
         } catch (Exception e) {
-            //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt
-            // one to specify that the request shoulnd't be sent again
-            e.printStackTrace();
+            throw new ProcessExecutionException("Couldn't index the entire instance", e);
         }
     }
 
@@ -96,10 +109,12 @@ public class SolrIndexProcesses implements IndexProcesses {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
             solrServer.commit();
+        } catch (ProcessExecutionException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't refresh the entire instance", e);
         } catch (Exception e) {
-            //TODO throw two kinds of exceptions, one to give a greenlight for a second attempt
-            // one to specify that the request shoulnd't be sent again
-            e.printStackTrace();
+            throw new ProcessExecutionException("Couldn't refresh the entire instance", e);
         }
     }
 

@@ -2,7 +2,10 @@ package uk.ac.ox.oucs.search.solr.queueing;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.solr.indexing.IndexProcesses;
+import uk.ac.ox.oucs.search.solr.process.exception.TemporaryProcessExecutionException;
 
 import java.util.concurrent.ExecutorService;
 
@@ -10,6 +13,7 @@ import java.util.concurrent.ExecutorService;
  * @author Colin Hebert
  */
 public class IndexQueueingImpl implements IndexQueueing {
+    private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
     private IndexProcesses indexProcesses;
     private ExecutorService indexingExecutor;
     private SessionManager sessionManager;
@@ -66,8 +70,11 @@ public class IndexQueueingImpl implements IndexQueueing {
                         //TODO: This exception shouldn't be caught here
                         throw new RuntimeException();
                 }
-            } catch (Exception e) { //TODO: Retry only with relevant exceptions
+            } catch (TemporaryProcessExecutionException e) {
+                logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
                 addTaskToQueue(task);
+            } catch (Exception e) {
+                logger.error("Couldn't execute task '" + task + "'.", e);
             }
         }
 
