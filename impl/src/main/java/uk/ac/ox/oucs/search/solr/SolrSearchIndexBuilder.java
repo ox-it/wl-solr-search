@@ -74,7 +74,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         }
 
         DefaultTask task = new DefaultTask();
-        task.setRequestDate(event.getEventTime());
+        task.setActionDate(event.getEventTime());
         task.setResourceName(resourceName);
         switch (entityContentProducer.getAction(event)) {
             case 1: //SearchBuilderItem.ACTION_ADD
@@ -130,7 +130,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex(String currentSiteId) {
         DefaultTask task = new DefaultTask();
         task.setTaskType(DefaultTask.TaskType.REFRESH_SITE);
-        task.setRequestDate(new Date());
+        task.setActionDate(new Date());
         task.setSiteId(currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
@@ -140,7 +140,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void rebuildIndex(String currentSiteId) {
         DefaultTask task = new DefaultTask();
         task.setTaskType(DefaultTask.TaskType.INDEX_SITE);
-        task.setRequestDate(new Date());
+        task.setActionDate(new Date());
         task.setSiteId(currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
@@ -150,7 +150,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex() {
         DefaultTask task = new DefaultTask();
         task.setTaskType(DefaultTask.TaskType.REFRESH_ALL);
-        task.setRequestDate(new Date());
+        task.setActionDate(new Date());
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
     }
@@ -164,7 +164,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public void rebuildIndex() {
         DefaultTask task = new DefaultTask();
         task.setTaskType(DefaultTask.TaskType.INDEX_ALL);
-        task.setRequestDate(new Date());
+        task.setActionDate(new Date());
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
     }

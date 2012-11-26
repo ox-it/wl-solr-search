@@ -8,17 +8,17 @@ import java.util.Date;
  * @author Colin Hebert
  */
 public class DefaultTask implements Task {
-    private Date requestDate;
+    private Date actionDate;
     private String resourceName;
     private String siteId;
     private TaskType taskType;
 
-    public Date getRequestDate() {
-        return requestDate;
+    public Date getActionDate() {
+        return actionDate;
     }
 
-    public void setRequestDate(Date requestDate) {
-        this.requestDate = requestDate;
+    public void setActionDate(Date actionDate) {
+        this.actionDate = actionDate;
     }
 
     public String getResourceName() {
@@ -48,22 +48,22 @@ public class DefaultTask implements Task {
     public void execute(IndexProcesses indexProcesses) {
         switch (taskType) {
             case INDEX_DOCUMENT:
-                indexProcesses.indexDocument(resourceName, requestDate);
+                indexProcesses.indexDocument(resourceName, actionDate);
                 break;
             case REMOVE_DOCUMENT:
-                indexProcesses.removeDocument(resourceName, requestDate);
+                indexProcesses.removeDocument(resourceName, actionDate);
                 break;
             case INDEX_SITE:
-                indexProcesses.indexSite(siteId, requestDate);
+                indexProcesses.indexSite(siteId, actionDate);
                 break;
             case REFRESH_SITE:
-                indexProcesses.refreshSite(siteId, requestDate);
+                indexProcesses.refreshSite(siteId, actionDate);
                 break;
             case INDEX_ALL:
-                indexProcesses.indexAll(requestDate);
+                indexProcesses.indexAll(actionDate);
                 break;
             case REFRESH_ALL:
-                indexProcesses.refreshAll(requestDate);
+                indexProcesses.refreshAll(actionDate);
                 break;
 
             default:

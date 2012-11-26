@@ -10,15 +10,15 @@ import java.util.Date;
 public interface IndexProcesses {
     void executeTask(Task task);
 
-    void indexDocument(String resourceName, Date indexingDate);
+    void indexDocument(String resourceName, Date actionDate);
 
-    void removeDocument(String resourceName, Date indexingDate);
+    void removeDocument(String resourceName, Date actionDate);
 
-    void indexSite(String siteId, Date indexingDate);
+    void indexSite(String siteId, Date actionDate);
 
-    void refreshSite(String siteId, Date indexingDate);
+    void refreshSite(String siteId, Date actionDate);
 
-    void indexAll(Date indexingDate);
+    void indexAll(Date actionDate);
 
-    void refreshAll(Date indexingDate);
+    void refreshAll(Date actionDate);
 }
