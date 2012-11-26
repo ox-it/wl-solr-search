@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.search.queueing;
 
+import uk.ac.ox.oucs.search.indexing.Task;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;

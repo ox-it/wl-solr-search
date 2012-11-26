@@ -1,7 +1,6 @@
 package uk.ac.ox.oucs.search.indexing;
 
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
-import uk.ac.ox.oucs.search.queueing.Task;
 
 import java.util.Date;
 

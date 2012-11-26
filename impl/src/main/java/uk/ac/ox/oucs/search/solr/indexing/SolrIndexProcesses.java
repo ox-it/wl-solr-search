@@ -14,7 +14,7 @@ import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
-import uk.ac.ox.oucs.search.queueing.Task;
+import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.indexing.process.*;
 
