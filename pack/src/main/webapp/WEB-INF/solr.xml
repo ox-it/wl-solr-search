@@ -11,10 +11,10 @@
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="searchItemFilter">
             <bean class="uk.ac.ox.oucs.search.response.filter.SecuritySearchFilter">
-                <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.ContentProducerFactory"/>
+                <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
             </bean>
         </property>
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.ContentProducerFactory"/>
+        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
     </bean>
 
     <bean id="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder"
@@ -23,12 +23,12 @@
         <property name="solrServer" ref="solrIndexingServer"/>
         <property name="searchToolRequired" value="${search.tool.required}"/>
         <property name="ignoreUserSites" value="${search.usersites.ignored}"/>
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.ContentProducerFactory"/>
+        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
         <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.IndexQueueing"/>
     </bean>
 
     <bean id="uk.ac.ox.oucs.search.indexing.IndexProcesses" class="uk.ac.ox.oucs.search.solr.indexing.SolrIndexProcesses">
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.ContentProducerFactory"/>
+        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="solrServerFactory">

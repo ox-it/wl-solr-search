@@ -3,7 +3,7 @@ package uk.ac.ox.oucs.search.solr.indexing.process;
 import org.apache.solr.client.solrj.SolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.ContentProducerFactory;
+import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 
 import java.util.Queue;
 

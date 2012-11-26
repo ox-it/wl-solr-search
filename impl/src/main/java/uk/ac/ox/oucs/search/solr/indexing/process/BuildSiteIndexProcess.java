@@ -6,7 +6,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.ContentProducerFactory;
+import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 
 import java.util.Iterator;
 

@@ -3,7 +3,7 @@ package uk.ac.ox.oucs.search.response.filter;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.TermFrequency;
-import uk.ac.ox.oucs.search.ContentProducerFactory;
+import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 
 import java.io.IOException;
 import java.util.Collections;

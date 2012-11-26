@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search;
+package uk.ac.ox.oucs.search.producer;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;

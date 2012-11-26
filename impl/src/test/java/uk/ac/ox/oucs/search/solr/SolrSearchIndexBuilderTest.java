@@ -16,7 +16,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import uk.ac.ox.oucs.search.ContentProducerFactory;
+import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
 
 import java.io.InputStream;
