@@ -9,7 +9,7 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
-import uk.ac.ox.oucs.search.indexing.AbstractIndexProcesses;
+import uk.ac.ox.oucs.search.indexing.AbstractTaskHandler;
 import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
@@ -26,7 +26,7 @@ import java.util.Queue;
 /**
  * @author Colin Hebert
  */
-public class SolrIndexProcesses extends AbstractIndexProcesses {
+public class SolrTaskHandler extends AbstractTaskHandler {
     private ContentProducerFactory contentProducerFactory;
     private ObjectFactory solrServerFactory;
     private SiteService siteService;

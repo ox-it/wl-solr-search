@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * @author Colin Hebert
  */
-public abstract class AbstractIndexProcesses implements IndexProcesses {
+public abstract class AbstractTaskHandler implements TaskHandler {
     @Override
     public void executeTask(Task task) {
         String taskType = task.getType();

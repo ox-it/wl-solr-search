@@ -4,7 +4,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.IndexProcesses;
+import uk.ac.ox.oucs.search.indexing.TaskHandler;
 import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.Executor;
  */
 public class IndexQueueingImpl implements IndexQueueing {
     private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
-    private IndexProcesses indexProcesses;
+    private TaskHandler taskHandler;
     private Executor indexingExecutor;
     private SessionManager sessionManager;
 
@@ -32,8 +32,8 @@ public class IndexQueueingImpl implements IndexQueueing {
         this.sessionManager = sessionManager;
     }
 
-    public void setIndexProcesses(IndexProcesses indexProcesses) {
-        this.indexProcesses = indexProcesses;
+    public void setTaskHandler(TaskHandler taskHandler) {
+        this.taskHandler = taskHandler;
     }
 
     private class RunnableTask implements Runnable {
@@ -47,7 +47,7 @@ public class IndexQueueingImpl implements IndexQueueing {
         public void run() {
             logAsAdmin();
             try {
-                indexProcesses.executeTask(task);
+                taskHandler.executeTask(task);
             } catch (TemporaryProcessExecutionException e) {
                 logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
                 addTaskToQueue(task);

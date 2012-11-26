@@ -27,7 +27,7 @@
         <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.IndexQueueing"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.indexing.IndexProcesses" class="uk.ac.ox.oucs.search.solr.indexing.SolrIndexProcesses">
+    <bean id="uk.ac.ox.oucs.search.indexing.IndexProcesses" class="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler">
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
