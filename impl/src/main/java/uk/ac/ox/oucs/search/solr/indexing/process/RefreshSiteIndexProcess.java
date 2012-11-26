@@ -11,7 +11,7 @@ import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
-import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.ProcessExecutionException;
 
 import java.util.LinkedList;
 import java.util.Queue;

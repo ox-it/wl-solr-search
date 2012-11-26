@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.indexing;
+package uk.ac.ox.oucs.search.indexing.exception;
 
 /**
  * @author Colin Hebert

@@ -4,8 +4,8 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
-import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryProcessExecutionException;
 
 import java.io.IOException;
 
