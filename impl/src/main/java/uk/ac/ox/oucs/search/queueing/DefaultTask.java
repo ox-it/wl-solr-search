@@ -1,77 +1,53 @@
 package uk.ac.ox.oucs.search.queueing;
 
-import uk.ac.ox.oucs.search.indexing.IndexProcesses;
-
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Colin Hebert
  */
 public class DefaultTask implements Task {
-    private Date actionDate;
-    private String resourceName;
-    private String siteId;
-    private TaskType taskType;
+    private final String type;
+    private final Date creationDate;
+    private final Map<String, String> properties = new HashMap<String, String>();
+    public final static String RESOURCE_NAME = DefaultTask.class.getCanonicalName() + ".resourceName";
+    public final static String SITE_ID = DefaultTask.class.getCanonicalName() + ".siteId";
 
-    public Date getActionDate() {
-        return actionDate;
+    public DefaultTask(Type type) {
+        this(type, new Date());
     }
 
-    public void setActionDate(Date actionDate) {
-        this.actionDate = actionDate;
+    public DefaultTask(Type type, Date creationDate) {
+        this(type.getTypeName(), creationDate);
     }
 
-    public String getResourceName() {
-        return resourceName;
+    protected DefaultTask(String type, Date creationDate) {
+        this.type = type;
+        this.creationDate = creationDate;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
+    @Override
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public String getSiteId() {
-        return siteId;
+    @Override
+    public String getType() {
+        return type;
     }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
+    @Override
+    public String getProperty(String name) {
+        return properties.get(name);
     }
 
-    public TaskType getTaskType() {
-        return taskType;
+    public DefaultTask setProperty(String name, String value) {
+        properties.put(name, value);
+        return this;
     }
 
-    public void setTaskType(TaskType taskType) {
-        this.taskType = taskType;
-    }
-
-    public void execute(IndexProcesses indexProcesses) {
-        switch (taskType) {
-            case INDEX_DOCUMENT:
-                indexProcesses.indexDocument(resourceName, actionDate);
-                break;
-            case REMOVE_DOCUMENT:
-                indexProcesses.removeDocument(resourceName, actionDate);
-                break;
-            case INDEX_SITE:
-                indexProcesses.indexSite(siteId, actionDate);
-                break;
-            case REFRESH_SITE:
-                indexProcesses.refreshSite(siteId, actionDate);
-                break;
-            case INDEX_ALL:
-                indexProcesses.indexAll(actionDate);
-                break;
-            case REFRESH_ALL:
-                indexProcesses.refreshAll(actionDate);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Couldn't execute a task of type '" + taskType + "'");
-        }
-    }
-
-    public static enum TaskType {
+    public static enum Type {
         INDEX_DOCUMENT,
         REMOVE_DOCUMENT,
 
@@ -79,7 +55,11 @@ public class DefaultTask implements Task {
         REFRESH_SITE,
 
         INDEX_ALL,
-        REFRESH_ALL
-    }
+        REFRESH_ALL;
+        private final String typeName = Type.class.getCanonicalName() + this.toString();
 
+        public String getTypeName() {
+            return typeName;
+        }
+    }
 }

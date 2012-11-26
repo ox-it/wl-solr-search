@@ -1,15 +1,19 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.util.DateUtil;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
-import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
-import uk.ac.ox.oucs.search.indexing.IndexProcesses;
+import uk.ac.ox.oucs.search.indexing.AbstractIndexProcesses;
 import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 import uk.ac.ox.oucs.search.indexing.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
+import uk.ac.ox.oucs.search.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.queueing.Task;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.indexing.process.*;
@@ -22,7 +26,7 @@ import java.util.Queue;
 /**
  * @author Colin Hebert
  */
-public class SolrIndexProcesses implements IndexProcesses {
+public class SolrIndexProcesses extends AbstractIndexProcesses {
     private ContentProducerFactory contentProducerFactory;
     private ObjectFactory solrServerFactory;
     private SiteService siteService;
@@ -30,11 +34,18 @@ public class SolrIndexProcesses implements IndexProcesses {
 
     @Override
     public void executeTask(Task task) {
-        task.execute(this);
+        super.executeTask(task);
+        String taskType = task.getType();
+
+        if (SolrTask.Type.REMOVE_SITE_DOCUMENTS.equals(taskType)) {
+            removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
+        } else if (SolrTask.Type.REMOVE_ALL_DOCUMENTS.equals(taskType)) {
+            removeAllDocuments(task.getCreationDate());
+        }
     }
 
     @Override
-    public void indexDocument(String resourceName, Date actionDate) {
+    protected void indexDocument(String resourceName, Date actionDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
@@ -50,7 +61,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void removeDocument(String resourceName, Date actionDate) {
+    protected void removeDocument(String resourceName, Date actionDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
@@ -66,7 +77,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void indexSite(String siteId, Date actionDate) {
+    protected void indexSite(String siteId, Date actionDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
@@ -81,7 +92,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void refreshSite(String siteId, Date actionDate) {
+    protected void refreshSite(String siteId, Date actionDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
@@ -96,7 +107,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void indexAll(Date actionDate) {
+    protected void indexAll(Date actionDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
@@ -111,7 +122,7 @@ public class SolrIndexProcesses implements IndexProcesses {
     }
 
     @Override
-    public void refreshAll(Date actionDate) {
+    protected void refreshAll(Date actionDate) {
         try {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
@@ -123,6 +134,51 @@ public class SolrIndexProcesses implements IndexProcesses {
         } catch (Exception e) {
             throw new ProcessExecutionException("Couldn't refresh the entire instance", e);
         }
+    }
+
+    protected void removeSiteDocuments(String siteId, Date creationDate) {
+        try {
+            SolrServer solrServer = getSolrServer();
+            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "] AND " +
+                    SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
+            solrServer.commit();
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't remove old documents the site '" + siteId + "'", e);
+        } catch (Exception e) {
+            throw new ProcessExecutionException("Couldn't remove old documents the site '" + siteId + "'", e);
+        }
+    }
+
+    protected void removeAllDocuments(Date creationDate) {
+        try {
+            SolrServer solrServer = getSolrServer();
+            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "]");
+            solrServer.commit();
+        } catch (IOException e) {
+            throw new TemporaryProcessExecutionException("Couldn't remove old documents from the entire instance", e);
+        } catch (Exception e) {
+            throw new ProcessExecutionException("Couldn't refresh the entire instance", e);
+        }
+    }
+
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
+    }
+
+    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+        this.searchIndexBuilder = searchIndexBuilder;
+    }
+
+    public void setSolrServerFactory(ObjectFactory solrServerFactory) {
+        this.solrServerFactory = solrServerFactory;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    private SolrServer getSolrServer() {
+        return (SolrServer) solrServerFactory.getObject();
     }
 
     private Queue<String> getIndexableSites() {
@@ -139,21 +195,5 @@ public class SolrIndexProcesses implements IndexProcesses {
         return !(siteService.isSpecialSite(site.getId()) ||
                 (searchIndexBuilder.isOnlyIndexSearchToolSites() && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null) ||
                 (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
-    }
-
-    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
-        this.contentProducerFactory = contentProducerFactory;
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
-        this.searchIndexBuilder = searchIndexBuilder;
-    }
-
-    public void setSolrServerFactory(ObjectFactory solrServerFactory) {
-        this.solrServerFactory = solrServerFactory;
     }
 }
