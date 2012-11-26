@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.indexing.ProcessExecutionException;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * @author Colin Hebert
@@ -35,10 +35,11 @@ public class RefreshSiteIndexProcess implements SolrProcess {
     public void execute() {
         logger.info("Refreshing the index for '" + siteId + "'");
         //Get the currently indexed resources for this site
-        Collection<String> resourceNames = getResourceNames(siteId);
+        Queue<String> resourceNames = getResourceNames(siteId);
         logger.debug(resourceNames.size() + " elements will be refreshed");
         new CleanSiteIndexProcess(solrServer, siteId).execute();
-        for (String resourceName : resourceNames) {
+        while(!resourceNames.isEmpty()){
+            String resourceName = resourceNames.poll();
             EntityContentProducer entityContentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
 
             //If there is no matching entity content producer or no associated site, skip the resource
@@ -58,14 +59,14 @@ public class RefreshSiteIndexProcess implements SolrProcess {
      * @param siteId Site containing indexed resources
      * @return a collection of resource references or an empty collection if no resource was found
      */
-    private Collection<String> getResourceNames(String siteId) {
+    private Queue<String> getResourceNames(String siteId) {
         try {
             logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
             SolrQuery query = new SolrQuery()
                     .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
                     .addField(SearchService.FIELD_REFERENCE);
             SolrDocumentList results = solrServer.query(query).getResults();
-            Collection<String> resourceNames = new ArrayList<String>(results.size());
+            Queue<String> resourceNames = new LinkedList<String>();
             for (SolrDocument document : results) {
                 resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
             }
