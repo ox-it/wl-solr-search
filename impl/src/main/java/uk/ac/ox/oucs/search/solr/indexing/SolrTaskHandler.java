@@ -10,8 +10,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
 import uk.ac.ox.oucs.search.indexing.AbstractTaskHandler;
-import uk.ac.ox.oucs.search.indexing.exception.ProcessExecutionException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.indexing.Task;
@@ -51,12 +51,12 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
             new IndexDocumentProcess(solrServer, contentProducer, resourceName).execute();
             solrServer.commit();
-        } catch (ProcessExecutionException e) {
+        } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't index the document '" + resourceName + "'", e);
+            throw new TemporaryTaskHandlingException("Couldn't index the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't index the document '" + resourceName + "'", e);
+            throw new TaskHandlingException("Couldn't index the document '" + resourceName + "'", e);
         }
     }
 
@@ -67,12 +67,12 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
             new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
             solrServer.commit();
-        } catch (ProcessExecutionException e) {
+        } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't unindex the document '" + resourceName + "'", e);
+            throw new TemporaryTaskHandlingException("Couldn't unindex the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't unindex the document '" + resourceName + "'", e);
+            throw new TaskHandlingException("Couldn't unindex the document '" + resourceName + "'", e);
         }
     }
 
@@ -82,12 +82,12 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             solrServer.commit();
-        } catch (ProcessExecutionException e) {
+        } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't index the site '" + siteId + "'", e);
+            throw new TemporaryTaskHandlingException("Couldn't index the site '" + siteId + "'", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't index the site '" + siteId + "'", e);
+            throw new TaskHandlingException("Couldn't index the site '" + siteId + "'", e);
         }
     }
 
@@ -97,12 +97,12 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
             solrServer.commit();
-        } catch (ProcessExecutionException e) {
+        } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't unindex the site '" + siteId + "'", e);
+            throw new TemporaryTaskHandlingException("Couldn't unindex the site '" + siteId + "'", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't unindex the site '" + siteId + "'", e);
+            throw new TaskHandlingException("Couldn't unindex the site '" + siteId + "'", e);
         }
     }
 
@@ -112,12 +112,12 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
             solrServer.commit();
-        } catch (ProcessExecutionException e) {
+        } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't index the entire instance", e);
+            throw new TemporaryTaskHandlingException("Couldn't index the entire instance", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't index the entire instance", e);
+            throw new TaskHandlingException("Couldn't index the entire instance", e);
         }
     }
 
@@ -127,12 +127,12 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
             solrServer.commit();
-        } catch (ProcessExecutionException e) {
+        } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't refresh the entire instance", e);
+            throw new TemporaryTaskHandlingException("Couldn't refresh the entire instance", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't refresh the entire instance", e);
+            throw new TaskHandlingException("Couldn't refresh the entire instance", e);
         }
     }
 
@@ -143,9 +143,9 @@ public class SolrTaskHandler extends AbstractTaskHandler {
                     SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
             solrServer.commit();
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't remove old documents the site '" + siteId + "'", e);
+            throw new TemporaryTaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't remove old documents the site '" + siteId + "'", e);
+            throw new TaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
         }
     }
 
@@ -155,9 +155,9 @@ public class SolrTaskHandler extends AbstractTaskHandler {
             solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "]");
             solrServer.commit();
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("Couldn't remove old documents from the entire instance", e);
+            throw new TemporaryTaskHandlingException("Couldn't remove old documents from the entire instance", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("Couldn't refresh the entire instance", e);
+            throw new TaskHandlingException("Couldn't refresh the entire instance", e);
         }
     }
 

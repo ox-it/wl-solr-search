@@ -11,7 +11,7 @@ import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
-import uk.ac.ox.oucs.search.indexing.exception.ProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -72,7 +72,7 @@ public class RefreshSiteIndexProcess implements SolrProcess {
             }
             return resourceNames;
         } catch (SolrServerException e) {
-            throw new ProcessExecutionException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+            throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
         }
     }
 }

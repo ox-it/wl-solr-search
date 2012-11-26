@@ -4,8 +4,8 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.exception.ProcessExecutionException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 
 import java.io.IOException;
 
@@ -30,9 +30,9 @@ public class RemoveDocumentProcess implements SolrProcess {
         try {
             solrServer.deleteById(entityContentProducer.getId(resourceName));
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("An exception occurred while removing the document '" + resourceName + "'", e);
+            throw new TemporaryTaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("An exception occurred while removing the document '" + resourceName + "'", e);
+            throw new TaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
         }
     }
 }

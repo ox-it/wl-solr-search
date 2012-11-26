@@ -5,9 +5,9 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
-import uk.ac.ox.oucs.search.indexing.exception.ProcessExecutionException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -40,9 +40,9 @@ public class RebuildIndexProcess implements SolrProcess {
         try {
             solrServer.deleteByQuery(SearchService.FIELD_SITEID + ":( " + sb + " )");
         } catch (IOException e) {
-            throw new TemporaryProcessExecutionException("An exception occurred while removing obsoletes sites from the index", e);
+            throw new TemporaryTaskHandlingException("An exception occurred while removing obsoletes sites from the index", e);
         } catch (Exception e) {
-            throw new ProcessExecutionException("An exception occurred while removing obsoletes sites from the index", e);
+            throw new TaskHandlingException("An exception occurred while removing obsoletes sites from the index", e);
         }
     }
 }

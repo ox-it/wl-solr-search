@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.TaskHandler;
 import uk.ac.ox.oucs.search.indexing.Task;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryProcessExecutionException;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 
 import java.util.concurrent.Executor;
 
@@ -48,7 +48,7 @@ public class IndexQueueingImpl implements IndexQueueing {
             logAsAdmin();
             try {
                 taskHandler.executeTask(task);
-            } catch (TemporaryProcessExecutionException e) {
+            } catch (TemporaryTaskHandlingException e) {
                 logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
                 addTaskToQueue(task);
             } catch (Exception e) {
