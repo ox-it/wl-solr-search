@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
+import com.google.common.collect.Iterators;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -28,7 +28,6 @@ import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -112,18 +111,9 @@ public class SolrTaskHandler implements TaskHandler {
     public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
         logger.info("Rebuilding the index for '" + siteId + "'");
         try {
-            for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
-                Iterable<String> resourceNames = new Iterable<String>() {
-                    @Override
-                    public Iterator<String> iterator() {
-                        return entityContentProducer.getSiteContentIterator(siteId);
-                    }
-                };
-
-                for (String resourceName : resourceNames) {
-                    indexDocument(resourceName, actionDate, solrServer);
-                }
-            }
+            Queue<String> siteReferences = getSiteDocumentsReferences(siteId);
+            while (siteReferences.peek() != null)
+                indexDocument(siteReferences.poll(), actionDate, solrServer);
             removeSiteDocuments(siteId, actionDate, solrServer);
         } finally {
             //Clean up the localThread after each site
@@ -247,6 +237,17 @@ public class SolrTaskHandler implements TaskHandler {
         } catch (SolrServerException e) {
             throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
         }
+    }
+
+    private Queue<String> getSiteDocumentsReferences(String siteId) {
+        //TODO: Replace by a lazy queuing system
+        Queue<String> references = new LinkedList<String>();
+
+        for (EntityContentProducer contentProducer : contentProducerFactory.getContentProducers()) {
+            Iterators.addAll(references, contentProducer.getSiteContentIterator(siteId));
+        }
+
+        return references;
     }
 
     private boolean isDocumentOutdated(String documentId, Date currentDate) {
