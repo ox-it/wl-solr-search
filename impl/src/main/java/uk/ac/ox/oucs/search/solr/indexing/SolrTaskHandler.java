@@ -1,7 +1,11 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.DateUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -20,7 +24,7 @@ import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
-import uk.ac.ox.oucs.search.solr.indexing.process.*;
+import uk.ac.ox.oucs.search.solr.indexing.process.IndexDocumentProcess;
 
 import java.io.IOException;
 import java.util.Date;
@@ -116,7 +120,20 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void refreshSite(String siteId, Date actionDate, SolrServer solrServer) {
-        new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
+        logger.info("Refreshing the index for '" + siteId + "'");
+        try {
+            //Get the currently indexed resources for this site
+            Queue<String> resourceNames = getResourceNames(siteId);
+            logger.debug(resourceNames.size() + " elements will be refreshed");
+            while (!resourceNames.isEmpty()) {
+                indexDocument(resourceNames.poll(), actionDate, solrServer);
+            }
+            removeSiteDocuments(siteId, actionDate, solrServer);
+        } finally {
+            //Clean up the localThread after each site
+            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
+            threadLocalManager.clear();
+        }
     }
 
     public void indexAll(Date actionDate, SolrServer solrServer) {
@@ -187,6 +204,24 @@ public class SolrTaskHandler implements TaskHandler {
             }
         }
         return refreshedSites;
+    }
+
+    private Queue<String> getResourceNames(String siteId) {
+        try {
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
+            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
+            SolrQuery query = new SolrQuery()
+                    .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
+                    .addField(SearchService.FIELD_REFERENCE);
+            SolrDocumentList results = solrServer.query(query).getResults();
+            Queue<String> resourceNames = new LinkedList<String>();
+            for (SolrDocument document : results) {
+                resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
+            }
+            return resourceNames;
+        } catch (SolrServerException e) {
+            throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+        }
     }
 
     private boolean isSiteIndexable(Site site) {
