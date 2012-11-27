@@ -8,6 +8,8 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.indexing.TaskHandler;
@@ -27,6 +29,7 @@ import java.util.Queue;
  * @author Colin Hebert
  */
 public class SolrTaskHandler implements TaskHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SolrTaskHandler.class);
     private ContentProducerFactory contentProducerFactory;
     private ObjectFactory solrServerFactory;
     private SiteService siteService;
@@ -86,7 +89,13 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void indexAll(Date actionDate, SolrServer solrServer) {
-        new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
+        logger.info("Rebuilding the index for every indexable site");
+        Queue<String> reindexedSites = getIndexableSites();
+        while (!reindexedSites.isEmpty()) {
+            indexSite(reindexedSites.poll(), actionDate, solrServer);
+        }
+        logger.info("Remove indexed documents for unindexable or non-existing sites");
+        removeAllDocuments(actionDate, solrServer);
     }
 
     public void refreshAll(Date actionDate, SolrServer solrServer) {
