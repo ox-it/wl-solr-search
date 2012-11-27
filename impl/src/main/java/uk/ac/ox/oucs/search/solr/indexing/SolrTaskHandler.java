@@ -164,6 +164,7 @@ public class SolrTaskHandler implements TaskHandler {
         while (!refreshedSites.isEmpty()) {
             refreshSite(refreshedSites.poll(), actionDate, solrServer);
         }
+        removeAllDocuments(actionDate, solrServer);
     }
 
     public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
