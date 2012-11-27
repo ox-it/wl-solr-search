@@ -3,11 +3,13 @@ package uk.ac.ox.oucs.search.solr.indexing;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.util.DateUtil;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -22,6 +24,7 @@ import uk.ac.ox.oucs.search.solr.indexing.process.*;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -80,8 +83,27 @@ public class SolrTaskHandler implements TaskHandler {
         new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
     }
 
-    public void indexSite(String siteId, Date actionDate, SolrServer solrServer) {
-        new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
+    public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
+        logger.info("Rebuilding the index for '" + siteId + "'");
+        try {
+            for (final EntityContentProducer entityContentProducer : contentProducerFactory.getContentProducers()) {
+                Iterable<String> resourceNames = new Iterable<String>() {
+                    @Override
+                    public Iterator<String> iterator() {
+                        return entityContentProducer.getSiteContentIterator(siteId);
+                    }
+                };
+
+                for (String resourceName : resourceNames) {
+                    indexDocument(resourceName, actionDate, solrServer);
+                }
+            }
+            removeSiteDocuments(siteId, actionDate, solrServer);
+        } finally {
+            //Clean up the localThread after each site
+            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
+            threadLocalManager.clear();
+        }
     }
 
     public void refreshSite(String siteId, Date actionDate, SolrServer solrServer) {
