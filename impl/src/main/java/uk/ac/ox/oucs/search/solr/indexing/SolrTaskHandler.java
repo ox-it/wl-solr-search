@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -24,7 +25,6 @@ import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
-import uk.ac.ox.oucs.search.solr.indexing.process.IndexDocumentProcess;
 
 import java.io.IOException;
 import java.util.Date;
@@ -78,8 +78,19 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void indexDocument(String resourceName, Date actionDate, SolrServer solrServer) {
+        logger.debug("Add '" + resourceName + "' to the index");
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-        new IndexDocumentProcess(solrServer, contentProducer, resourceName).execute();
+        if (!isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
+            logger.debug("Indexation not useful as the document was updated earlier");
+        }
+
+        try {
+            solrServer.request(IndexDocumentProcess.toSolrRequest(resourceName, contentProducer));
+        } catch (IOException e) {
+            throw new TemporaryTaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
+        } catch (Exception e) {
+            throw new TaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
+        }
     }
 
     public void removeDocument(String resourceName, Date actionDate, SolrServer solrServer) {
@@ -221,6 +232,20 @@ public class SolrTaskHandler implements TaskHandler {
             return resourceNames;
         } catch (SolrServerException e) {
             throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+        }
+    }
+
+    private boolean isDocumentOutdated(String documentId, Date currentDate) {
+        try {
+            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
+            logger.debug("Obtaining creation date for document '" + documentId + "'");
+            SolrQuery query = new SolrQuery()
+                    .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
+                            SearchService.DATE_STAMP + ":[* TO " + format(currentDate) + "}")
+                    .addField(SearchService.DATE_STAMP);
+            return solrServer.query(query).getResults().getNumFound() == 0;
+        } catch (SolrServerException e) {
+            throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
         }
     }
 

@@ -1,7 +1,6 @@
-package uk.ac.ox.oucs.search.solr.indexing.process;
+package uk.ac.ox.oucs.search.solr.indexing;
 
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
@@ -11,8 +10,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
@@ -23,34 +20,12 @@ import java.util.*;
 /**
  * @author Colin Hebert
  */
-public class IndexDocumentProcess implements SolrProcess {
+class IndexDocumentProcess {
     public static final String LITERAL = "literal.";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
     private static final Logger logger = LoggerFactory.getLogger(IndexDocumentProcess.class);
-    private final SolrServer solrServer;
-    private final EntityContentProducer entityContentProducer;
-    private final String resourceName;
-
-    public IndexDocumentProcess(SolrServer solrServer, EntityContentProducer entityContentProducer, String resourceName) {
-        this.solrServer = solrServer;
-        this.entityContentProducer = entityContentProducer;
-        this.resourceName = resourceName;
-    }
-
-    @Override
-    public void execute() {
-        try {
-            logger.debug("Add '" + resourceName + "' to the index");
-            SolrRequest request = toSolrRequest(resourceName, entityContentProducer);
-            solrServer.request(request);
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
-        } catch (Exception e) {
-            throw new TaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
-        }
-    }
 
     /**
      * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
@@ -59,7 +34,7 @@ public class IndexDocumentProcess implements SolrProcess {
      * @param contentProducer content producer associated with the resource
      * @return an update request for the resource
      */
-    private SolrRequest toSolrRequest(final String resourceName, EntityContentProducer contentProducer) {
+    public static SolrRequest toSolrRequest(String resourceName, EntityContentProducer contentProducer) {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
         SolrInputDocument document = generateBaseSolrDocument(resourceName, contentProducer);
@@ -89,7 +64,7 @@ public class IndexDocumentProcess implements SolrProcess {
      * @param contentProducer contentProducer in charge of extracting the data
      * @return a SolrDocument
      */
-    private SolrInputDocument generateBaseSolrDocument(String resourceName, EntityContentProducer contentProducer) {
+    private static SolrInputDocument generateBaseSolrDocument(String resourceName, EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
         //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't
@@ -123,7 +98,7 @@ public class IndexDocumentProcess implements SolrProcess {
      * @param document        {@link SolrInputDocument} used to prepare index fields
      * @return a solrCell request
      */
-    private SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
+    private static SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
                                                SolrInputDocument document) {
         //Send to tika
         ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
@@ -158,7 +133,7 @@ public class IndexDocumentProcess implements SolrProcess {
      * @param contentProducer producer providing properties for the given resource
      * @return a formated map of {@link Collection<String>}
      */
-    private Map<String, Collection<String>> extractCustomProperties(String resourceName, EntityContentProducer contentProducer) {
+    private static Map<String, Collection<String>> extractCustomProperties(String resourceName, EntityContentProducer contentProducer) {
         Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
 
         if (m == null)
@@ -205,7 +180,7 @@ public class IndexDocumentProcess implements SolrProcess {
      * @param propertyName String to filter
      * @return a filtered name more appropriate to use with solr
      */
-    private String toSolrFieldName(String propertyName) {
+    private static String toSolrFieldName(String propertyName) {
         StringBuilder sb = new StringBuilder(propertyName.length());
         boolean lastUnderscore = false;
         for (Character c : propertyName.toLowerCase().toCharArray()) {
