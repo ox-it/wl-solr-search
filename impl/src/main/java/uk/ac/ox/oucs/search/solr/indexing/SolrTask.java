@@ -18,7 +18,8 @@ public class SolrTask extends DefaultTask {
 
     public static enum Type {
         REMOVE_SITE_DOCUMENTS,
-        REMOVE_ALL_DOCUMENTS;
+        REMOVE_ALL_DOCUMENTS,
+        OPTIMISE_INDEX;
         private final String typeName = Type.class.getCanonicalName() + this.toString();
 
         public String getTypeName() {

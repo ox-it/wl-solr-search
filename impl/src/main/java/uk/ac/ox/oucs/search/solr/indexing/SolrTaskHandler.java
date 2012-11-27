@@ -64,6 +64,8 @@ public class SolrTaskHandler implements TaskHandler {
                 removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
             } else if (SolrTask.Type.REMOVE_ALL_DOCUMENTS.equals(taskType)) {
                 removeAllDocuments(task.getCreationDate(), solrServer);
+            } else if (SolrTask.Type.OPTIMISE_INDEX.equals(taskType)) {
+                optimiseSolrIndex(solrServer);
             } else {
                 throw new TaskHandlingException("Task '" + task + "' can't be handled");
             }
@@ -185,6 +187,16 @@ public class SolrTaskHandler implements TaskHandler {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents from the entire instance", e);
         } catch (Exception e) {
             throw new TaskHandlingException("Couldn't refresh the entire instance", e);
+        }
+    }
+
+    public void optimiseSolrIndex(SolrServer solrServer) {
+        try {
+            solrServer.optimize();
+        } catch (IOException e) {
+            throw new TemporaryTaskHandlingException("Couldn't optimise the index", e);
+        } catch (Exception e) {
+            throw new TaskHandlingException("Couldn't optimise the index", e);
         }
     }
 
