@@ -153,7 +153,6 @@ public class SolrTaskHandler implements TaskHandler {
         while (!reindexedSites.isEmpty()) {
             indexSite(reindexedSites.poll(), actionDate, solrServer);
         }
-        logger.info("Remove indexed documents for unindexable or non-existing sites");
         removeAllDocuments(actionDate, solrServer);
     }
 
@@ -166,6 +165,7 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
+        logger.info("Remove old documents from '" + siteId + "'");
         try {
             solrServer.deleteByQuery(
                     SearchService.DATE_STAMP + ":[* TO " + format(creationDate) + "} AND " +
@@ -178,6 +178,7 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void removeAllDocuments(Date creationDate, SolrServer solrServer) {
+        logger.info("Remove old documents from every sites");
         try {
             solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + format(creationDate) + "}");
         } catch (IOException e) {
