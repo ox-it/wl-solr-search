@@ -83,7 +83,7 @@ public class SolrTaskHandler implements TaskHandler {
         logger.debug("Remove '" + resourceName + "' from the index");
         try {
             solrServer.deleteByQuery(
-                    SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(actionDate) + "]  AND " +
+                    SearchService.DATE_STAMP + ":[* TO " + format(actionDate) + "} AND " +
                     SearchService.FIELD_REFERENCE + ":" + contentProducer.getId(resourceName));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
@@ -139,7 +139,8 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
         try {
-            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "] AND " +
+            solrServer.deleteByQuery(
+                    SearchService.DATE_STAMP + ":[* TO " + format(creationDate) + "} AND " +
                     SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
@@ -150,7 +151,7 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void removeAllDocuments(Date creationDate, SolrServer solrServer) {
         try {
-            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "]");
+            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + format(creationDate) + "}");
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents from the entire instance", e);
         } catch (Exception e) {
@@ -172,6 +173,10 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    private String format(Date creationDate) {
+        return DateUtil.getThreadLocalDateFormat().format(creationDate);
     }
 
     private Queue<String> getIndexableSites() {
