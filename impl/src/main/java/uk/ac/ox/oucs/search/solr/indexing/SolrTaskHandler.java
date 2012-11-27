@@ -80,7 +80,16 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void removeDocument(String resourceName, Date actionDate, SolrServer solrServer) {
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-        new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
+        logger.debug("Remove '" + resourceName + "' from the index");
+        try {
+            solrServer.deleteByQuery(
+                    SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(actionDate) + "]  AND " +
+                    SearchService.FIELD_REFERENCE + ":" + contentProducer.getId(resourceName));
+        } catch (IOException e) {
+            throw new TemporaryTaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
+        } catch (Exception e) {
+            throw new TaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
+        }
     }
 
     public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
