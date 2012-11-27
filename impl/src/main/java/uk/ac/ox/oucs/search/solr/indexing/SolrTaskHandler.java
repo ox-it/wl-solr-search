@@ -9,12 +9,12 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.ObjectFactory;
-import uk.ac.ox.oucs.search.indexing.AbstractTaskHandler;
+import uk.ac.ox.oucs.search.indexing.Task;
+import uk.ac.ox.oucs.search.indexing.TaskHandler;
 import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
-import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 import uk.ac.ox.oucs.search.solr.indexing.process.*;
 
@@ -26,7 +26,7 @@ import java.util.Queue;
 /**
  * @author Colin Hebert
  */
-public class SolrTaskHandler extends AbstractTaskHandler {
+public class SolrTaskHandler implements TaskHandler {
     private ContentProducerFactory contentProducerFactory;
     private ObjectFactory solrServerFactory;
     private SiteService siteService;
@@ -34,114 +34,69 @@ public class SolrTaskHandler extends AbstractTaskHandler {
 
     @Override
     public void executeTask(Task task) {
-        super.executeTask(task);
-        String taskType = task.getType();
-
-        if (SolrTask.Type.REMOVE_SITE_DOCUMENTS.equals(taskType)) {
-            removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
-        } else if (SolrTask.Type.REMOVE_ALL_DOCUMENTS.equals(taskType)) {
-            removeAllDocuments(task.getCreationDate());
-        }
-    }
-
-    @Override
-    protected void indexDocument(String resourceName, Date actionDate) {
         try {
+            String taskType = task.getType();
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-            new IndexDocumentProcess(solrServer, contentProducer, resourceName).execute();
+
+            if (DefaultTask.Type.INDEX_DOCUMENT.equals(taskType)) {
+                indexDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
+            } else if (DefaultTask.Type.REMOVE_DOCUMENT.equals(taskType)) {
+                removeDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
+            } else if (DefaultTask.Type.INDEX_SITE.equals(taskType)) {
+                indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
+            } else if (DefaultTask.Type.REFRESH_SITE.equals(taskType)) {
+                refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
+            } else if (DefaultTask.Type.INDEX_ALL.equals(taskType)) {
+                indexAll(task.getCreationDate(), solrServer);
+            } else if (DefaultTask.Type.REFRESH_ALL.equals(taskType)) {
+                refreshAll(task.getCreationDate(), solrServer);
+            } else if (SolrTask.Type.REMOVE_SITE_DOCUMENTS.equals(taskType)) {
+                removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
+            } else if (SolrTask.Type.REMOVE_ALL_DOCUMENTS.equals(taskType)) {
+                removeAllDocuments(task.getCreationDate(), solrServer);
+            } else {
+                throw new TaskHandlingException("Task '" + task + "' can't be handled");
+            }
             solrServer.commit();
         } catch (TaskHandlingException e) {
             throw e;
         } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't index the document '" + resourceName + "'", e);
+            throw new TemporaryTaskHandlingException("Couldn't execute the task '" + task + "'", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't index the document '" + resourceName + "'", e);
+            throw new TaskHandlingException("Couldn't execute the task '" + task + "'", e);
         }
     }
 
-    @Override
-    protected void removeDocument(String resourceName, Date actionDate) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-            new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
-            solrServer.commit();
-        } catch (TaskHandlingException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't unindex the document '" + resourceName + "'", e);
-        } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't unindex the document '" + resourceName + "'", e);
-        }
+    public void indexDocument(String resourceName, Date actionDate, SolrServer solrServer) {
+        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
+        new IndexDocumentProcess(solrServer, contentProducer, resourceName).execute();
     }
 
-    @Override
-    protected void indexSite(String siteId, Date actionDate) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
-            solrServer.commit();
-        } catch (TaskHandlingException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't index the site '" + siteId + "'", e);
-        } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't index the site '" + siteId + "'", e);
-        }
+    public void removeDocument(String resourceName, Date actionDate, SolrServer solrServer) {
+        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
+        new RemoveDocumentProcess(solrServer, contentProducer, resourceName).execute();
     }
 
-    @Override
-    protected void refreshSite(String siteId, Date actionDate) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
-            solrServer.commit();
-        } catch (TaskHandlingException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't unindex the site '" + siteId + "'", e);
-        } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't unindex the site '" + siteId + "'", e);
-        }
+    public void indexSite(String siteId, Date actionDate, SolrServer solrServer) {
+        new BuildSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
     }
 
-    @Override
-    protected void indexAll(Date actionDate) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
-            solrServer.commit();
-        } catch (TaskHandlingException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't index the entire instance", e);
-        } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't index the entire instance", e);
-        }
+    public void refreshSite(String siteId, Date actionDate, SolrServer solrServer) {
+        new RefreshSiteIndexProcess(solrServer, contentProducerFactory, siteId).execute();
     }
 
-    @Override
-    protected void refreshAll(Date actionDate) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
-            solrServer.commit();
-        } catch (TaskHandlingException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't refresh the entire instance", e);
-        } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't refresh the entire instance", e);
-        }
+    public void indexAll(Date actionDate, SolrServer solrServer) {
+        new RebuildIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
     }
 
-    protected void removeSiteDocuments(String siteId, Date creationDate) {
+    public void refreshAll(Date actionDate, SolrServer solrServer) {
+        new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
+    }
+
+    public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
         try {
-            SolrServer solrServer = getSolrServer();
             solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "] AND " +
                     SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
-            solrServer.commit();
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
         } catch (Exception e) {
@@ -149,11 +104,9 @@ public class SolrTaskHandler extends AbstractTaskHandler {
         }
     }
 
-    protected void removeAllDocuments(Date creationDate) {
+    public void removeAllDocuments(Date creationDate, SolrServer solrServer) {
         try {
-            SolrServer solrServer = getSolrServer();
             solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + DateUtil.getThreadLocalDateFormat().format(creationDate) + "]");
-            solrServer.commit();
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents from the entire instance", e);
         } catch (Exception e) {
@@ -175,10 +128,6 @@ public class SolrTaskHandler extends AbstractTaskHandler {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
-    }
-
-    private SolrServer getSolrServer() {
-        return (SolrServer) solrServerFactory.getObject();
     }
 
     private Queue<String> getIndexableSites() {
