@@ -121,7 +121,11 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void refreshAll(Date actionDate, SolrServer solrServer) {
-        new RefreshIndexProcess(solrServer, getIndexableSites(), contentProducerFactory).execute();
+        logger.info("Refreshing the index for every indexable site");
+        Queue<String> refreshedSites = getIndexableSites();
+        while (!refreshedSites.isEmpty()) {
+            refreshSite(refreshedSites.poll(), actionDate, solrServer);
+        }
     }
 
     public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
