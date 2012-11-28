@@ -261,8 +261,8 @@ public class SolrTools {
             logger.debug("Obtaining creation date for document '" + documentId + "'");
             SolrQuery query = new SolrQuery()
                     .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
-                            SearchService.DATE_STAMP + ":[* TO " + format(currentDate) + "}")
-                    .addField(SearchService.DATE_STAMP);
+                            SearchService.DATE_STAMP + ":{* TO " + format(currentDate) + "}")
+                    .setRows(0);
             return solrServer.query(query).getResults().getNumFound() == 0;
         } catch (SolrServerException e) {
             throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
