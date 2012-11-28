@@ -20,12 +20,12 @@ import java.util.*;
 /**
  * @author Colin Hebert
  */
-class IndexDocumentProcess {
+class SolrTools {
     public static final String LITERAL = "literal.";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
-    private static final Logger logger = LoggerFactory.getLogger(IndexDocumentProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(SolrTools.class);
 
     /**
      * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}

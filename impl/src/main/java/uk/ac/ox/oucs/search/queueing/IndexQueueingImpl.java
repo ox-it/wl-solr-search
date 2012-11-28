@@ -16,12 +16,16 @@ import java.util.concurrent.Executor;
 public class IndexQueueingImpl implements IndexQueueing {
     private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
     private TaskHandler taskHandler;
+    private Executor taskSplittingExecutor;
     private Executor indexingExecutor;
     private SessionManager sessionManager;
 
     @Override
     public void addTaskToQueue(Task task) {
-        indexingExecutor.execute(new RunnableTask(task));
+        if (task.getType().equals(DefaultTask.Type.INDEX_DOCUMENT) || task.getType().equals(DefaultTask.Type.REMOVE_DOCUMENT))
+            indexingExecutor.execute(new RunnableTask(task));
+        else
+            taskSplittingExecutor.execute(new RunnableTask(task));
     }
 
     public void setIndexingExecutor(Executor indexingExecutor) {
@@ -34,6 +38,10 @@ public class IndexQueueingImpl implements IndexQueueing {
 
     public void setTaskHandler(TaskHandler taskHandler) {
         this.taskHandler = taskHandler;
+    }
+
+    public void setTaskSplittingExecutor(Executor taskSplittingExecutor) {
+        this.taskSplittingExecutor = taskSplittingExecutor;
     }
 
     private class RunnableTask implements Runnable {
