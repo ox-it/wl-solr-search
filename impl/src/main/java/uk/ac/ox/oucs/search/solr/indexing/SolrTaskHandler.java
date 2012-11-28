@@ -79,7 +79,7 @@ public class SolrTaskHandler implements TaskHandler {
         }
 
         try {
-            solrServer.request(SolrTools.toSolrRequest(resourceName, actionDate, contentProducer));
+            solrServer.request(solrTools.toSolrRequest(resourceName, actionDate, contentProducer));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
         } catch (Exception e) {
