@@ -16,7 +16,7 @@ import java.util.HashSet;
  * @author Colin Hebert
  */
 public class ContentProducerFactory {
-    private static final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContentProducerFactory.class);
     private final Collection<EntityContentProducer> contentProducers = new HashSet<EntityContentProducer>();
 
     /**
