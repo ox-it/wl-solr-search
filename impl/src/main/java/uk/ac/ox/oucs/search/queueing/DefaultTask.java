@@ -49,6 +49,15 @@ public class DefaultTask implements Task {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "DefaultTask{" +
+                "type='" + type + '\'' +
+                ", creationDate=" + creationDate +
+                ", properties=" + properties +
+                '}';
+    }
+
     public static enum Type {
         INDEX_DOCUMENT,
         REMOVE_DOCUMENT,
