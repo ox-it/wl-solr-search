@@ -25,10 +25,13 @@ public class IndexQueueingImpl implements IndexQueueing {
 
     @Override
     public void addTaskToQueue(Task task) {
-        if (INDEX_DOCUMENT.getTypeName().equals(task.getType()) || REMOVE_DOCUMENT.getTypeName().equals(task.getType()))
+        if (INDEX_DOCUMENT.getTypeName().equals(task.getType()) || REMOVE_DOCUMENT.getTypeName().equals(task.getType())) {
+            logger.debug("Add task '" + task + "' to the indexing executor");
             indexingExecutor.execute(new RunnableTask(task));
-        else
+        } else {
+            logger.debug("Add task '" + task + "' to the task splitting executor");
             taskSplittingExecutor.execute(new RunnableTask(task));
+        }
     }
 
     public void setIndexingExecutor(Executor indexingExecutor) {

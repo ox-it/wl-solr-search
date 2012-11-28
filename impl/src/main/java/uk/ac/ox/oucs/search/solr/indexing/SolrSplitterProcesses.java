@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.indexing.TaskHandler;
 import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
@@ -19,6 +21,7 @@ import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_SITE_DOCUM
  * @author Colin Hebert
  */
 public class SolrSplitterProcesses implements TaskHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SolrSplitterProcesses.class);
     private TaskHandler actualTaskHandler;
     private IndexQueueing indexQueueing;
     private SolrTools solrTools;
@@ -26,15 +29,18 @@ public class SolrSplitterProcesses implements TaskHandler {
     @Override
     public void executeTask(Task task) {
         try {
+            logger.debug("Attempt to handle '" + task + "'");
             String taskType = task.getType();
             if (INDEX_SITE.getTypeName().equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getSiteDocumentsReferences(siteId);
+                logger.info("Split the '" + task + "' to index "+references.size()+" documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
             } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getResourceNames(siteId);
+                logger.info("Split the '" + task + "' to index "+references.size()+" documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
             } else if (INDEX_ALL.equals(taskType)) {

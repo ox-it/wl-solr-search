@@ -36,6 +36,7 @@ public class SolrTaskHandler implements TaskHandler {
 
     @Override
     public void executeTask(Task task) {
+        logger.debug("Attempt to handle '" + task+"'");
         try {
             String taskType = task.getType();
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
