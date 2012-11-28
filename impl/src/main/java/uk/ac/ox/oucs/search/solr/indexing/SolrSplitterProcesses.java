@@ -43,9 +43,9 @@ public class SolrSplitterProcesses implements TaskHandler {
                 logger.info("Split the '" + task + "' to index "+references.size()+" documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
-            } else if (INDEX_ALL.equals(taskType)) {
+            } else if (INDEX_ALL.getTypeName().equals(taskType)) {
                 indexAll(INDEX_SITE.getTypeName(), task.getCreationDate());
-            } else if (REFRESH_ALL.equals(taskType)) {
+            } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
                 indexAll(REFRESH_SITE.getTypeName(), task.getCreationDate());
             } else {
                 actualTaskHandler.executeTask(task);
