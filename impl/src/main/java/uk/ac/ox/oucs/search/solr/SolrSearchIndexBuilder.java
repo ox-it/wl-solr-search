@@ -1,8 +1,5 @@
 package uk.ac.ox.oucs.search.solr;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
@@ -17,11 +14,8 @@ import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.queueing.IndexQueueing;
 import uk.ac.ox.oucs.search.solr.indexing.SolrTools;
-import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**

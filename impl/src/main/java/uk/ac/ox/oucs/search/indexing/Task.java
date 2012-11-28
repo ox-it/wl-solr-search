@@ -8,6 +8,8 @@ import java.util.Date;
  */
 public interface Task extends Serializable {
     String getType();
+
     String getProperty(String name);
+
     Date getCreationDate();
 }

@@ -87,8 +87,8 @@ public class SolrTaskHandler implements TaskHandler {
         logger.debug("Remove '" + resourceName + "' from the index");
         try {
             solrServer.deleteByQuery(
-                    SearchService.DATE_STAMP + ":[* TO " + format(actionDate) + "} AND " +
-                    SearchService.FIELD_REFERENCE + ":" + contentProducer.getId(resourceName));
+                    SearchService.DATE_STAMP + ":[* TO " + solrTools.format(actionDate) + "} AND " +
+                            SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(contentProducer.getId(resourceName)));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
         } catch (Exception e) {
@@ -149,8 +149,8 @@ public class SolrTaskHandler implements TaskHandler {
         logger.info("Remove old documents from '" + siteId + "'");
         try {
             solrServer.deleteByQuery(
-                    SearchService.DATE_STAMP + ":[* TO " + format(creationDate) + "} AND " +
-                    SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
+                    SearchService.DATE_STAMP + ":[* TO " + solrTools.format(creationDate) + "} AND " +
+                            SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
         } catch (Exception e) {
