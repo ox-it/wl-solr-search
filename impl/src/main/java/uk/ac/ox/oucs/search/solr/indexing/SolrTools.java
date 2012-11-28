@@ -244,7 +244,10 @@ public class SolrTools {
             }
             return resourceNames;
         } catch (SolrServerException e) {
-            throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+            if (e.getCause() instanceof IOException)
+                throw new TemporaryTaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+            else
+                throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
         }
     }
 
