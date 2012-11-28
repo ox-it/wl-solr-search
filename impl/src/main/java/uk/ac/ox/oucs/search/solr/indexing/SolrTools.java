@@ -54,10 +54,10 @@ public class SolrTools {
      * @param contentProducer content producer associated with the resource
      * @return an update request for the resource
      */
-    public static SolrRequest toSolrRequest(String resourceName, EntityContentProducer contentProducer) {
+    public static SolrRequest toSolrRequest(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
-        SolrInputDocument document = generateBaseSolrDocument(resourceName, contentProducer);
+        SolrInputDocument document = generateBaseSolrDocument(resourceName, actionDate,contentProducer);
         logger.debug("Base solr document created ." + document);
 
         //Prepare the actual request based on a stream/reader/string
@@ -84,11 +84,11 @@ public class SolrTools {
      * @param contentProducer contentProducer in charge of extracting the data
      * @return a SolrDocument
      */
-    private static SolrInputDocument generateBaseSolrDocument(String resourceName, EntityContentProducer contentProducer) {
+    private static SolrInputDocument generateBaseSolrDocument(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
-        //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't
-        //document.addField(SearchService.DATE_STAMP, new Date());
+        //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
+        document.addField(SearchService.DATE_STAMP, actionDate);
         document.addField(SearchService.FIELD_CONTAINER, contentProducer.getContainer(resourceName));
         document.addField(SearchService.FIELD_ID, contentProducer.getId(resourceName));
         document.addField(SearchService.FIELD_TYPE, contentProducer.getType(resourceName));
