@@ -55,7 +55,7 @@ public class SolrTools {
      * @param contentProducer content producer associated with the resource
      * @return an update request for the resource
      */
-    public static SolrRequest toSolrRequest(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
+    public SolrRequest toSolrRequest(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
         SolrInputDocument document = generateBaseSolrDocument(resourceName, actionDate, contentProducer);
@@ -85,7 +85,7 @@ public class SolrTools {
      * @param contentProducer contentProducer in charge of extracting the data
      * @return a SolrDocument
      */
-    private static SolrInputDocument generateBaseSolrDocument(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
+    private SolrInputDocument generateBaseSolrDocument(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
         //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
@@ -119,7 +119,7 @@ public class SolrTools {
      * @param document        {@link SolrInputDocument} used to prepare index fields
      * @return a solrCell request
      */
-    private static SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
+    private SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
                                                       SolrInputDocument document) {
         //Send to tika
         ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
@@ -154,7 +154,7 @@ public class SolrTools {
      * @param contentProducer producer providing properties for the given resource
      * @return a formated map of {@link Collection<String>}
      */
-    private static Map<String, Collection<String>> extractCustomProperties(String resourceName, EntityContentProducer contentProducer) {
+    private Map<String, Collection<String>> extractCustomProperties(String resourceName, EntityContentProducer contentProducer) {
         Map<String, ?> m = contentProducer.getCustomProperties(resourceName);
 
         if (m == null)
@@ -201,7 +201,7 @@ public class SolrTools {
      * @param propertyName String to filter
      * @return a filtered name more appropriate to use with solr
      */
-    private static String toSolrFieldName(String propertyName) {
+    private String toSolrFieldName(String propertyName) {
         StringBuilder sb = new StringBuilder(propertyName.length());
         boolean lastUnderscore = false;
         for (Character c : propertyName.toLowerCase().toCharArray()) {
