@@ -89,7 +89,7 @@ public class SolrTools {
         SolrInputDocument document = new SolrInputDocument();
 
         //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
-        document.addField(SearchService.DATE_STAMP, actionDate);
+        document.addField(SearchService.DATE_STAMP, format(actionDate));
         document.addField(SearchService.FIELD_CONTAINER, contentProducer.getContainer(resourceName));
         document.addField(SearchService.FIELD_ID, contentProducer.getId(resourceName));
         document.addField(SearchService.FIELD_TYPE, contentProducer.getType(resourceName));
