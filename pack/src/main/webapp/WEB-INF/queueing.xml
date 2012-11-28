@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-lazy-init="true">
-    <bean id="uk.ac.ox.oucs.search.queueing.IndexQueueing" class="uk.ac.ox.oucs.search.queueing.IndexQueueingImpl">
+    <bean id="uk.ac.ox.oucs.search.queueing.IndexQueueingImpl" class="uk.ac.ox.oucs.search.queueing.IndexQueueingImpl">
         <property name="indexingExecutor" ref="indexingExecutor"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-        <property name="taskHandler" ref="uk.ac.ox.oucs.search.indexing.IndexProcesses" />
+        <property name="taskSplittingExecutor" ref="splittingExecutor"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="taskHandler" ref="uk.ac.ox.oucs.search.indexing.TaskHandler"/>
     </bean>
     <!-- Executor responsible for handling indexing requests -->
     <!--
@@ -13,7 +14,13 @@
     <bean id="indexingExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="0"/>
         <property name="maxPoolSize" value="1"/>
-        <property name="queueCapacity" value="100000" />
+        <property name="queueCapacity" value="100000"/>
+        <property name="keepAliveSeconds" value="30"/>
+    </bean>
+    <bean id="splittingExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="0"/>
+        <property name="maxPoolSize" value="1"/>
+        <property name="queueCapacity" value="100000"/>
         <property name="keepAliveSeconds" value="30"/>
     </bean>
 </beans>

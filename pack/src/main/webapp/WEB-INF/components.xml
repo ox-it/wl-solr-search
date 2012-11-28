@@ -3,6 +3,9 @@
 <beans>
     <alias alias="org.sakaiproject.search.api.SearchService" name="${search.service.impl}"/>
     <alias alias="org.sakaiproject.search.api.SearchIndexBuilder" name="${search.indexbuilder.impl}"/>
+    <alias alias="uk.ac.ox.oucs.search.indexing.TaskHandler"
+           name="uk.ac.ox.oucs.search.solr.indexing.SolrSplitterProcesses"/>
+    <alias alias="uk.ac.ox.oucs.search.queueing.IndexQueueing" name="uk.ac.ox.oucs.search.queueing.IndexQueueingImpl"/>
 
     <import resource="solr.xml"/>
     <import resource="queueing.xml"/>
