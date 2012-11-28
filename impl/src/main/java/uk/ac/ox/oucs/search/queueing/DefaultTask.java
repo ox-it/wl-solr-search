@@ -10,11 +10,11 @@ import java.util.Map;
  * @author Colin Hebert
  */
 public class DefaultTask implements Task {
+    public final static String RESOURCE_NAME = DefaultTask.class.getCanonicalName() + ".resourceName";
+    public final static String SITE_ID = DefaultTask.class.getCanonicalName() + ".siteId";
     private final String type;
     private final Date creationDate;
     private final Map<String, String> properties = new HashMap<String, String>();
-    public final static String RESOURCE_NAME = DefaultTask.class.getCanonicalName() + ".resourceName";
-    public final static String SITE_ID = DefaultTask.class.getCanonicalName() + ".siteId";
 
     public DefaultTask(Type type) {
         this(type, new Date());
@@ -58,7 +58,7 @@ public class DefaultTask implements Task {
 
         INDEX_ALL,
         REFRESH_ALL;
-        private final String typeName = Type.class.getCanonicalName() + this.toString();
+        private final String typeName = Type.class.getCanonicalName() + '.' + this.toString();
 
         public String getTypeName() {
             return typeName;
