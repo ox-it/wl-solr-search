@@ -1,19 +1,10 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
-import com.google.common.collect.Iterators;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.DateUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +15,9 @@ import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
-import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -38,8 +27,7 @@ public class SolrTaskHandler implements TaskHandler {
     private static final Logger logger = LoggerFactory.getLogger(SolrTaskHandler.class);
     private ContentProducerFactory contentProducerFactory;
     private ObjectFactory solrServerFactory;
-    private SiteService siteService;
-    private SearchIndexBuilder searchIndexBuilder;
+    private SolrTools solrTools;
 
     @Override
     public void executeTask(Task task) {
@@ -81,12 +69,12 @@ public class SolrTaskHandler implements TaskHandler {
     public void indexDocument(String resourceName, Date actionDate, SolrServer solrServer) {
         logger.debug("Add '" + resourceName + "' to the index");
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-        if (!isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
+        if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
             logger.debug("Indexation not useful as the document was updated earlier");
         }
 
         try {
-            solrServer.request(IndexDocumentProcess.toSolrRequest(resourceName, contentProducer));
+            solrServer.request(SolrTools.toSolrRequest(resourceName, contentProducer));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
         } catch (Exception e) {
@@ -111,7 +99,7 @@ public class SolrTaskHandler implements TaskHandler {
     public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
         logger.info("Rebuilding the index for '" + siteId + "'");
         try {
-            Queue<String> siteReferences = getSiteDocumentsReferences(siteId);
+            Queue<String> siteReferences = solrTools.getSiteDocumentsReferences(siteId);
             while (siteReferences.peek() != null)
                 indexDocument(siteReferences.poll(), actionDate, solrServer);
             removeSiteDocuments(siteId, actionDate, solrServer);
@@ -126,7 +114,7 @@ public class SolrTaskHandler implements TaskHandler {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
             //Get the currently indexed resources for this site
-            Queue<String> resourceNames = getResourceNames(siteId);
+            Queue<String> resourceNames = solrTools.getResourceNames(siteId);
             logger.debug(resourceNames.size() + " elements will be refreshed");
             while (!resourceNames.isEmpty()) {
                 indexDocument(resourceNames.poll(), actionDate, solrServer);
@@ -141,7 +129,7 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void indexAll(Date actionDate, SolrServer solrServer) {
         logger.info("Rebuilding the index for every indexable site");
-        Queue<String> reindexedSites = getIndexableSites();
+        Queue<String> reindexedSites = solrTools.getIndexableSites();
         while (!reindexedSites.isEmpty()) {
             indexSite(reindexedSites.poll(), actionDate, solrServer);
         }
@@ -150,7 +138,7 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void refreshAll(Date actionDate, SolrServer solrServer) {
         logger.info("Refreshing the index for every indexable site");
-        Queue<String> refreshedSites = getIndexableSites();
+        Queue<String> refreshedSites = solrTools.getIndexableSites();
         while (!refreshedSites.isEmpty()) {
             refreshSite(refreshedSites.poll(), actionDate, solrServer);
         }
@@ -173,7 +161,7 @@ public class SolrTaskHandler implements TaskHandler {
     public void removeAllDocuments(Date creationDate, SolrServer solrServer) {
         logger.info("Remove old documents from every sites");
         try {
-            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + format(creationDate) + "}");
+            solrServer.deleteByQuery(SearchService.DATE_STAMP + ":[* TO " + solrTools.format(creationDate) + "}");
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("Couldn't remove old documents from the entire instance", e);
         } catch (Exception e) {
@@ -195,78 +183,11 @@ public class SolrTaskHandler implements TaskHandler {
         this.contentProducerFactory = contentProducerFactory;
     }
 
-    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
-        this.searchIndexBuilder = searchIndexBuilder;
-    }
-
     public void setSolrServerFactory(ObjectFactory solrServerFactory) {
         this.solrServerFactory = solrServerFactory;
     }
 
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    private String format(Date creationDate) {
-        return DateUtil.getThreadLocalDateFormat().format(creationDate);
-    }
-
-    private Queue<String> getIndexableSites() {
-        Queue<String> refreshedSites = new LinkedList<String>();
-        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
-            if (isSiteIndexable(s)) {
-                refreshedSites.offer(s.getId());
-            }
-        }
-        return refreshedSites;
-    }
-
-    private Queue<String> getResourceNames(String siteId) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
-            SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
-                    .addField(SearchService.FIELD_REFERENCE);
-            SolrDocumentList results = solrServer.query(query).getResults();
-            Queue<String> resourceNames = new LinkedList<String>();
-            for (SolrDocument document : results) {
-                resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
-            }
-            return resourceNames;
-        } catch (SolrServerException e) {
-            throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
-        }
-    }
-
-    private Queue<String> getSiteDocumentsReferences(String siteId) {
-        //TODO: Replace by a lazy queuing system
-        Queue<String> references = new LinkedList<String>();
-
-        for (EntityContentProducer contentProducer : contentProducerFactory.getContentProducers()) {
-            Iterators.addAll(references, contentProducer.getSiteContentIterator(siteId));
-        }
-
-        return references;
-    }
-
-    private boolean isDocumentOutdated(String documentId, Date currentDate) {
-        try {
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
-            logger.debug("Obtaining creation date for document '" + documentId + "'");
-            SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
-                            SearchService.DATE_STAMP + ":[* TO " + format(currentDate) + "}")
-                    .addField(SearchService.DATE_STAMP);
-            return solrServer.query(query).getResults().getNumFound() == 0;
-        } catch (SolrServerException e) {
-            throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
-        }
-    }
-
-    private boolean isSiteIndexable(Site site) {
-        return !(siteService.isSpecialSite(site.getId()) ||
-                (searchIndexBuilder.isOnlyIndexSearchToolSites() && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null) ||
-                (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
+    public void setSolrTools(SolrTools solrTools) {
+        this.solrTools = solrTools;
     }
 }

@@ -1,16 +1,32 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
+import com.google.common.collect.Iterators;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
+import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.ContentStreamBase;
+import org.apache.solr.common.util.DateUtil;
+import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
+import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
+import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
+import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
 
 import java.io.IOException;
@@ -20,12 +36,16 @@ import java.util.*;
 /**
  * @author Colin Hebert
  */
-class SolrTools {
+public class SolrTools {
     public static final String LITERAL = "literal.";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
     public static final String SOLRCELL_PATH = "/update/extract";
     private static final Logger logger = LoggerFactory.getLogger(SolrTools.class);
+    private SiteService siteService;
+    private SearchIndexBuilder searchIndexBuilder;
+    private ContentProducerFactory contentProducerFactory;
+    private SolrServer solrServer;
 
     /**
      * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
@@ -192,5 +212,101 @@ class SolrTools {
         }
         logger.debug("Transformed the '" + propertyName + "' property into: '" + sb + "'");
         return sb.toString();
+    }
+
+    public String format(Date creationDate) {
+        return DateUtil.getThreadLocalDateFormat().format(creationDate);
+    }
+
+    public Queue<String> getIndexableSites() {
+        Queue<String> refreshedSites = new LinkedList<String>();
+        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
+            if (isSiteIndexable(s)) {
+                refreshedSites.offer(s.getId());
+            }
+        }
+        return refreshedSites;
+    }
+
+    public Queue<String> getResourceNames(String siteId) {
+        try {
+            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
+            SolrQuery query = new SolrQuery()
+                    .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
+                    .addField(SearchService.FIELD_REFERENCE);
+            SolrDocumentList results = solrServer.query(query).getResults();
+            Queue<String> resourceNames = new LinkedList<String>();
+            for (SolrDocument document : results) {
+                resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
+            }
+            return resourceNames;
+        } catch (SolrServerException e) {
+            throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+        }
+    }
+
+    public Queue<String> getSiteDocumentsReferences(String siteId) {
+        //TODO: Replace by a lazy queuing system
+        Queue<String> references = new LinkedList<String>();
+
+        for (EntityContentProducer contentProducer : contentProducerFactory.getContentProducers()) {
+            Iterators.addAll(references, contentProducer.getSiteContentIterator(siteId));
+        }
+
+        return references;
+    }
+
+    public boolean isDocumentOutdated(String documentId, Date currentDate) {
+        try {
+            logger.debug("Obtaining creation date for document '" + documentId + "'");
+            SolrQuery query = new SolrQuery()
+                    .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
+                            SearchService.DATE_STAMP + ":[* TO " + format(currentDate) + "}")
+                    .addField(SearchService.DATE_STAMP);
+            return solrServer.query(query).getResults().getNumFound() == 0;
+        } catch (SolrServerException e) {
+            throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
+        }
+    }
+
+    private boolean isSiteIndexable(Site site) {
+        return !(siteService.isSpecialSite(site.getId()) ||
+                (searchIndexBuilder.isOnlyIndexSearchToolSites() && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null) ||
+                (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
+    }
+
+    public int getPendingDocuments() {
+        try {
+            AdminStatRequest adminStatRequest = new AdminStatRequest();
+            adminStatRequest.setParam("key", "updateHandler");
+            NamedList<Object> result = solrServer.request(adminStatRequest);
+            NamedList<Object> mbeans = (NamedList<Object>) result.get("solr-mbeans");
+            NamedList<Object> updateHandler = (NamedList<Object>) mbeans.get("UPDATEHANDLER");
+            NamedList<Object> updateHandler2 = (NamedList<Object>) updateHandler.get("updateHandler");
+            NamedList<Object> stats = (NamedList<Object>) updateHandler2.get("stats");
+            return ((Long) stats.get("docsPending")).intValue();
+        } catch (SolrServerException e) {
+            logger.warn("Couldn't obtain the number of pending documents", e);
+            return 0;
+        } catch (IOException e) {
+            logger.error("Can't contact the search server", e);
+            return 0;
+        }
+    }
+
+    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+        this.searchIndexBuilder = searchIndexBuilder;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
+        this.contentProducerFactory = contentProducerFactory;
+    }
+
+    public void setSolrServer(SolrServer solrServer) {
+        this.solrServer = solrServer;
     }
 }

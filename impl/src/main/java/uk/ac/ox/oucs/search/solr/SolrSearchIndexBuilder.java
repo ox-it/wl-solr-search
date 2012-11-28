@@ -16,6 +16,7 @@ import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
 import uk.ac.ox.oucs.search.queueing.IndexQueueing;
+import uk.ac.ox.oucs.search.solr.indexing.SolrTools;
 import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     public static final String SEARCH_TOOL_ID = "sakai.search";
     private static final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private SiteService siteService;
-    private SolrServer solrServer;
+    private SolrTools solrTools;
     private ContentProducerFactory contentProducerFactory;
     private boolean searchToolRequired;
     private boolean ignoreUserSites;
@@ -169,22 +170,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public int getPendingDocuments() {
-        try {
-            AdminStatRequest adminStatRequest = new AdminStatRequest();
-            adminStatRequest.setParam("key", "updateHandler");
-            NamedList<Object> result = solrServer.request(adminStatRequest);
-            NamedList<Object> mbeans = (NamedList<Object>) result.get("solr-mbeans");
-            NamedList<Object> updateHandler = (NamedList<Object>) mbeans.get("UPDATEHANDLER");
-            NamedList<Object> updateHandler2 = (NamedList<Object>) updateHandler.get("updateHandler");
-            NamedList<Object> stats = (NamedList<Object>) updateHandler2.get("stats");
-            return ((Long) stats.get("docsPending")).intValue();
-        } catch (SolrServerException e) {
-            logger.warn("Couldn't obtain the number of pending documents", e);
-            return 0;
-        } catch (IOException e) {
-            logger.error("Can't contact the search server", e);
-            return 0;
-        }
+        return solrTools.getPendingDocuments();
     }
 
     @Override
@@ -219,8 +205,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         this.siteService = siteService;
     }
 
-    public void setSolrServer(SolrServer solrServer) {
-        this.solrServer = solrServer;
+    public void setSolrTools(SolrTools solrTools) {
+        this.solrTools = solrTools;
     }
 
     public void setSearchToolRequired(boolean searchToolRequired) {
