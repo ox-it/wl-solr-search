@@ -4,6 +4,8 @@ import uk.ac.ox.oucs.search.queueing.DefaultTask;
 
 import java.util.Date;
 
+import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+
 /**
  * @author Colin Hebert
  */
@@ -11,17 +13,17 @@ public abstract class AbstractTaskHandler implements TaskHandler {
     @Override
     public void executeTask(Task task) {
         String taskType = task.getType();
-        if (DefaultTask.Type.INDEX_DOCUMENT.equals(taskType)) {
+        if (INDEX_DOCUMENT.equals(taskType)) {
             indexDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate());
-        } else if (DefaultTask.Type.REMOVE_DOCUMENT.equals(taskType)) {
+        } else if (REMOVE_DOCUMENT.equals(taskType)) {
             removeDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate());
-        } else if (DefaultTask.Type.INDEX_SITE.equals(taskType)) {
+        } else if (INDEX_SITE.equals(taskType)) {
             indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
-        } else if (DefaultTask.Type.REFRESH_SITE.equals(taskType)) {
+        } else if (REFRESH_SITE.equals(taskType)) {
             refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
-        } else if (DefaultTask.Type.INDEX_ALL.equals(taskType)) {
+        } else if (INDEX_ALL.equals(taskType)) {
             indexAll(task.getCreationDate());
-        } else if (DefaultTask.Type.REFRESH_ALL.equals(taskType)) {
+        } else if (REFRESH_ALL.equals(taskType)) {
             refreshAll(task.getCreationDate());
         }
     }

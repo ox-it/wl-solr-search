@@ -10,6 +10,9 @@ import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 
 import java.util.concurrent.Executor;
 
+import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.INDEX_DOCUMENT;
+import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
+
 /**
  * @author Colin Hebert
  */
@@ -22,7 +25,7 @@ public class IndexQueueingImpl implements IndexQueueing {
 
     @Override
     public void addTaskToQueue(Task task) {
-        if (task.getType().equals(DefaultTask.Type.INDEX_DOCUMENT) || task.getType().equals(DefaultTask.Type.REMOVE_DOCUMENT))
+        if (INDEX_DOCUMENT.getTypeName().equals(task.getType()) || REMOVE_DOCUMENT.getTypeName().equals(task.getType()))
             indexingExecutor.execute(new RunnableTask(task));
         else
             taskSplittingExecutor.execute(new RunnableTask(task));

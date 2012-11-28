@@ -9,6 +9,10 @@ import uk.ac.ox.oucs.search.queueing.IndexQueueing;
 import java.util.Date;
 import java.util.Queue;
 
+import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_SITE_DOCUMENTS;
+
 /**
  * Intercept tasks that could be split in subtasks and add them to the queuing system
  *
@@ -23,20 +27,20 @@ public class SolrSplitterProcesses implements TaskHandler {
     public void executeTask(Task task) {
         try {
             String taskType = task.getType();
-            if (DefaultTask.Type.INDEX_SITE.equals(taskType)) {
+            if (INDEX_SITE.equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getSiteDocumentsReferences(siteId);
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
-            } else if (DefaultTask.Type.REFRESH_SITE.equals(taskType)) {
+            } else if (REFRESH_SITE.equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getResourceNames(siteId);
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
-            } else if (DefaultTask.Type.INDEX_ALL.equals(taskType)) {
-                indexAll(DefaultTask.Type.INDEX_SITE.getTypeName(), task.getCreationDate());
-            } else if (DefaultTask.Type.REFRESH_ALL.equals(taskType)) {
-                indexAll(DefaultTask.Type.REFRESH_SITE.getTypeName(), task.getCreationDate());
+            } else if (INDEX_ALL.equals(taskType)) {
+                indexAll(INDEX_SITE.getTypeName(), task.getCreationDate());
+            } else if (REFRESH_ALL.equals(taskType)) {
+                indexAll(REFRESH_SITE.getTypeName(), task.getCreationDate());
             } else {
                 actualTaskHandler.executeTask(task);
             }
@@ -58,18 +62,18 @@ public class SolrSplitterProcesses implements TaskHandler {
             indexQueueing.addTaskToQueue(refreshSite);
         }
 
-        Task removeAll = new SolrTask(SolrTask.Type.REMOVE_ALL_DOCUMENTS, creationDate);
+        Task removeAll = new SolrTask(REMOVE_ALL_DOCUMENTS, creationDate);
         indexQueueing.addTaskToQueue(removeAll);
     }
 
     private void indexDocumentList(Date creationDate, String siteId, Queue<String> references) {
         while (references.peek() != null) {
-            Task indexDocument = new DefaultTask(DefaultTask.Type.INDEX_DOCUMENT, creationDate)
+            Task indexDocument = new DefaultTask(INDEX_DOCUMENT, creationDate)
                     .setProperty(DefaultTask.RESOURCE_NAME, references.poll());
             indexQueueing.addTaskToQueue(indexDocument);
         }
 
-        Task removeSites = new SolrTask(SolrTask.Type.REMOVE_SITE_DOCUMENTS, creationDate)
+        Task removeSites = new SolrTask(REMOVE_SITE_DOCUMENTS, creationDate)
                 .setProperty(DefaultTask.SITE_ID, siteId);
         indexQueueing.addTaskToQueue(removeSites);
     }

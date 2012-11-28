@@ -18,6 +18,8 @@ import uk.ac.ox.oucs.search.solr.indexing.SolrTools;
 import java.util.ArrayList;
 import java.util.List;
 
+import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+
 /**
  * @author Colin Hebert
  */
@@ -72,11 +74,11 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         Task task;
         switch (entityContentProducer.getAction(event)) {
             case 1: //SearchBuilderItem.ACTION_ADD
-                task = new DefaultTask(DefaultTask.Type.INDEX_DOCUMENT, event.getEventTime())
+                task = new DefaultTask(INDEX_DOCUMENT, event.getEventTime())
                         .setProperty(DefaultTask.RESOURCE_NAME, resourceName);
                 break;
             case 2: //SearchBuilderItem.ACTION_DELETE
-                task = new DefaultTask(DefaultTask.Type.REMOVE_DOCUMENT, event.getEventTime())
+                task = new DefaultTask(REMOVE_DOCUMENT, event.getEventTime())
                         .setProperty(DefaultTask.RESOURCE_NAME, resourceName);
                 break;
             default:
@@ -124,7 +126,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex(String currentSiteId) {
-        Task task = new DefaultTask(DefaultTask.Type.REFRESH_SITE)
+        Task task = new DefaultTask(REFRESH_SITE)
                 .setProperty(DefaultTask.SITE_ID, currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
@@ -132,7 +134,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex(String currentSiteId) {
-        Task task = new DefaultTask(DefaultTask.Type.INDEX_SITE)
+        Task task = new DefaultTask(INDEX_SITE)
                 .setProperty(DefaultTask.SITE_ID, currentSiteId);
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
@@ -140,7 +142,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void refreshIndex() {
-        Task task = new DefaultTask(DefaultTask.Type.REFRESH_ALL);
+        Task task = new DefaultTask(REFRESH_ALL);
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
     }
@@ -152,7 +154,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void rebuildIndex() {
-        Task task = new DefaultTask(DefaultTask.Type.INDEX_ALL);
+        Task task = new DefaultTask(INDEX_ALL);
         logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
     }

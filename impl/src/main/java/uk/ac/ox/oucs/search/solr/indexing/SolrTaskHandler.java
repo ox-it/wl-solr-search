@@ -20,6 +20,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Queue;
 
+import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.OPTIMISE_INDEX;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_SITE_DOCUMENTS;
+
 /**
  * @author Colin Hebert
  */
@@ -35,23 +40,23 @@ public class SolrTaskHandler implements TaskHandler {
             String taskType = task.getType();
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
 
-            if (DefaultTask.Type.INDEX_DOCUMENT.equals(taskType)) {
+            if (INDEX_DOCUMENT.equals(taskType)) {
                 indexDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
-            } else if (DefaultTask.Type.REMOVE_DOCUMENT.equals(taskType)) {
+            } else if (REMOVE_DOCUMENT.equals(taskType)) {
                 removeDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
-            } else if (DefaultTask.Type.INDEX_SITE.equals(taskType)) {
+            } else if (INDEX_SITE.equals(taskType)) {
                 indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
-            } else if (DefaultTask.Type.REFRESH_SITE.equals(taskType)) {
+            } else if (REFRESH_SITE.equals(taskType)) {
                 refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
-            } else if (DefaultTask.Type.INDEX_ALL.equals(taskType)) {
+            } else if (INDEX_ALL.equals(taskType)) {
                 indexAll(task.getCreationDate(), solrServer);
-            } else if (DefaultTask.Type.REFRESH_ALL.equals(taskType)) {
+            } else if (REFRESH_ALL.equals(taskType)) {
                 refreshAll(task.getCreationDate(), solrServer);
-            } else if (SolrTask.Type.REMOVE_SITE_DOCUMENTS.equals(taskType)) {
+            } else if (REMOVE_SITE_DOCUMENTS.equals(taskType)) {
                 removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
-            } else if (SolrTask.Type.REMOVE_ALL_DOCUMENTS.equals(taskType)) {
+            } else if (REMOVE_ALL_DOCUMENTS.equals(taskType)) {
                 removeAllDocuments(task.getCreationDate(), solrServer);
-            } else if (SolrTask.Type.OPTIMISE_INDEX.equals(taskType)) {
+            } else if (OPTIMISE_INDEX.equals(taskType)) {
                 optimiseSolrIndex(solrServer);
             } else {
                 throw new TaskHandlingException("Task '" + task + "' can't be handled");
