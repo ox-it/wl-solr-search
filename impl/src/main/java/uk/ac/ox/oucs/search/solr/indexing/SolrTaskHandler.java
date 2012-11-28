@@ -76,6 +76,7 @@ public class SolrTaskHandler implements TaskHandler {
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
         if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
             logger.debug("Indexation not useful as the document was updated earlier");
+            return;
         }
 
         try {
