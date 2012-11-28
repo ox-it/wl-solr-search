@@ -21,9 +21,7 @@ import java.util.Date;
 import java.util.Queue;
 
 import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.OPTIMISE_INDEX;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_SITE_DOCUMENTS;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.*;
 
 /**
  * @author Colin Hebert
@@ -36,7 +34,7 @@ public class SolrTaskHandler implements TaskHandler {
 
     @Override
     public void executeTask(Task task) {
-        logger.debug("Attempt to handle '" + task+"'");
+        logger.debug("Attempt to handle '" + task + "'");
         try {
             String taskType = task.getType();
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();

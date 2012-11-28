@@ -34,13 +34,13 @@ public class SolrSplitterProcesses implements TaskHandler {
             if (INDEX_SITE.getTypeName().equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getSiteDocumentsReferences(siteId);
-                logger.info("Split the '" + task + "' to index "+references.size()+" documents");
+                logger.info("Split the '" + task + "' to index " + references.size() + " documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
             } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getResourceNames(siteId);
-                logger.info("Split the '" + task + "' to index "+references.size()+" documents");
+                logger.info("Split the '" + task + "' to index " + references.size() + " documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
             } else if (INDEX_ALL.getTypeName().equals(taskType)) {

@@ -58,7 +58,7 @@ public class SolrTools {
     public static SolrRequest toSolrRequest(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
         logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
-        SolrInputDocument document = generateBaseSolrDocument(resourceName, actionDate,contentProducer);
+        SolrInputDocument document = generateBaseSolrDocument(resourceName, actionDate, contentProducer);
         logger.debug("Base solr document created ." + document);
 
         //Prepare the actual request based on a stream/reader/string
