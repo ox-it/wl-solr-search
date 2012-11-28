@@ -23,6 +23,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
@@ -267,7 +268,10 @@ public class SolrTools {
                     .setRows(0);
             return solrServer.query(query).getResults().getNumFound() == 0;
         } catch (SolrServerException e) {
-            throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
+            if (e.getCause() instanceof IOException)
+                throw new TemporaryTaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
+            else
+                throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
         }
     }
 
