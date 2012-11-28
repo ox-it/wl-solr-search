@@ -233,6 +233,8 @@ public class SolrTools {
             logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
             SolrQuery query = new SolrQuery()
                     .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
+                            //TODO: Use paging?
+                    .setRows(Integer.MAX_VALUE)
                     .addField(SearchService.FIELD_REFERENCE);
             SolrDocumentList results = solrServer.query(query).getResults();
             Queue<String> resourceNames = new LinkedList<String>();
