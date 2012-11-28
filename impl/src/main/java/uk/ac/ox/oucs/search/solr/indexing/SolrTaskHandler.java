@@ -40,23 +40,23 @@ public class SolrTaskHandler implements TaskHandler {
             String taskType = task.getType();
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
 
-            if (INDEX_DOCUMENT.equals(taskType)) {
+            if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
                 indexDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
-            } else if (REMOVE_DOCUMENT.equals(taskType)) {
+            } else if (REMOVE_DOCUMENT.getTypeName().equals(taskType)) {
                 removeDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
-            } else if (INDEX_SITE.equals(taskType)) {
+            } else if (INDEX_SITE.getTypeName().equals(taskType)) {
                 indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
-            } else if (REFRESH_SITE.equals(taskType)) {
+            } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
                 refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
-            } else if (INDEX_ALL.equals(taskType)) {
+            } else if (INDEX_ALL.getTypeName().equals(taskType)) {
                 indexAll(task.getCreationDate(), solrServer);
-            } else if (REFRESH_ALL.equals(taskType)) {
+            } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
                 refreshAll(task.getCreationDate(), solrServer);
-            } else if (REMOVE_SITE_DOCUMENTS.equals(taskType)) {
+            } else if (REMOVE_SITE_DOCUMENTS.getTypeName().equals(taskType)) {
                 removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
-            } else if (REMOVE_ALL_DOCUMENTS.equals(taskType)) {
+            } else if (REMOVE_ALL_DOCUMENTS.getTypeName().equals(taskType)) {
                 removeAllDocuments(task.getCreationDate(), solrServer);
-            } else if (OPTIMISE_INDEX.equals(taskType)) {
+            } else if (OPTIMISE_INDEX.getTypeName().equals(taskType)) {
                 optimiseSolrIndex(solrServer);
             } else {
                 throw new TaskHandlingException("Task '" + task + "' can't be handled");
