@@ -31,6 +31,8 @@ public class SolrSplitterProcesses implements TaskHandler {
         try {
             logger.debug("Attempt to handle '" + task + "'");
             String taskType = task.getType();
+            /*
+            TODO: This is a bit silly, this create a lot of commits when a single one could be more than enough!
             if (INDEX_SITE.getTypeName().equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
                 Queue<String> references = solrTools.getSiteDocumentsReferences(siteId);
@@ -43,7 +45,9 @@ public class SolrSplitterProcesses implements TaskHandler {
                 logger.info("Split the '" + task + "' to index " + references.size() + " documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
-            } else if (INDEX_ALL.getTypeName().equals(taskType)) {
+            } else
+            */
+            if (INDEX_ALL.getTypeName().equals(taskType)) {
                 indexAll(INDEX_SITE.getTypeName(), task.getCreationDate());
             } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
                 indexAll(REFRESH_SITE.getTypeName(), task.getCreationDate());
