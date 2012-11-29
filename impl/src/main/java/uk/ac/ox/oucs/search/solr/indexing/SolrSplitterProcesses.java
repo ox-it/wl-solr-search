@@ -64,11 +64,7 @@ public class SolrSplitterProcesses implements TaskHandler {
     private void indexAll(String taskType, Date creationDate) {
         final Queue<String> sites = solrTools.getIndexableSites();
         while (sites.peek() != null) {
-            Task refreshSite = new DefaultTask(taskType, creationDate) {
-                {
-                    setProperty(DefaultTask.SITE_ID, sites.poll());
-                }
-            };
+            Task refreshSite = new SplitTask(taskType, creationDate).setProperty(DefaultTask.SITE_ID, sites.poll());
             indexQueueing.addTaskToQueue(refreshSite);
         }
 
@@ -98,5 +94,11 @@ public class SolrSplitterProcesses implements TaskHandler {
 
     public void setSolrTools(SolrTools solrTools) {
         this.solrTools = solrTools;
+    }
+
+    private static class SplitTask extends DefaultTask{
+        private SplitTask(String type, Date creationDate) {
+            super(type, creationDate);
+        }
     }
 }
