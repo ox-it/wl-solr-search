@@ -11,6 +11,7 @@ import uk.ac.ox.oucs.search.indexing.TaskHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author Colin Hebert
@@ -19,12 +20,17 @@ public class AmqpHandler {
     private static final Logger logger = LoggerFactory.getLogger(AmqpQueueing.class);
     private TaskHandler taskHandler;
     private SessionManager sessionManager;
+    private ConnectionFactory connectionFactory;
+    private ExecutorService executor;
+    private boolean running = true;
     private Connection amqpConnection;
     private Channel channel;
     private String queueName;
 
     public void init() {
         try {
+            amqpConnection = connectionFactory.newConnection(executor);
+            amqpConnection.addShutdownListener(new AmqpHandlerShutdownListener());
             channel = amqpConnection.createChannel();
             channel.basicConsume(queueName, new DefaultConsumer(channel) {
                 @Override
@@ -44,11 +50,14 @@ public class AmqpHandler {
     }
 
     public void destroy() {
-        try {
-            channel.close();
-            amqpConnection.close();
-        } catch (IOException e) {
-            logger.error("Exception while closing the connection to the AMQP server", e);
+        synchronized (this) {
+            try {
+                running = false;
+                channel.close();
+                amqpConnection.close();
+            } catch (IOException e) {
+                logger.error("Exception while closing the connection to the AMQP server", e);
+            }
         }
     }
 
@@ -91,11 +100,27 @@ public class AmqpHandler {
         this.sessionManager = sessionManager;
     }
 
-    public void setAmqpConnection(Connection amqpConnection) {
-        this.amqpConnection = amqpConnection;
-    }
-
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
+    private class AmqpHandlerShutdownListener implements ShutdownListener {
+
+        @Override
+        public void shutdownCompleted(ShutdownSignalException cause) {
+            synchronized (this) {
+                //TODO: Avoid looping reconnection?
+                if (running)
+                    init();
+            }
+        }
     }
 }

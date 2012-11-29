@@ -1,8 +1,6 @@
 package uk.ac.ox.oucs.search.queueing;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.MessageProperties;
+import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
@@ -13,14 +11,27 @@ import java.io.ObjectOutputStream;
 
 public class AmqpQueueing implements IndexQueueing {
     private static final Logger logger = LoggerFactory.getLogger(AmqpQueueing.class);
+    private ConnectionFactory connectionFactory;
     private Connection amqpConnection;
     private String queueName;
+    private boolean running = true;
 
-    public void destroy() {
+    public void init() {
         try {
-            amqpConnection.close();
+            amqpConnection = connectionFactory.newConnection();
         } catch (IOException e) {
             logger.error("Exception while closing the connection to the AMQP server", e);
+        }
+    }
+
+    public void destroy() {
+        synchronized (this) {
+            try {
+                running = false;
+                amqpConnection.close();
+            } catch (IOException e) {
+                logger.error("Exception while closing the connection to the AMQP server", e);
+            }
         }
     }
 
@@ -61,11 +72,23 @@ public class AmqpQueueing implements IndexQueueing {
         return baos.toByteArray();
     }
 
-    public void setAmqpConnection(Connection amqpConnection) {
-        this.amqpConnection = amqpConnection;
-    }
-
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
+    private class AmqpHandlerShutdownListener implements ShutdownListener {
+
+        @Override
+        public void shutdownCompleted(ShutdownSignalException cause) {
+            synchronized (this) {
+                //TODO: Avoid looping reconnection?
+                if (running)
+                    init();
+            }
+        }
     }
 }
