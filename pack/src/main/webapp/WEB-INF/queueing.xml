@@ -20,13 +20,14 @@
     </bean>
 
     <!-- Set lazy-init to true to have an always initialised client listening for the AMQP server -->
-    <bean id="amqpClient" class="uk.ac.ox.oucs.search.queueing.AmqpHandler" lazy-init="true" init-method="init"
+    <bean id="amqpHandler" class="uk.ac.ox.oucs.search.queueing.AmqpHandler" lazy-init="true" init-method="init"
           destroy-method="destroy">
         <property name="queueName" value="hello.world.queue"/>
         <property name="connectionFactory" ref="amqpConnectionFactory"/>
         <property name="executor" ref="indexingExecutor"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="taskHandler" ref="uk.ac.ox.oucs.search.indexing.TaskHandler"/>
+        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.AmqpQueueing" />
     </bean>
 
     <bean id="amqpConnectionFactory" class="com.rabbitmq.client.ConnectionFactory">
