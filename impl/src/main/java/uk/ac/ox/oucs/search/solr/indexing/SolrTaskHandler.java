@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -61,12 +62,8 @@ public class SolrTaskHandler implements TaskHandler {
                 throw new TaskHandlingException("Task '" + task + "' can't be handled");
             }
             solrServer.commit();
-        } catch (TaskHandlingException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't execute the task '" + task + "'", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't execute the task '" + task + "'", e);
+            throw wrapException(e, "Couldn't execute the task '" + task + "'", task);
         }
     }
 
@@ -80,10 +77,9 @@ public class SolrTaskHandler implements TaskHandler {
                 return;
             }
             solrServer.request(solrTools.toSolrRequest(resourceName, actionDate, contentProducer));
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
+            Task task = new DefaultTask(INDEX_DOCUMENT, actionDate).setProperty(DefaultTask.RESOURCE_NAME, resourceName);
+            throw wrapException(e, "An exception occurred while indexing the document '" + resourceName + "'", task);
         }
     }
 
@@ -94,10 +90,9 @@ public class SolrTaskHandler implements TaskHandler {
             solrServer.deleteByQuery(
                     SearchService.DATE_STAMP + ":{* TO " + solrTools.format(actionDate) + "} AND " +
                             SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(contentProducer.getId(resourceName)));
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("An exception occurred while removing the document '" + resourceName + "'", e);
+            Task task = new DefaultTask(REMOVE_DOCUMENT, actionDate).setProperty(DefaultTask.RESOURCE_NAME, resourceName);
+            throw wrapException(e, "An exception occurred while removing the document '" + resourceName + "'", task);
         }
     }
 
@@ -123,7 +118,8 @@ public class SolrTaskHandler implements TaskHandler {
             try {
                 resourceNames = solrTools.getResourceNames(siteId);
             } catch (Exception e) {
-                throw new TemporaryTaskHandlingException("Couldn't obtain the list of documents to refresh for '" + siteId + "'", e);
+                Task task = new DefaultTask(REFRESH_SITE, actionDate).setProperty(DefaultTask.SITE_ID, siteId);
+                throw wrapException(e, "Couldn't obtain the list of documents to refresh for '" + siteId + "'", task);
             }
             logger.debug(resourceNames.size() + " elements will be refreshed");
             while (!resourceNames.isEmpty()) {
@@ -161,10 +157,9 @@ public class SolrTaskHandler implements TaskHandler {
             solrServer.deleteByQuery(
                     SearchService.DATE_STAMP + ":{* TO " + solrTools.format(creationDate) + "} AND " +
                             SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't remove old documents the site '" + siteId + "'", e);
+            Task task = new SolrTask(REMOVE_SITE_DOCUMENTS, creationDate).setProperty(DefaultTask.SITE_ID, siteId);
+            throw wrapException(e, "Couldn't remove old documents the site '" + siteId + "'", task);
         }
     }
 
@@ -172,20 +167,38 @@ public class SolrTaskHandler implements TaskHandler {
         logger.info("Remove old documents from every sites");
         try {
             solrServer.deleteByQuery(SearchService.DATE_STAMP + ":{* TO " + solrTools.format(creationDate) + "}");
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't remove old documents from the entire instance", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't refresh the entire instance", e);
+            Task task = new SolrTask(REMOVE_ALL_DOCUMENTS, creationDate);
+            throw wrapException(e, "Couldn't remove old documents from the entire instance", task);
         }
     }
 
     public void optimiseSolrIndex(SolrServer solrServer) {
         try {
             solrServer.optimize();
-        } catch (IOException e) {
-            throw new TemporaryTaskHandlingException("Couldn't optimise the index", e);
         } catch (Exception e) {
-            throw new TaskHandlingException("Couldn't optimise the index", e);
+            Task task = new SolrTask(OPTIMISE_INDEX);
+            throw wrapException(e, "Couldn't optimise the index", task);
+        }
+    }
+
+    /**
+     * Wraps an Exception in a TaskHandlingException that can be thrown
+     *
+     * @param e                caught Exception
+     * @param message          message to associate with the wrapper
+     * @param potentialNewTask new task that could be executed if the caught throwable is considered as a temporary failure
+     * @return the wrapped exception or the original one if it was already wrapped
+     */
+    private TaskHandlingException wrapException(Exception e, String message, Task potentialNewTask) {
+        if (e instanceof SolrServerException && ((SolrServerException) e).getRootCause() instanceof IOException) {
+            return new TemporaryTaskHandlingException(message, e, potentialNewTask);
+        } else if (e instanceof IOException) {
+            return new TemporaryTaskHandlingException(message, e, potentialNewTask);
+        } else if (e instanceof TaskHandlingException) {
+            return (TaskHandlingException) e;
+        } else {
+            return new TaskHandlingException(message, e);
         }
     }
 
