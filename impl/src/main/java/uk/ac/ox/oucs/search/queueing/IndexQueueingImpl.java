@@ -1,14 +1,8 @@
 package uk.ac.ox.oucs.search.queueing;
 
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
-import uk.ac.ox.oucs.search.indexing.TaskHandler;
-import uk.ac.ox.oucs.search.indexing.exception.NestedTaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 
 import java.util.concurrent.Executor;
 
@@ -18,12 +12,14 @@ import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
 /**
  * @author Colin Hebert
  */
-public class IndexQueueingImpl implements IndexQueueing {
+public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueueing{
     private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
-    private TaskHandler taskHandler;
     private Executor taskSplittingExecutor;
     private Executor indexingExecutor;
-    private SessionManager sessionManager;
+
+    public IndexQueueingImpl() {
+        setIndexQueueing(this);
+    }
 
     @Override
     public void addTaskToQueue(Task task) {
@@ -40,14 +36,6 @@ public class IndexQueueingImpl implements IndexQueueing {
         this.indexingExecutor = indexingExecutor;
     }
 
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
-    public void setTaskHandler(TaskHandler taskHandler) {
-        this.taskHandler = taskHandler;
-    }
-
     public void setTaskSplittingExecutor(Executor taskSplittingExecutor) {
         this.taskSplittingExecutor = taskSplittingExecutor;
     }
@@ -61,32 +49,7 @@ public class IndexQueueingImpl implements IndexQueueing {
 
         @Override
         public void run() {
-            logAsAdmin();
-            try {
-                taskHandler.executeTask(task);
-            } catch (NestedTaskHandlingException e) {
-                logger.warn("Some exceptions happened during the execution of '" + task + "'.", e);
-                for (TaskHandlingException t : e.getTaskHandlingExceptions()) {
-                    if (t instanceof TemporaryTaskHandlingException) {
-                        TemporaryTaskHandlingException tthe = (TemporaryTaskHandlingException) t;
-                        logger.warn("A task failed '" + tthe.getNewTask() + "' will be tried again later.", t);
-                        addTaskToQueue(tthe.getNewTask());
-                    } else {
-                        logger.error("Couldn't execute task '" + task + "'.", t);
-                    }
-                }
-            } catch (TemporaryTaskHandlingException e) {
-                logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
-                addTaskToQueue(task);
-            } catch (Exception e) {
-                logger.error("Couldn't execute task '" + task + "'.", e);
-            }
-        }
-
-        private void logAsAdmin() {
-            Session session = sessionManager.getCurrentSession();
-            session.setUserId("admin");
-            session.setUserEid("admin");
+            runTask(task);
         }
     }
 }

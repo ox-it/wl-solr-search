@@ -1,15 +1,9 @@
 package uk.ac.ox.oucs.search.queueing;
 
 import com.rabbitmq.client.*;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
-import uk.ac.ox.oucs.search.indexing.TaskHandler;
-import uk.ac.ox.oucs.search.indexing.exception.NestedTaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,13 +13,10 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author Colin Hebert
  */
-public class AmqpHandler {
+public class AmqpRunner extends WaitingTaskRunner {
     private static final Logger logger = LoggerFactory.getLogger(AmqpQueueing.class);
-    private TaskHandler taskHandler;
-    private SessionManager sessionManager;
     private ConnectionFactory connectionFactory;
     private ExecutorService executor;
-    private IndexQueueing indexQueueing;
     private boolean running = true;
     private Connection amqpConnection;
     private Channel channel;
@@ -44,7 +35,7 @@ public class AmqpHandler {
                                            byte[] body)
                         throws IOException {
                     long deliveryTag = envelope.getDeliveryTag();
-                    handleMessage(deserialize(body));
+                    runTask(deserialize(body));
                     channel.basicAck(deliveryTag, false);
                 }
             });
@@ -63,34 +54,7 @@ public class AmqpHandler {
                 logger.error("Exception while closing the connection to the AMQP server", e);
             }
         }
-    }
-
-    public void handleMessage(Task task) {
-        if (task == null)
-            logger.error("Null task, ignored");
-
-        Session session = sessionManager.getCurrentSession();
-        session.setUserId("admin");
-        session.setUserEid("admin");
-        try {
-            taskHandler.executeTask(task);
-        } catch (NestedTaskHandlingException e) {
-            logger.warn("Some exceptions happened during the execution of '" + task + "'.", e);
-            for (TaskHandlingException t : e.getTaskHandlingExceptions()) {
-                if (t instanceof TemporaryTaskHandlingException) {
-                    TemporaryTaskHandlingException tthe = (TemporaryTaskHandlingException) t;
-                    logger.warn("A task failed '" + tthe.getNewTask() + "' will be tried again later.", t);
-                    indexQueueing.addTaskToQueue(tthe.getNewTask());
-                } else {
-                    logger.error("Couldn't execute task '" + task + "'.", t);
-                }
-            }
-        } catch (TemporaryTaskHandlingException e) {
-            logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
-            indexQueueing.addTaskToQueue(task);
-        } catch (Exception e) {
-            logger.error("Couldn't execute task '" + task + "'.", e);
-        }
+        executor.shutdownNow();
     }
 
     private Task deserialize(byte[] message) {
@@ -113,14 +77,6 @@ public class AmqpHandler {
         return null;
     }
 
-    public void setTaskHandler(TaskHandler taskHandler) {
-        this.taskHandler = taskHandler;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
     public void setQueueName(String queueName) {
         this.queueName = queueName;
     }
@@ -131,10 +87,6 @@ public class AmqpHandler {
 
     public void setConnectionFactory(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
-    }
-
-    public void setIndexQueueing(IndexQueueing indexQueueing) {
-        this.indexQueueing = indexQueueing;
     }
 
     private class AmqpHandlerShutdownListener implements ShutdownListener {
