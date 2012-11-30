@@ -74,6 +74,17 @@ public class AmqpHandler {
         session.setUserEid("admin");
         try {
             taskHandler.executeTask(task);
+        } catch (NestedTaskHandlingException e) {
+            logger.warn("Some exceptions happened during the execution of '" + task + "'.", e);
+            for (TaskHandlingException t : e.getTaskHandlingExceptions()) {
+                if (t instanceof TemporaryTaskHandlingException) {
+                    TemporaryTaskHandlingException tthe = (TemporaryTaskHandlingException) t;
+                    logger.warn("A task failed '" + tthe.getNewTask() + "' will be tried again later.", t);
+                    indexQueueing.addTaskToQueue(tthe.getNewTask());
+                } else {
+                    logger.error("Couldn't execute task '" + task + "'.", t);
+                }
+            }
         } catch (TemporaryTaskHandlingException e) {
             logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
             indexQueueing.addTaskToQueue(task);

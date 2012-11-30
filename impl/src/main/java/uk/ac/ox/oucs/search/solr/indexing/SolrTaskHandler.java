@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.indexing.TaskHandler;
+import uk.ac.ox.oucs.search.indexing.exception.NestedTaskHandlingException;
 import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
@@ -99,10 +100,22 @@ public class SolrTaskHandler implements TaskHandler {
     public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
         logger.info("Rebuilding the index for '" + siteId + "'");
         try {
+            NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while indexing the site '" + siteId + "'");
             Queue<String> siteReferences = solrTools.getSiteDocumentsReferences(siteId);
-            while (siteReferences.peek() != null)
-                indexDocument(siteReferences.poll(), actionDate, solrServer);
-            removeSiteDocuments(siteId, actionDate, solrServer);
+            while (siteReferences.peek() != null) {
+                try {
+                    indexDocument(siteReferences.poll(), actionDate, solrServer);
+                } catch (TaskHandlingException t) {
+                    nthe.addTaskHandlingException(t);
+                }
+            }
+            try {
+                removeSiteDocuments(siteId, actionDate, solrServer);
+            } catch (TaskHandlingException t) {
+                nthe.addTaskHandlingException(t);
+            }
+
+            if (!nthe.isEmpty()) throw nthe;
         } finally {
             //Clean up the localThread after each site
             ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
@@ -113,6 +126,7 @@ public class SolrTaskHandler implements TaskHandler {
     public void refreshSite(String siteId, Date actionDate, SolrServer solrServer) {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
+            NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while indexing the site '" + siteId + "'");
             //Get the currently indexed resources for this site
             Queue<String> resourceNames;
             try {
@@ -123,9 +137,20 @@ public class SolrTaskHandler implements TaskHandler {
             }
             logger.debug(resourceNames.size() + " elements will be refreshed");
             while (!resourceNames.isEmpty()) {
-                indexDocument(resourceNames.poll(), actionDate, solrServer);
+                try {
+                    indexDocument(resourceNames.poll(), actionDate, solrServer);
+                } catch (TaskHandlingException t) {
+                    nthe.addTaskHandlingException(t);
+                }
+
             }
-            removeSiteDocuments(siteId, actionDate, solrServer);
+            try {
+                removeSiteDocuments(siteId, actionDate, solrServer);
+            } catch (TaskHandlingException t) {
+                nthe.addTaskHandlingException(t);
+            }
+
+            if (!nthe.isEmpty()) throw nthe;
         } finally {
             //Clean up the localThread after each site
             ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
@@ -135,20 +160,42 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void indexAll(Date actionDate, SolrServer solrServer) {
         logger.info("Rebuilding the index for every indexable site");
+        NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while reindexing everything");
         Queue<String> reindexedSites = solrTools.getIndexableSites();
         while (!reindexedSites.isEmpty()) {
-            indexSite(reindexedSites.poll(), actionDate, solrServer);
+            try {
+                indexSite(reindexedSites.poll(), actionDate, solrServer);
+            } catch (TaskHandlingException t) {
+                nthe.addTaskHandlingException(t);
+            }
         }
-        removeAllDocuments(actionDate, solrServer);
+        try {
+            removeAllDocuments(actionDate, solrServer);
+        } catch (TaskHandlingException t) {
+            nthe.addTaskHandlingException(t);
+        }
+
+        if (nthe.isEmpty()) throw nthe;
     }
 
     public void refreshAll(Date actionDate, SolrServer solrServer) {
         logger.info("Refreshing the index for every indexable site");
+        NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while refreshing everything");
         Queue<String> refreshedSites = solrTools.getIndexableSites();
         while (!refreshedSites.isEmpty()) {
-            refreshSite(refreshedSites.poll(), actionDate, solrServer);
+            try {
+                refreshSite(refreshedSites.poll(), actionDate, solrServer);
+            } catch (TaskHandlingException t) {
+                nthe.addTaskHandlingException(t);
+            }
         }
-        removeAllDocuments(actionDate, solrServer);
+        try {
+            removeAllDocuments(actionDate, solrServer);
+        } catch (TaskHandlingException t) {
+            nthe.addTaskHandlingException(t);
+        }
+
+        if (nthe.isEmpty()) throw nthe;
     }
 
     public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
