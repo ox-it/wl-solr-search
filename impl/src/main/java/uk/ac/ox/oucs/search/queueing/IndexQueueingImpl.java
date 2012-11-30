@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.INDEX_DOCUMENT;
 import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
@@ -14,11 +14,16 @@ import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
  */
 public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueueing{
     private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
-    private Executor taskSplittingExecutor;
-    private Executor indexingExecutor;
+    private ExecutorService taskSplittingExecutor;
+    private ExecutorService indexingExecutor;
 
     public IndexQueueingImpl() {
         setIndexQueueing(this);
+    }
+
+    public void destroy() {
+        indexingExecutor.shutdownNow();
+        taskSplittingExecutor.shutdownNow();
     }
 
     @Override
@@ -32,11 +37,11 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
         }
     }
 
-    public void setIndexingExecutor(Executor indexingExecutor) {
+    public void setIndexingExecutor(ExecutorService indexingExecutor) {
         this.indexingExecutor = indexingExecutor;
     }
 
-    public void setTaskSplittingExecutor(Executor taskSplittingExecutor) {
+    public void setTaskSplittingExecutor(ExecutorService taskSplittingExecutor) {
         this.taskSplittingExecutor = taskSplittingExecutor;
     }
 
