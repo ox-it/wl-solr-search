@@ -56,7 +56,7 @@
     </bean>
     <bean id="splittingExecutor" class="java.util.concurrent.ThreadPoolExecutor"
           destroy-method="shutdownNow">
-        <constructor-arg index="0" value="0"/>
+        <constructor-arg index="0" value="5"/>
         <constructor-arg index="1" value="8"/>
         <constructor-arg index="2" value="60"/>
         <constructor-arg index="3">
