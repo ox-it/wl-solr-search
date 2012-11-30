@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
 import uk.ac.ox.oucs.search.indexing.TaskHandler;
+import uk.ac.ox.oucs.search.indexing.exception.NestedTaskHandlingException;
+import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
+import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +25,7 @@ public class AmqpHandler {
     private SessionManager sessionManager;
     private ConnectionFactory connectionFactory;
     private ExecutorService executor;
+    private IndexQueueing indexQueueing;
     private boolean running = true;
     private Connection amqpConnection;
     private Channel channel;
@@ -68,8 +72,14 @@ public class AmqpHandler {
         Session session = sessionManager.getCurrentSession();
         session.setUserId("admin");
         session.setUserEid("admin");
-
-        taskHandler.executeTask(task);
+        try {
+            taskHandler.executeTask(task);
+        } catch (TemporaryTaskHandlingException e) {
+            logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
+            indexQueueing.addTaskToQueue(task);
+        } catch (Exception e) {
+            logger.error("Couldn't execute task '" + task + "'.", e);
+        }
     }
 
     private Task deserialize(byte[] message) {
@@ -110,6 +120,10 @@ public class AmqpHandler {
 
     public void setConnectionFactory(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
+    }
+
+    public void setIndexQueueing(IndexQueueing indexQueueing) {
+        this.indexQueueing = indexQueueing;
     }
 
     private class AmqpHandlerShutdownListener implements ShutdownListener {
