@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.search.queueing;
 
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
@@ -37,7 +37,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     private int maximumWaitingTime = 5 * 60 * BASE_WAITING_TIME;
     private int waitingTime = BASE_WAITING_TIME;
     private TaskHandler taskHandler;
-    private SessionManager sessionManager;
+    private SecurityService securityService;
     private IndexQueueing indexQueueing;
 
     public void runTask(Task task) {
@@ -46,8 +46,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             while (taskRunnerLock.isLocked())
                 taskRunnerLock.wait();
 
-            //Set the current thread's user as "Admin" to get every right
-            logAsAdmin();
+            //Unlock permissions so every resource is accessible
+            unlockPermissions();
 
             try {
                 taskHandler.executeTask(task);
@@ -97,14 +97,17 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         }
     }
 
-    private void logAsAdmin() {
-        Session session = sessionManager.getCurrentSession();
-        session.setUserId("admin");
-        session.setUserEid("admin");
+    private void unlockPermissions() {
+        securityService.pushAdvisor(new SecurityAdvisor() {
+            @Override
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return SecurityAdvice.ALLOWED;
+            }
+        });
     }
 
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
     }
 
     public void setTaskHandler(TaskHandler taskHandler) {
