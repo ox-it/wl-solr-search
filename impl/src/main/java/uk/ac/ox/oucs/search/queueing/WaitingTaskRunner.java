@@ -68,7 +68,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             if (taskRunnerLock.isHeldByCurrentThread()) {
                 Thread.sleep(waitingTime);
                 //Multiply the waiting time by two
-                waitingTime <<= 1;
+                if(waitingTime <= maximumWaitingTime)
+                    waitingTime <<= 1;
             }
         } catch (InterruptedException e) {
             logger.error("Thread interrupted while trying to do '" + task + "'.", e);
