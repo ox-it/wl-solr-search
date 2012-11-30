@@ -22,8 +22,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
 import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
@@ -229,26 +227,19 @@ public class SolrTools {
         return refreshedSites;
     }
 
-    public Queue<String> getResourceNames(String siteId) {
-        try {
-            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
-            SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
-                            //TODO: Use paging?
-                    .setRows(Integer.MAX_VALUE)
-                    .addField(SearchService.FIELD_REFERENCE);
-            SolrDocumentList results = solrServer.query(query).getResults();
-            Queue<String> resourceNames = new LinkedList<String>();
-            for (SolrDocument document : results) {
-                resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
-            }
-            return resourceNames;
-        } catch (SolrServerException e) {
-            if (e.getCause() instanceof IOException)
-                throw new TemporaryTaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
-            else
-                throw new TaskHandlingException("Couldn't get indexed elements for site: '" + siteId + "'", e);
+    public Queue<String> getResourceNames(String siteId) throws SolrServerException {
+        logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
+        SolrQuery query = new SolrQuery()
+                .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
+                        //TODO: Use paging?
+                .setRows(Integer.MAX_VALUE)
+                .addField(SearchService.FIELD_REFERENCE);
+        SolrDocumentList results = solrServer.query(query).getResults();
+        Queue<String> resourceNames = new LinkedList<String>();
+        for (SolrDocument document : results) {
+            resourceNames.add((String) document.getFieldValue(SearchService.FIELD_REFERENCE));
         }
+        return resourceNames;
     }
 
     public Queue<String> getSiteDocumentsReferences(String siteId) {
@@ -262,20 +253,13 @@ public class SolrTools {
         return references;
     }
 
-    public boolean isDocumentOutdated(String documentId, Date currentDate) {
-        try {
-            logger.debug("Obtaining creation date for document '" + documentId + "'");
-            SolrQuery query = new SolrQuery()
-                    .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
-                            SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
-                    .setRows(0);
-            return solrServer.query(query).getResults().getNumFound() == 0;
-        } catch (SolrServerException e) {
-            if (e.getCause() instanceof IOException)
-                throw new TemporaryTaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
-            else
-                throw new TaskHandlingException("Couldn't check if the document '" + documentId + "' was recent", e);
-        }
+    public boolean isDocumentOutdated(String documentId, Date currentDate) throws SolrServerException {
+        logger.debug("Obtaining creation date for document '" + documentId + "'");
+        SolrQuery query = new SolrQuery()
+                .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
+                        SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
+                .setRows(0);
+        return solrServer.query(query).getResults().getNumFound() == 0;
     }
 
     private boolean isSiteIndexable(Site site) {

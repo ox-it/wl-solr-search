@@ -73,12 +73,12 @@ public class SolrTaskHandler implements TaskHandler {
     public void indexDocument(String resourceName, Date actionDate, SolrServer solrServer) {
         logger.debug("Add '" + resourceName + "' to the index");
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-        if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
-            logger.debug("Indexation not useful as the document was updated earlier");
-            return;
-        }
 
         try {
+            if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
+                logger.debug("Indexation not useful as the document was updated earlier");
+                return;
+            }
             solrServer.request(solrTools.toSolrRequest(resourceName, actionDate, contentProducer));
         } catch (IOException e) {
             throw new TemporaryTaskHandlingException("An exception occurred while indexing the document '" + resourceName + "'", e);
@@ -119,7 +119,12 @@ public class SolrTaskHandler implements TaskHandler {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
             //Get the currently indexed resources for this site
-            Queue<String> resourceNames = solrTools.getResourceNames(siteId);
+            Queue<String> resourceNames;
+            try {
+                resourceNames = solrTools.getResourceNames(siteId);
+            } catch (Exception e) {
+                throw new TemporaryTaskHandlingException("Couldn't obtain the list of documents to refresh for '" + siteId + "'", e);
+            }
             logger.debug(resourceNames.size() + " elements will be refreshed");
             while (!resourceNames.isEmpty()) {
                 indexDocument(resourceNames.poll(), actionDate, solrServer);
