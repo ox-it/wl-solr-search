@@ -50,7 +50,6 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
         }
     }
 
-
     @Override
     public Iterator<SearchResult> iterator(int startAt) {
         Iterator<SearchResult> iterator = iterator();

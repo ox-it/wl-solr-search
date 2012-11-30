@@ -118,7 +118,7 @@ public class SolrTools {
      * @return a solrCell request
      */
     private SolrRequest prepareSolrCellRequest(final String resourceName, final BinaryEntityContentProducer contentProducer,
-                                                      SolrInputDocument document) {
+                                               SolrInputDocument document) {
         //Send to tika
         ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
         contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);

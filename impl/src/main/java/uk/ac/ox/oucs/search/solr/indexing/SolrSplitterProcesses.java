@@ -96,7 +96,7 @@ public class SolrSplitterProcesses implements TaskHandler {
         this.solrTools = solrTools;
     }
 
-    private static class SplitTask extends DefaultTask{
+    private static class SplitTask extends DefaultTask {
         private SplitTask(String type, Date creationDate) {
             super(type, creationDate);
         }
