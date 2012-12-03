@@ -43,8 +43,10 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     public void runTask(Task task) {
         try {
             //Stop for a while because some tasks failed and should be run again.
-            while (taskRunnerLock.isLocked())
-                taskRunnerLock.wait();
+            synchronized (taskRunnerLock) {
+                while (taskRunnerLock.isLocked())
+                    taskRunnerLock.wait();
+            }
 
             //Unlock permissions so every resource is accessible
             unlockPermissions();
@@ -68,7 +70,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             if (taskRunnerLock.isHeldByCurrentThread()) {
                 Thread.sleep(waitingTime);
                 //Multiply the waiting time by two
-                if(waitingTime <= maximumWaitingTime)
+                if (waitingTime <= maximumWaitingTime)
                     waitingTime <<= 1;
             }
         } catch (InterruptedException e) {
@@ -78,8 +80,10 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             // A TemporaryTaskException occurred and the waiting time is now passed (or an exception killed it)
             // unlock everything and get back to work
             if (taskRunnerLock.isHeldByCurrentThread()) {
-                taskRunnerLock.notifyAll();
-                taskRunnerLock.unlock();
+                synchronized (taskRunnerLock) {
+                    taskRunnerLock.notifyAll();
+                    taskRunnerLock.unlock();
+                }
             }
         }
     }
