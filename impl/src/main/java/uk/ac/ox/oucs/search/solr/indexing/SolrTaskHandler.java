@@ -64,6 +64,7 @@ public class SolrTaskHandler implements TaskHandler {
                 }
             } finally {
                 solrServer.commit();
+                solrServer.shutdown();
             }
         } catch (Exception e) {
             throw wrapException(e, "Couldn't execute the task '" + task + "'", task);
