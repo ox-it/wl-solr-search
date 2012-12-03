@@ -36,7 +36,11 @@
     <bean id="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler"
           class="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler">
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
-        <property name="solrServer" ref="solrIndexingServer"/>
+        <property name="solrServerFactory">
+            <bean class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+                <property name="targetBeanName" value="solrIndexingServer"/>
+            </bean>
+        </property>
         <property name="solrTools" ref="solrTools"/>
     </bean>
 
