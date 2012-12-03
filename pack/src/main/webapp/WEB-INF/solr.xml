@@ -51,7 +51,7 @@
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
     </bean>
 
-    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer" singleton="false" >
         <constructor-arg value="${search.solr.server}"/>
     </bean>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
