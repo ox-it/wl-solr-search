@@ -44,11 +44,12 @@
         <property name="solrTools" ref="solrTools"/>
     </bean>
 
-    <bean id="solrTools" class="uk.ac.ox.oucs.search.solr.indexing.SolrTools">
+    <bean id="solrTools" class="uk.ac.ox.oucs.search.solr.indexing.SolrTools" init-method="init">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
+        <property name="tikaEnabled" value="true" />
     </bean>
 
     <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer" singleton="false" >

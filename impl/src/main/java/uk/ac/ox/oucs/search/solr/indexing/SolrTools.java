@@ -15,6 +15,8 @@ import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.ContentStreamBase;
 import org.apache.solr.common.util.DateUtil;
 import org.apache.solr.common.util.NamedList;
+import org.apache.tika.Tika;
+import org.apache.tika.metadata.Metadata;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -45,6 +47,13 @@ public class SolrTools {
     private SearchIndexBuilder searchIndexBuilder;
     private ContentProducerFactory contentProducerFactory;
     private SolrServer solrServer;
+    private boolean tikaEnabled;
+    private Tika tika;
+
+    public void init() {
+        if (tikaEnabled)
+            tika = new Tika();
+    }
 
     /**
      * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
@@ -301,5 +310,9 @@ public class SolrTools {
 
     public void setSolrServer(SolrServer solrServer) {
         this.solrServer = solrServer;
+    }
+
+    public void setTikaEnabled(boolean tikaEnabled){
+        this.tikaEnabled = tikaEnabled;
     }
 }
