@@ -71,7 +71,13 @@ public class SolrTools {
         //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
             logger.debug("Create a SolrCell request");
-            request = prepareSolrCellRequest(resourceName, (BinaryEntityContentProducer) contentProducer, document);
+            BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
+            if (!tikaEnabled)
+                request = prepareSolrCellRequest(resourceName, binaryContentProducer, document);
+            else {
+                setDocumentTikaProperties(resourceName, document, binaryContentProducer);
+                request = new UpdateRequest().add(document);
+            }
         } else if (contentProducer.isContentFromReader(resourceName)) {
             logger.debug("Create a request with a Reader");
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
@@ -83,6 +89,20 @@ public class SolrTools {
         }
 
         return request;
+    }
+
+    private void setDocumentTikaProperties(String resourceName, SolrInputDocument document, BinaryEntityContentProducer binaryContentProducer) {
+        try {
+            Metadata metadata = new Metadata();
+            String documentContent = tika.parseToString(binaryContentProducer.getContentStream(resourceName), metadata);
+            document.setField(SearchService.FIELD_CONTENTS, documentContent);
+
+            for (String metadataName : metadata.names())
+                for (String metadataValue : metadata.getValues(metadataName))
+                    document.addField(UPREFIX + metadataName, metadataValue);
+        } catch (Exception e) {
+            logger.warn("Couldn't parse the content of '" + resourceName + "'", e);
+        }
     }
 
     /**
