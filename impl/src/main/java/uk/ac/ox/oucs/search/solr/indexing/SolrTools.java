@@ -70,11 +70,12 @@ public class SolrTools {
 
         //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
-            logger.debug("Create a SolrCell request");
             BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
-            if (!tikaEnabled)
+            if (!tikaEnabled){
+                logger.debug("Create a SolrCell request");
                 request = prepareSolrCellRequest(resourceName, binaryContentProducer, document);
-            else {
+            } else {
+                logger.debug("Create a request based on a document parsed by Tika");
                 setDocumentTikaProperties(resourceName, document, binaryContentProducer);
                 request = new UpdateRequest().add(document);
             }
