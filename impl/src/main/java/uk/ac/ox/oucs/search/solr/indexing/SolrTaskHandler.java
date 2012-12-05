@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -80,7 +81,9 @@ public class SolrTaskHandler implements TaskHandler {
                 logger.debug("Indexation not useful as the document was updated earlier");
                 return;
             }
-            solrServer.request(solrTools.toSolrRequest(resourceName, actionDate, contentProducer));
+            SolrRequest request = solrTools.toSolrRequest(resourceName, actionDate, contentProducer);
+            logger.debug("Executing the following request '" + request + "'");
+            solrServer.request(request);
         } catch (Exception e) {
             Task task = new DefaultTask(INDEX_DOCUMENT, actionDate).setProperty(DefaultTask.RESOURCE_NAME, resourceName);
             throw wrapException(e, "An exception occurred while indexing the document '" + resourceName + "'", task);
