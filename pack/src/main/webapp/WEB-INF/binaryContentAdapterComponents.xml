@@ -16,5 +16,7 @@
                 <value>org.sakaiproject.content.types.urlResource</value>
             </list>
         </property>
+        <!-- Limit the document size to 30MB, don't handle bigger documents -->
+        <property name="documentMaximumSize" value="31457280"/>
     </bean>
 </beans>
