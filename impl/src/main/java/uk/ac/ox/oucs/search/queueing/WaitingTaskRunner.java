@@ -2,6 +2,8 @@ package uk.ac.ox.oucs.search.queueing;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.indexing.Task;
@@ -77,6 +79,10 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             logger.error("Thread interrupted while trying to do '" + task + "'.", e);
             indexQueueing.addTaskToQueue(task);
         } finally {
+            //Clean up the localThread after each task
+            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
+            threadLocalManager.clear();
+
             // A TemporaryTaskException occurred and the waiting time is now passed (or an exception killed it)
             // unlock everything and get back to work
             if (taskRunnerLock.isHeldByCurrentThread()) {

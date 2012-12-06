@@ -105,28 +105,22 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
         logger.info("Rebuilding the index for '" + siteId + "'");
-        try {
-            NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while indexing the site '" + siteId + "'");
-            Queue<String> siteReferences = solrTools.getSiteDocumentsReferences(siteId);
-            while (siteReferences.peek() != null) {
-                try {
-                    indexDocument(siteReferences.poll(), actionDate, solrServer);
-                } catch (TaskHandlingException t) {
-                    nthe.addTaskHandlingException(t);
-                }
-            }
+        NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while indexing the site '" + siteId + "'");
+        Queue<String> siteReferences = solrTools.getSiteDocumentsReferences(siteId);
+        while (siteReferences.peek() != null) {
             try {
-                removeSiteDocuments(siteId, actionDate, solrServer);
+                indexDocument(siteReferences.poll(), actionDate, solrServer);
             } catch (TaskHandlingException t) {
                 nthe.addTaskHandlingException(t);
             }
-
-            if (!nthe.isEmpty()) throw nthe;
-        } finally {
-            //Clean up the localThread after each site
-            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
-            threadLocalManager.clear();
         }
+        try {
+            removeSiteDocuments(siteId, actionDate, solrServer);
+        } catch (TaskHandlingException t) {
+            nthe.addTaskHandlingException(t);
+        }
+
+        if (!nthe.isEmpty()) throw nthe;
     }
 
     public void refreshSite(String siteId, Date actionDate, SolrServer solrServer) {
