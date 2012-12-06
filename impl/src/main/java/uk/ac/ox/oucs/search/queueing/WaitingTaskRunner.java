@@ -46,8 +46,11 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         try {
             //Stop for a while because some tasks failed and should be run again.
             synchronized (taskRunnerLock) {
-                while (taskRunnerLock.isLocked())
+                while (taskRunnerLock.isLocked()){
+                    logger.debug("Indexing thread locked due to a temporary failure of the system.");
                     taskRunnerLock.wait();
+                    logger.debug("Indexing thread unlocked, ready to process new taks.");
+                }
             }
 
             //Unlock permissions so every resource is accessible
@@ -70,6 +73,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
 
             // A TemporaryTaskException occurred, stop everything for a while (so the search server can recover)
             if (taskRunnerLock.isHeldByCurrentThread()) {
+                logger.warn("A temporary exception has been caught, put the indexing system to sleep for " + waitingTime + "ms.");
                 Thread.sleep(waitingTime);
                 //Multiply the waiting time by two
                 if (waitingTime <= maximumWaitingTime)
@@ -86,6 +90,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             // A TemporaryTaskException occurred and the waiting time is now passed (or an exception killed it)
             // unlock everything and get back to work
             if (taskRunnerLock.isHeldByCurrentThread()) {
+                logger.debug("Wait finished, restart all the indexing threads.");
                 synchronized (taskRunnerLock) {
                     taskRunnerLock.notifyAll();
                     taskRunnerLock.unlock();
