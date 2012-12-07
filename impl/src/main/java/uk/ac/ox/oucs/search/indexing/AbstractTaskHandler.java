@@ -14,9 +14,9 @@ public abstract class AbstractTaskHandler implements TaskHandler {
     public void executeTask(Task task) {
         String taskType = task.getType();
         if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
-            indexDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate());
+            indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
         } else if (REMOVE_DOCUMENT.getTypeName().equals(taskType)) {
-            removeDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate());
+            removeDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
         } else if (INDEX_SITE.getTypeName().equals(taskType)) {
             indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
         } else if (REFRESH_SITE.getTypeName().equals(taskType)) {

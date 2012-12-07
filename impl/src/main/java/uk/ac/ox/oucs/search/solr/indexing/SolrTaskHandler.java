@@ -44,9 +44,9 @@ public class SolrTaskHandler implements TaskHandler {
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             try {
                 if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
-                    indexDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
+                    indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate(), solrServer);
                 } else if (REMOVE_DOCUMENT.getTypeName().equals(taskType)) {
-                    removeDocument(task.getProperty(DefaultTask.RESOURCE_NAME), task.getCreationDate(), solrServer);
+                    removeDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate(), solrServer);
                 } else if (INDEX_SITE.getTypeName().equals(taskType)) {
                     indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
                 } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
@@ -73,10 +73,10 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void indexDocument(String resourceName, Date actionDate, SolrServer solrServer) {
+    public void indexDocument(String reference, Date actionDate, SolrServer solrServer) {
         if (logger.isDebugEnabled())
-            logger.debug("Add '" + resourceName + "' to the index");
-        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
+            logger.debug("Add '" + reference + "' to the index");
+        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
 
         try {
             if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
@@ -84,26 +84,25 @@ public class SolrTaskHandler implements TaskHandler {
                     logger.debug("Indexation not useful as the document was updated earlier");
                 return;
             }
-            SolrRequest request = solrTools.toSolrRequest(resourceName, actionDate, contentProducer);
+            SolrRequest request = solrTools.toSolrRequest(reference, actionDate, contentProducer);
             logger.debug("Executing the following request '" + request + "'");
             solrServer.request(request);
         } catch (Exception e) {
-            Task task = new DefaultTask(INDEX_DOCUMENT, actionDate).setProperty(DefaultTask.RESOURCE_NAME, resourceName);
-            throw wrapException(e, "An exception occurred while indexing the document '" + resourceName + "'", task);
+            Task task = new DefaultTask(INDEX_DOCUMENT, actionDate).setProperty(DefaultTask.REFERENCE, reference);
+            throw wrapException(e, "An exception occurred while indexing the document '" + reference + "'", task);
         }
     }
 
-    public void removeDocument(String resourceName, Date actionDate, SolrServer solrServer) {
-        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
+    public void removeDocument(String reference, Date actionDate, SolrServer solrServer) {
         if (logger.isDebugEnabled())
-            logger.debug("Remove '" + resourceName + "' from the index");
+            logger.debug("Remove '" + reference + "' from the index");
         try {
             solrServer.deleteByQuery(
                     SearchService.DATE_STAMP + ":{* TO " + solrTools.format(actionDate) + "} AND " +
                             SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(contentProducer.getId(resourceName)));
         } catch (Exception e) {
-            Task task = new DefaultTask(REMOVE_DOCUMENT, actionDate).setProperty(DefaultTask.RESOURCE_NAME, resourceName);
-            throw wrapException(e, "An exception occurred while removing the document '" + resourceName + "'", task);
+            Task task = new DefaultTask(REMOVE_DOCUMENT, actionDate).setProperty(DefaultTask.REFERENCE, reference);
+            throw wrapException(e, "An exception occurred while removing the document '" + reference + "'", task);
         }
     }
 
@@ -132,18 +131,18 @@ public class SolrTaskHandler implements TaskHandler {
         try {
             NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occured while indexing the site '" + siteId + "'");
             //Get the currently indexed resources for this site
-            Queue<String> resourceNames;
+            Queue<String> references;
             try {
-                resourceNames = solrTools.getResourceNames(siteId);
+                references = solrTools.getReferences(siteId);
             } catch (Exception e) {
                 Task task = new DefaultTask(REFRESH_SITE, actionDate).setProperty(DefaultTask.SITE_ID, siteId);
                 throw wrapException(e, "Couldn't obtain the list of documents to refresh for '" + siteId + "'", task);
             }
             if (logger.isDebugEnabled())
-                logger.debug(resourceNames.size() + " elements will be refreshed");
-            while (!resourceNames.isEmpty()) {
+                logger.debug(references.size() + " elements will be refreshed");
+            while (!references.isEmpty()) {
                 try {
-                    indexDocument(resourceNames.poll(), actionDate, solrServer);
+                    indexDocument(references.poll(), actionDate, solrServer);
                 } catch (TaskHandlingException t) {
                     nthe.addTaskHandlingException(t);
                 }

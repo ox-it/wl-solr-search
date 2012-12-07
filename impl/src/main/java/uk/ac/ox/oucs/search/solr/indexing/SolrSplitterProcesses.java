@@ -42,7 +42,7 @@ public class SolrSplitterProcesses implements TaskHandler {
                 indexDocumentList(task.getCreationDate(), siteId, references);
             } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
                 String siteId = task.getProperty(DefaultTask.SITE_ID);
-                Queue<String> references = solrTools.getResourceNames(siteId);
+                Queue<String> references = solrTools.getReferences(siteId);
                 logger.info("Split the '" + task + "' to index " + references.size() + " documents");
 
                 indexDocumentList(task.getCreationDate(), siteId, references);
@@ -76,7 +76,7 @@ public class SolrSplitterProcesses implements TaskHandler {
     private void indexDocumentList(Date creationDate, String siteId, Queue<String> references) {
         while (references.peek() != null) {
             Task indexDocument = new DefaultTask(INDEX_DOCUMENT, creationDate)
-                    .setProperty(DefaultTask.RESOURCE_NAME, references.poll());
+                    .setProperty(DefaultTask.REFERENCE, references.poll());
             indexQueueing.addTaskToQueue(indexDocument);
         }
 

@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Colin Hebert
  */
 public class DefaultTask implements Task {
-    public final static String RESOURCE_NAME = DefaultTask.class.getCanonicalName() + ".resourceName";
+    public final static String REFERENCE = DefaultTask.class.getCanonicalName() + ".reference";
     public final static String SITE_ID = DefaultTask.class.getCanonicalName() + ".siteId";
     private final String type;
     private final Date creationDate;

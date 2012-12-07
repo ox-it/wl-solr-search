@@ -78,11 +78,11 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         switch (entityContentProducer.getAction(event)) {
             case 1: //SearchBuilderItem.ACTION_ADD
                 task = new DefaultTask(INDEX_DOCUMENT, event.getEventTime())
-                        .setProperty(DefaultTask.RESOURCE_NAME, resourceName);
+                        .setProperty(DefaultTask.REFERENCE, resourceName);
                 break;
             case 2: //SearchBuilderItem.ACTION_DELETE
                 task = new DefaultTask(REMOVE_DOCUMENT, event.getEventTime())
-                        .setProperty(DefaultTask.RESOURCE_NAME, resourceName);
+                        .setProperty(DefaultTask.REFERENCE, resourceName);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event) + " is not yet supported");
