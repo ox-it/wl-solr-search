@@ -101,6 +101,12 @@ public class SolrTools {
     private void setDocumentTikaProperties(String resourceName, SolrInputDocument document, BinaryEntityContentProducer binaryContentProducer) {
         try {
             Metadata metadata = new Metadata();
+            String documentName = binaryContentProducer.getResourceName(resourceName);
+            String contentType = binaryContentProducer.getContentType(resourceName);
+            if (documentName != null)
+                metadata.add(Metadata.RESOURCE_NAME_KEY, documentName);
+            if (contentType != null)
+                metadata.add(Metadata.CONTENT_TYPE, contentType);
             String documentContent = tika.parseToString(binaryContentProducer.getContentStream(resourceName), metadata);
             document.setField(SearchService.FIELD_CONTENTS, documentContent);
 

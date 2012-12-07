@@ -13,5 +13,7 @@ import java.io.InputStream;
  * @author Colin Hebert
  */
 public interface BinaryEntityContentProducer extends EntityContentProducer {
-    InputStream getContentStream(String ref);
+    InputStream getContentStream(String reference);
+    String getContentType(String reference);
+    String getResourceName(String reference);
 }
