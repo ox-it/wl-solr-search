@@ -63,28 +63,34 @@ public class SolrTools {
      * @return an update request for the resource
      */
     public SolrRequest toSolrRequest(String resourceName, Date actionDate, EntityContentProducer contentProducer) {
-        logger.debug("Create a solr request to add '" + resourceName + "' to the index");
+        if (logger.isDebugEnabled())
+            logger.debug("Create a solr request to add '" + resourceName + "' to the index");
         SolrRequest request;
         SolrInputDocument document = generateBaseSolrDocument(resourceName, actionDate, contentProducer);
-        logger.debug("Base solr document created ." + document);
+        if (logger.isDebugEnabled())
+            logger.debug("Base solr document created ." + document);
 
         //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
             BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
-            if (!tikaEnabled){
-                logger.debug("Create a SolrCell request");
+            if (!tikaEnabled) {
+                if (logger.isDebugEnabled())
+                    logger.debug("Create a SolrCell request");
                 request = prepareSolrCellRequest(resourceName, binaryContentProducer, document);
             } else {
-                logger.debug("Create a request based on a document parsed by Tika");
+                if (logger.isDebugEnabled())
+                    logger.debug("Create a request based on a document parsed by Tika");
                 setDocumentTikaProperties(resourceName, document, binaryContentProducer);
                 request = new UpdateRequest().add(document);
             }
         } else if (contentProducer.isContentFromReader(resourceName)) {
-            logger.debug("Create a request with a Reader");
+            if (logger.isDebugEnabled())
+                logger.debug("Create a request with a Reader");
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(resourceName));
             request = new UpdateRequestReader().add(document);
         } else {
-            logger.debug("Create a request based on a String");
+            if (logger.isDebugEnabled())
+                logger.debug("Create a request based on a String");
             document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(resourceName));
             request = new UpdateRequest().add(document);
         }
@@ -212,7 +218,8 @@ public class SolrTools {
             //If this property was already present there (this shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
                 logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
-                logger.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
+                if (logger.isDebugEnabled())
+                    logger.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
                 values = new ArrayList<String>(values);
                 values.addAll(properties.get(propertyName));
             }
@@ -239,7 +246,8 @@ public class SolrTools {
                 sb.append(c);
             lastUnderscore = (c == '_');
         }
-        logger.debug("Transformed the '" + propertyName + "' property into: '" + sb + "'");
+        if (logger.isDebugEnabled())
+            logger.debug("Transformed the '" + propertyName + "' property into: '" + sb + "'");
         return sb.toString();
     }
 
@@ -258,7 +266,8 @@ public class SolrTools {
     }
 
     public Queue<String> getResourceNames(String siteId) throws SolrServerException {
-        logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
+        if (logger.isDebugEnabled())
+            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
         SolrQuery query = new SolrQuery()
                 .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
                         //TODO: Use paging?
@@ -284,7 +293,8 @@ public class SolrTools {
     }
 
     public boolean isDocumentOutdated(String documentId, Date currentDate) throws SolrServerException {
-        logger.debug("Obtaining creation date for document '" + documentId + "'");
+        if (logger.isDebugEnabled())
+            logger.debug("Obtaining creation date for document '" + documentId + "'");
         SolrQuery query = new SolrQuery()
                 .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
                         SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")

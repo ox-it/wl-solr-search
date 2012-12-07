@@ -48,7 +48,8 @@ public class SolrSearchService implements SearchService {
      * index
      */
     public void init() {
-        logger.debug("Register a notification to trigger indexation on new elements");
+        if (logger.isDebugEnabled())
+            logger.debug("Register a notification to trigger indexation on new elements");
         // register a transient notification for resources
         notification = notificationService.addTransientNotification();
 
@@ -91,7 +92,8 @@ public class SolrSearchService implements SearchService {
             if (siteIds != null && !siteIds.isEmpty())
                 query.setFilterQueries(createSitesFilterQuery(siteIds));
 
-            logger.debug("Searching with Solr: " + searchTerms);
+            if (logger.isDebugEnabled())
+                logger.debug("Searching with Solr: " + searchTerms);
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
             return new SolrSearchList(rsp, searchItemFilter, contentProducerFactory);
@@ -110,7 +112,8 @@ public class SolrSearchService implements SearchService {
                 sb.append(" OR ");
         }
         sb.append(')');
-        logger.debug("Create filter query " + sb.toString());
+        if (logger.isDebugEnabled())
+            logger.debug("Create filter query " + sb.toString());
         return sb.toString();
     }
 
@@ -147,7 +150,8 @@ public class SolrSearchService implements SearchService {
     @Override
     public String getStatus() {
         try {
-            logger.debug("Obtaining search server status");
+            if (logger.isDebugEnabled())
+                logger.debug("Obtaining search server status");
             return String.valueOf(new SolrPing().process(solrServer).getStatus());
         } catch (Exception e) {
             return e.getLocalizedMessage();
@@ -157,7 +161,8 @@ public class SolrSearchService implements SearchService {
     @Override
     public int getNDocs() {
         try {
-            logger.debug("Obtaining the number of documents available on the server");
+            if (logger.isDebugEnabled())
+                logger.debug("Obtaining the number of documents available on the server");
             QueryResponse rsp = solrServer.query(new SolrQuery().setRows(0).setQuery("*:*"));
             return (int) rsp.getResults().getNumFound();
         } catch (SolrServerException e) {
@@ -262,7 +267,8 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public String getSearchSuggestion(String searchString) {
-        logger.debug("Search a suggestion for : " + searchString);
+        if (logger.isDebugEnabled())
+            logger.debug("Search a suggestion for : " + searchString);
         try {
             ModifiableSolrParams params = new ModifiableSolrParams();
             params.set("qt", "/spell");

@@ -37,7 +37,8 @@ public class SolrTaskHandler implements TaskHandler {
 
     @Override
     public void executeTask(Task task) {
-        logger.debug("Attempt to handle '" + task + "'");
+        if (logger.isDebugEnabled())
+            logger.debug("Attempt to handle '" + task + "'");
         try {
             String taskType = task.getType();
             SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
@@ -73,12 +74,14 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void indexDocument(String resourceName, Date actionDate, SolrServer solrServer) {
-        logger.debug("Add '" + resourceName + "' to the index");
+        if (logger.isDebugEnabled())
+            logger.debug("Add '" + resourceName + "' to the index");
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
 
         try {
             if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
-                logger.debug("Indexation not useful as the document was updated earlier");
+                if (logger.isDebugEnabled())
+                    logger.debug("Indexation not useful as the document was updated earlier");
                 return;
             }
             SolrRequest request = solrTools.toSolrRequest(resourceName, actionDate, contentProducer);
@@ -92,7 +95,8 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void removeDocument(String resourceName, Date actionDate, SolrServer solrServer) {
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(resourceName);
-        logger.debug("Remove '" + resourceName + "' from the index");
+        if (logger.isDebugEnabled())
+            logger.debug("Remove '" + resourceName + "' from the index");
         try {
             solrServer.deleteByQuery(
                     SearchService.DATE_STAMP + ":{* TO " + solrTools.format(actionDate) + "} AND " +
@@ -135,7 +139,8 @@ public class SolrTaskHandler implements TaskHandler {
                 Task task = new DefaultTask(REFRESH_SITE, actionDate).setProperty(DefaultTask.SITE_ID, siteId);
                 throw wrapException(e, "Couldn't obtain the list of documents to refresh for '" + siteId + "'", task);
             }
-            logger.debug(resourceNames.size() + " elements will be refreshed");
+            if (logger.isDebugEnabled())
+                logger.debug(resourceNames.size() + " elements will be refreshed");
             while (!resourceNames.isEmpty()) {
                 try {
                     indexDocument(resourceNames.poll(), actionDate, solrServer);

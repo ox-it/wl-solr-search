@@ -47,9 +47,11 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             //Stop for a while because some tasks failed and should be run again.
             synchronized (taskRunnerLock) {
                 while (taskRunnerLock.isLocked()){
-                    logger.debug("Indexing thread locked due to a temporary failure of the system.");
+                    if (logger.isDebugEnabled())
+                        logger.debug("Indexing thread locked due to a temporary failure of the system.");
                     taskRunnerLock.wait();
-                    logger.debug("Indexing thread unlocked, ready to process new taks.");
+                    if (logger.isDebugEnabled())
+                        logger.debug("Indexing thread unlocked, ready to process new taks.");
                 }
             }
 
@@ -90,7 +92,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             // A TemporaryTaskException occurred and the waiting time is now passed (or an exception killed it)
             // unlock everything and get back to work
             if (taskRunnerLock.isHeldByCurrentThread()) {
-                logger.debug("Wait finished, restart all the indexing threads.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Wait finished, restart all the indexing threads.");
                 synchronized (taskRunnerLock) {
                     taskRunnerLock.notifyAll();
                     taskRunnerLock.unlock();

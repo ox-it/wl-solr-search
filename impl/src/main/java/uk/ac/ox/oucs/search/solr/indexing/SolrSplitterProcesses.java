@@ -29,7 +29,8 @@ public class SolrSplitterProcesses implements TaskHandler {
     @Override
     public void executeTask(Task task) {
         try {
-            logger.debug("Attempt to handle '" + task + "'");
+            if (logger.isDebugEnabled())
+                logger.debug("Attempt to handle '" + task + "'");
             String taskType = task.getType();
             /*
             TODO: This is a bit silly, this create a lot of commits when a single one could be more than enough!

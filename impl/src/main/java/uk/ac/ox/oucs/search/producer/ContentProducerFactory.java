@@ -36,11 +36,13 @@ public class ContentProducerFactory {
      * @return an {@link EntityContentProducer} matching the reference, or null if nothing has been found
      */
     public EntityContentProducer getContentProducerForElement(String reference) {
-        logger.debug("Looking for a contentProducer for '" + reference + "'");
+        if (logger.isDebugEnabled())
+            logger.debug("Looking for a contentProducer for '" + reference + "'");
         for (EntityContentProducer contentProducer : contentProducers) {
             try {
                 if (contentProducer.matches(reference)) {
-                    logger.debug("The content producer '" + contentProducer + "' matches the reference '" + reference + "'");
+                    if (logger.isDebugEnabled())
+                        logger.debug("The content producer '" + contentProducer + "' matches the reference '" + reference + "'");
                     return contentProducer;
                 }
             } catch (Exception e) {
@@ -61,7 +63,8 @@ public class ContentProducerFactory {
         for (EntityContentProducer contentProducer : contentProducers) {
             try {
                 if (contentProducer.matches(event)) {
-                    logger.debug("The content producer '" + contentProducer + "' matches the event '" + event + "'");
+                    if (logger.isDebugEnabled())
+                        logger.debug("The content producer '" + contentProducer + "' matches the event '" + event + "'");
                     return contentProducer;
                 }
             } catch (Exception e) {

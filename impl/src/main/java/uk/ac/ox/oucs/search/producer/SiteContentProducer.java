@@ -66,7 +66,8 @@ public class SiteContentProducer implements EntityContentProducer {
                 ((SiteService) ep).getSite(ref.getId());
                 return true;
             } catch (Exception ex) {
-                logger.debug("Unexpected exception", ex);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unexpected exception", ex);
             }
         }
         return false;
@@ -145,7 +146,8 @@ public class SiteContentProducer implements EntityContentProducer {
         try {
             return Collections.singletonList(siteService.getSite(context).getReference()).iterator();
         } catch (IdUnusedException idu) {
-            logger.debug("Site Not Found for context " + context, idu);
+            if (logger.isDebugEnabled())
+                logger.debug("Site Not Found for context " + context, idu);
             return Collections.<String>emptyList().iterator();
         }
     }
