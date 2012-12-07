@@ -343,7 +343,7 @@ public class SolrTools {
         this.solrServer = solrServer;
     }
 
-    public void setTikaEnabled(boolean tikaEnabled){
+    public void setTikaEnabled(boolean tikaEnabled) {
         this.tikaEnabled = tikaEnabled;
     }
 }

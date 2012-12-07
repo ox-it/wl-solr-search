@@ -45,8 +45,8 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
             contentResource = contentHostingService.getResource(getId(ref));
 
             if (contentResource.getContentLength() > documentMaximumSize) {
-                logger.info("The document '"+ref+"' was bigger ("+contentResource.getContentLength()+"B)" +
-                        "than the maximum expected size ("+documentMaximumSize+"B), its content won't be handled");
+                logger.info("The document '" + ref + "' was bigger (" + contentResource.getContentLength() + "B)" +
+                        "than the maximum expected size (" + documentMaximumSize + "B), its content won't be handled");
                 return new ByteArrayInputStream(EMPTY_DOCUMENT);
             } else {
                 return contentResource.streamContent();

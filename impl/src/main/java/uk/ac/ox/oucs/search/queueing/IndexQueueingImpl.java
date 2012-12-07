@@ -12,7 +12,7 @@ import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
 /**
  * @author Colin Hebert
  */
-public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueueing{
+public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueueing {
     private static final Logger logger = LoggerFactory.getLogger(IndexQueueingImpl.class);
     private ExecutorService taskSplittingExecutor;
     private ExecutorService indexingExecutor;
