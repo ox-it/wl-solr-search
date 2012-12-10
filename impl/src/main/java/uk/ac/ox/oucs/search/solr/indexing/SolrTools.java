@@ -298,11 +298,11 @@ public class SolrTools {
         return references;
     }
 
-    public boolean isDocumentOutdated(String documentId, Date currentDate) throws SolrServerException {
+    public boolean isDocumentOutdated(String reference, Date currentDate) throws SolrServerException {
         if (logger.isDebugEnabled())
-            logger.debug("Obtaining creation date for document '" + documentId + "'");
+            logger.debug("Obtaining creation date for document '" + reference + "'");
         SolrQuery query = new SolrQuery()
-                .setQuery(SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(documentId) + " AND " +
+                .setQuery(SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference) + " AND " +
                         SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
                 .setRows(0);
         return solrServer.query(query).getResults().getNumFound() == 0;

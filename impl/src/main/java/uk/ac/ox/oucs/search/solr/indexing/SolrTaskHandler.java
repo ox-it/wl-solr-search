@@ -79,7 +79,7 @@ public class SolrTaskHandler implements TaskHandler {
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
 
         try {
-            if (!solrTools.isDocumentOutdated(contentProducer.getId(resourceName), actionDate)) {
+            if (!solrTools.isDocumentOutdated(reference, actionDate)) {
                 if (logger.isDebugEnabled())
                     logger.debug("Indexation not useful as the document was updated earlier");
                 return;
@@ -99,7 +99,7 @@ public class SolrTaskHandler implements TaskHandler {
         try {
             solrServer.deleteByQuery(
                     SearchService.DATE_STAMP + ":{* TO " + solrTools.format(actionDate) + "} AND " +
-                            SearchService.FIELD_ID + ":" + ClientUtils.escapeQueryChars(contentProducer.getId(resourceName)));
+                            SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference));
         } catch (Exception e) {
             Task task = new DefaultTask(REMOVE_DOCUMENT, actionDate).setProperty(DefaultTask.REFERENCE, reference);
             throw wrapException(e, "An exception occurred while removing the document '" + reference + "'", task);
