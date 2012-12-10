@@ -13,7 +13,6 @@ import java.util.Queue;
 
 import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
 import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_SITE_DOCUMENTS;
 
 /**
  * Intercept tasks that could be split in subtasks and add them to the queuing system
@@ -32,22 +31,6 @@ public class SolrSplitterProcesses implements TaskHandler {
             if (logger.isDebugEnabled())
                 logger.debug("Attempt to handle '" + task + "'");
             String taskType = task.getType();
-            /*
-            TODO: This is a bit silly, this create a lot of commits when a single one could be more than enough!
-            if (INDEX_SITE.getTypeName().equals(taskType)) {
-                String siteId = task.getProperty(DefaultTask.SITE_ID);
-                Queue<String> references = solrTools.getSiteDocumentsReferences(siteId);
-                logger.info("Split the '" + task + "' to index " + references.size() + " documents");
-
-                indexDocumentList(task.getCreationDate(), siteId, references);
-            } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
-                String siteId = task.getProperty(DefaultTask.SITE_ID);
-                Queue<String> references = solrTools.getReferences(siteId);
-                logger.info("Split the '" + task + "' to index " + references.size() + " documents");
-
-                indexDocumentList(task.getCreationDate(), siteId, references);
-            } else
-            */
             if (INDEX_ALL.getTypeName().equals(taskType)) {
                 indexAll(INDEX_SITE.getTypeName(), task.getCreationDate());
             } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
@@ -71,18 +54,6 @@ public class SolrSplitterProcesses implements TaskHandler {
 
         Task removeAll = new SolrTask(REMOVE_ALL_DOCUMENTS, creationDate);
         indexQueueing.addTaskToQueue(removeAll);
-    }
-
-    private void indexDocumentList(Date creationDate, String siteId, Queue<String> references) {
-        while (references.peek() != null) {
-            Task indexDocument = new DefaultTask(INDEX_DOCUMENT, creationDate)
-                    .setProperty(DefaultTask.REFERENCE, references.poll());
-            indexQueueing.addTaskToQueue(indexDocument);
-        }
-
-        Task removeSites = new SolrTask(REMOVE_SITE_DOCUMENTS, creationDate)
-                .setProperty(DefaultTask.SITE_ID, siteId);
-        indexQueueing.addTaskToQueue(removeSites);
     }
 
     public void setActualTaskHandler(TaskHandler actualTaskHandler) {
