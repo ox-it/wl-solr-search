@@ -60,7 +60,7 @@ public class AmqpQueueing implements IndexQueueing {
             oos = new ObjectOutputStream(baos);
             oos.writeObject(task);
         } catch (IOException e) {
-            logger.error("An exception occured during the serialization of '" + task + "'", e);
+            logger.error("An exception occurred during the serialization of '" + task + "'", e);
         } finally {
             try {
                 if (oos != null)

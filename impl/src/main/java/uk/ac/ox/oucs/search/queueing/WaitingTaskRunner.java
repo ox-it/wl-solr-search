@@ -110,7 +110,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                 logger.warn("A task failed '" + tthe.getNewTask() + "' will be tried again later.", t);
                 indexQueueing.addTaskToQueue(tthe.getNewTask());
             } else {
-                logger.error("An exception occured during the task execution.", t);
+                logger.error("An exception occurred during the task execution.", t);
             }
         }
     }
