@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -249,6 +250,8 @@ public class SolrTaskHandler implements TaskHandler {
      */
     private TaskHandlingException wrapException(Exception e, String message, Task potentialNewTask) {
         if (e instanceof SolrServerException && ((SolrServerException) e).getRootCause() instanceof IOException) {
+            return new TemporaryTaskHandlingException(message, e, potentialNewTask);
+        } else if(e instanceof SolrException && ((SolrException) e).code() == SolrException.ErrorCode.SERVICE_UNAVAILABLE.code){
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
         } else if (e instanceof IOException) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
