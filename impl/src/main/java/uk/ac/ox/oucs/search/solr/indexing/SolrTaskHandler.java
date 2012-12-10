@@ -5,7 +5,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
@@ -16,7 +15,6 @@ import uk.ac.ox.oucs.search.indexing.TaskHandler;
 import uk.ac.ox.oucs.search.indexing.exception.NestedTaskHandlingException;
 import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
 import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
-import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import uk.ac.ox.oucs.search.queueing.DefaultTask;
 
 import java.io.IOException;
@@ -31,7 +29,6 @@ import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.*;
  */
 public class SolrTaskHandler implements TaskHandler {
     private static final Logger logger = LoggerFactory.getLogger(SolrTaskHandler.class);
-    private ContentProducerFactory contentProducerFactory;
     private ObjectFactory solrServerFactory;
     private SolrTools solrTools;
 
@@ -76,7 +73,6 @@ public class SolrTaskHandler implements TaskHandler {
     public void indexDocument(String reference, Date actionDate, SolrServer solrServer) {
         if (logger.isDebugEnabled())
             logger.debug("Add '" + reference + "' to the index");
-        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
 
         try {
             if (!solrTools.isDocumentOutdated(reference, actionDate)) {
@@ -84,7 +80,7 @@ public class SolrTaskHandler implements TaskHandler {
                     logger.debug("Indexation not useful as the document was updated earlier");
                 return;
             }
-            SolrRequest request = solrTools.toSolrRequest(reference, actionDate, contentProducer);
+            SolrRequest request = solrTools.toSolrRequest(reference, actionDate);
             logger.debug("Executing the following request '" + request + "'");
             solrServer.request(request);
         } catch (Exception e) {
@@ -251,10 +247,6 @@ public class SolrTaskHandler implements TaskHandler {
         } else {
             return new TaskHandlingException(message, e);
         }
-    }
-
-    public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
-        this.contentProducerFactory = contentProducerFactory;
     }
 
     public void setSolrServerFactory(ObjectFactory solrServerFactory) {

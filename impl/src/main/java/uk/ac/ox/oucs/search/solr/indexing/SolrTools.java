@@ -58,11 +58,12 @@ public class SolrTools {
     /**
      * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
      *
-     * @param reference       resource to index
-     * @param contentProducer content producer associated with the resource
+     * @param reference  resource to index
+     * @param actionDate date of creation of the indexation task
      * @return an update request for the resource
      */
-    public SolrRequest toSolrRequest(String reference, Date actionDate, EntityContentProducer contentProducer) {
+    public SolrRequest toSolrRequest(String reference, Date actionDate) {
+        EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
         if (logger.isDebugEnabled())
             logger.debug("Create a solr request to add '" + reference + "' to the index");
         SolrRequest request;
