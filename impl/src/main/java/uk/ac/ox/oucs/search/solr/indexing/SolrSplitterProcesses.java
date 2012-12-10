@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Queue;
 
 import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.OPTIMISE_INDEX;
 import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
 
 /**
@@ -32,9 +33,9 @@ public class SolrSplitterProcesses implements TaskHandler {
                 logger.debug("Attempt to handle '" + task + "'");
             String taskType = task.getType();
             if (INDEX_ALL.getTypeName().equals(taskType)) {
-                indexAll(INDEX_SITE.getTypeName(), task.getCreationDate());
+                createTaskForEverySite(INDEX_SITE, task.getCreationDate());
             } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
-                indexAll(REFRESH_SITE.getTypeName(), task.getCreationDate());
+                createTaskForEverySite(REFRESH_SITE, task.getCreationDate());
             } else {
                 actualTaskHandler.executeTask(task);
             }
@@ -45,15 +46,20 @@ public class SolrSplitterProcesses implements TaskHandler {
         }
     }
 
-    private void indexAll(String taskType, Date creationDate) {
-        final Queue<String> sites = solrTools.getIndexableSites();
+    private void createTaskForEverySite(DefaultTask.Type taskType, Date creationDate) {
+        Queue<String> sites = solrTools.getIndexableSites();
         while (sites.peek() != null) {
-            Task refreshSite = new SplitTask(taskType, creationDate).setProperty(DefaultTask.SITE_ID, sites.poll());
+            Task refreshSite = new DefaultTask(taskType, creationDate).setProperty(DefaultTask.SITE_ID, sites.poll());
             indexQueueing.addTaskToQueue(refreshSite);
         }
 
+        //Clean up the index by removing sites/documents that shouldn't be indexed anymore
         Task removeAll = new SolrTask(REMOVE_ALL_DOCUMENTS, creationDate);
         indexQueueing.addTaskToQueue(removeAll);
+        //Start an optimisation when everything has been indexed.
+        //Even if the optimisation isn't exactly the very last operation to run, it's good enough
+        Task optimise = new SolrTask(OPTIMISE_INDEX, creationDate);
+        indexQueueing.addTaskToQueue(optimise);
     }
 
     public void setActualTaskHandler(TaskHandler actualTaskHandler) {
@@ -66,11 +72,5 @@ public class SolrSplitterProcesses implements TaskHandler {
 
     public void setSolrTools(SolrTools solrTools) {
         this.solrTools = solrTools;
-    }
-
-    private static class SplitTask extends DefaultTask {
-        private SplitTask(String type, Date creationDate) {
-            super(type, creationDate);
-        }
     }
 }

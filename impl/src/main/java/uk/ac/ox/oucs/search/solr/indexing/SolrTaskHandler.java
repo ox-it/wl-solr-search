@@ -174,6 +174,11 @@ public class SolrTaskHandler implements TaskHandler {
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
+        try {
+            optimiseSolrIndex(solrServer);
+        } catch (TaskHandlingException t) {
+            nthe.addTaskHandlingException(t);
+        }
 
         if (nthe.isEmpty()) throw nthe;
     }
@@ -191,6 +196,11 @@ public class SolrTaskHandler implements TaskHandler {
         }
         try {
             removeAllDocuments(actionDate, solrServer);
+        } catch (TaskHandlingException t) {
+            nthe.addTaskHandlingException(t);
+        }
+        try {
+            optimiseSolrIndex(solrServer);
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
