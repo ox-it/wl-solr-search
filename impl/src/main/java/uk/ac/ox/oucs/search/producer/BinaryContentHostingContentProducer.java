@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.search.producer;
 
+import org.apache.tika.Tika;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
     private static final byte[] EMPTY_DOCUMENT = new byte[0];
     private List<String> supportedResourceTypes;
     private long documentMaximumSize = Long.MAX_VALUE;
+    private Tika tika = new Tika();
 
     @Override
     public boolean isContentFromReader(String reference) {
@@ -30,8 +32,14 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
     }
 
     @Override
+    @Deprecated
     public String getContent(String reference) {
-        return null;
+        try {
+            return tika.parseToString(getContentStream(reference));
+        } catch (Exception e) {
+            logger.error("Error while trying to get the content of '" + reference + "' with tika");
+            return "";
+        }
     }
 
     protected boolean isResourceTypeSupported(String resourceType) {
