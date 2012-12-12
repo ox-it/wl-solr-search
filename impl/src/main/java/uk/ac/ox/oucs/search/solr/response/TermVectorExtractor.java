@@ -10,7 +10,7 @@ import java.util.*;
  * <p>
  * Based on <a href="https://issues.apache.org/jira/browse/SOLR-949">SOLR-949</a>, this extractor will get every
  * information provided by  {@link org.apache.solr.handler.component.TermVectorComponent} and put that in a {@link Map}
- * of documents with the documentId as the key.<br />
+ * of documents with the documentReference as the key.<br />
  * The document map contain itself a {@link Map} of fields available in the document, with the field name as the key.<br />
  * The field map contains itself a {@link Map} of terms used in the field, with the term as the key.<br />
  * The term map associate a term to a {@link TermInfo}.
@@ -34,7 +34,7 @@ public class TermVectorExtractor {
     /**
      * TermVector data in the form:
      * <pre>
-     * "documentId":{
+     * "documentReference":{
      *     "fieldName":{
      *         "term": {@link TermInfo},
      *         ...
@@ -68,10 +68,10 @@ public class TermVectorExtractor {
             } else {
                 //From this point, the entry can be considered as always a document
                 NamedList<Object> documentContentRaw = (NamedList<Object>) termVectorInfoEntryRaw.getValue();
-                String documentId = (String) documentContentRaw.get(UNIQUE_KEY);
+                String documentReference = (String) documentContentRaw.get(UNIQUE_KEY);
                 Map<String, Map<String, TermInfo>> fieldTerms = extractDocumentContent(documentContentRaw);
 
-                documents.put(documentId, fieldTerms);
+                documents.put(documentReference, fieldTerms);
             }
         }
         return Collections.unmodifiableMap(documents);

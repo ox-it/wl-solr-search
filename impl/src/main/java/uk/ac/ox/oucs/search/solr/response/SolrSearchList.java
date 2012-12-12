@@ -36,14 +36,24 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
         Map<String, Map<String, Map<String, TermInfo>>> termsPerDocument = termVectorExtractor.getTermVectorInfo();
 
         for (SolrDocument document : rsp.getResults()) {
-            String id = (String) document.getFieldValue(SearchService.FIELD_ID);
             String reference = (String) document.getFieldValue(SearchService.FIELD_REFERENCE);
 
             SolrResult solrResult = new SolrResult();
             solrResult.setIndex(solrResults.size());
             solrResult.setDocument(document);
-            solrResult.setHighlights(rsp.getHighlighting().get(id));
-            solrResult.setTerms(termsPerDocument.get(id));
+
+            //Not mandatory highlighting
+            Map<String, List<String>> highlights = rsp.getHighlighting().get(reference);
+            if(highlights == null)
+                highlights = Collections.emptyMap();
+            solrResult.setHighlights(highlights);
+
+            //Not mandatory terms counting
+            Map<String, Map<String, TermInfo>> terms = termsPerDocument.get(reference);
+            if(terms == null)
+                terms = Collections.emptyMap();
+            solrResult.setTerms(terms);
+
             solrResult.setContentProducer(contentProducerFactory.getContentProducerForElement(reference));
 
             solrResults.add(filter.filter(solrResult));
