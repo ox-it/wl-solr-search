@@ -232,6 +232,7 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     public void optimiseSolrIndex(SolrServer solrServer) {
+        logger.info("Optimise the index");
         try {
             solrServer.optimize();
         } catch (Exception e) {
