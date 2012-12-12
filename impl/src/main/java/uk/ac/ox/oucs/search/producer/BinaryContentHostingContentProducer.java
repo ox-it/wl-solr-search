@@ -37,7 +37,7 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
         try {
             return tika.parseToString(getContentStream(reference));
         } catch (Exception e) {
-            logger.error("Error while trying to get the content of '" + reference + "' with tika");
+            logger.error("Error while trying to get the content of '" + reference + "' with tika", e);
             return "";
         }
     }
