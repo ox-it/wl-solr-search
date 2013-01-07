@@ -61,7 +61,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
         } else if(isResourceTypeSupported(resourceType) &&
                 (EVENT_RESOURCE_ADD.equals(eventName) || EVENT_RESOURCE_WRITE.equals(eventName)) &&
                 isForIndex(event.getResource())){
-            return SearchBuilderItem.ACTION_DELETE;
+            return SearchBuilderItem.ACTION_ADD;
         } else {
             return SearchBuilderItem.ACTION_UNKNOWN;
         }
