@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans default-lazy-init="true">
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       default-lazy-init="true">
     <bean id="uk.ac.ox.oucs.search.solr.SolrSearchService"
           class="uk.ac.ox.oucs.search.solr.SolrSearchService" init-method="init">
         <property name="triggerFunctions">
@@ -48,10 +50,10 @@
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
-        <property name="tikaEnabled" value="true" />
+        <property name="tikaEnabled" value="true"/>
     </bean>
 
-    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer" singleton="false" >
+    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer" scope="singleton">
         <constructor-arg value="${search.solr.server}"/>
     </bean>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
