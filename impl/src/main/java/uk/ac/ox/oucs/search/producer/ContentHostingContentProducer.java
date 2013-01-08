@@ -53,8 +53,12 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public Integer getAction(Event event) {
-        String resourceType = getResourceType(event.getResource());
         String eventName = event.getEvent();
+        //Skip the resourceType check if the event isn't about resources
+        if(!EVENT_RESOURCE_REMOVE.equals(eventName) && !EVENT_RESOURCE_ADD.equals(eventName) && !EVENT_RESOURCE_WRITE.equals(eventName))
+            return SearchBuilderItem.ACTION_UNKNOWN;
+
+        String resourceType = getResourceType(event.getResource());
         //If the resource type isn't provided, assume that it's a document we want to delete, try to proceed.
         if(resourceType == null && EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
             return SearchBuilderItem.ACTION_DELETE;
