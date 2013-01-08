@@ -69,10 +69,10 @@ public class ContentProducerFactory {
                 }
             } catch (Exception e) {
                 //If the matches method throws an exception, log it and continue to look for a contentProducer
-                logger.warn("The content producer '" + contentProducer + "' has thrown an exception", e);
+                logger.info("The content producer '" + contentProducer + "' has thrown an exception", e);
             }
         }
-        logger.info("Couldn't find a content producer for event '" + event + "'");
+        logger.warn("Couldn't find a content producer for event '" + event + "'");
         return null;
     }
 
