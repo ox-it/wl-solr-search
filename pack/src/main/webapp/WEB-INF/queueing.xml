@@ -24,7 +24,7 @@
         <property name="queueName" value="hello.world.queue"/>
     </bean>
 
-    <!-- Set lazy-init to true to have an always initialised client listening for the AMQP server -->
+    <!-- Set lazy-init to false to have an always initialised client listening for the AMQP server -->
     <bean id="amqpRunner" class="uk.ac.ox.oucs.search.queueing.AmqpRunner" lazy-init="true" init-method="init"
           destroy-method="destroy" parent="uk.ac.ox.oucs.search.queueing.WaitingTaskRunner">
         <property name="queueName" value="hello.world.queue"/>
