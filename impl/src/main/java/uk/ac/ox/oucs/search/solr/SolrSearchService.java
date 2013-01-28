@@ -48,6 +48,11 @@ public class SolrSearchService implements SearchService {
      * index
      */
     public void init() {
+        if (!isEnabled()) {
+            logger.info("Search is not enabled. Set search.enable to 'true' in Sakai.properties");
+            return;
+        }
+
         if (logger.isDebugEnabled())
             logger.debug("Register a notification to trigger indexation on new elements");
         // register a transient notification for resources
