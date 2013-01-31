@@ -30,7 +30,7 @@ import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.*;
  */
 public class SolrTaskHandler implements TaskHandler {
     private static final Logger logger = LoggerFactory.getLogger(SolrTaskHandler.class);
-    private ObjectFactory solrServerFactory;
+    private SolrServer solrServer;
     private SolrTools solrTools;
 
     @Override
@@ -39,7 +39,6 @@ public class SolrTaskHandler implements TaskHandler {
             logger.debug("Attempt to handle '" + task + "'");
         try {
             String taskType = task.getType();
-            SolrServer solrServer = (SolrServer) solrServerFactory.getObject();
             try {
                 if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
                     indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate(), solrServer);
@@ -64,7 +63,6 @@ public class SolrTaskHandler implements TaskHandler {
                 }
             } finally {
                 solrServer.commit();
-                solrServer.shutdown();
             }
         } catch (Exception e) {
             throw wrapException(e, "Couldn't execute the task '" + task + "'", task);
@@ -263,8 +261,8 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void setSolrServerFactory(ObjectFactory solrServerFactory) {
-        this.solrServerFactory = solrServerFactory;
+    public void setSolrServer(SolrServer solrServer) {
+        this.solrServer = solrServer;
     }
 
     public void setSolrTools(SolrTools solrTools) {

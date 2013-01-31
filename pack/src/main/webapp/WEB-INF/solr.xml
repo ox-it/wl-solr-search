@@ -37,11 +37,7 @@
 
     <bean id="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler"
           class="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler">
-        <property name="solrServerFactory">
-            <bean class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-                <property name="targetBeanName" value="solrIndexingServer"/>
-            </bean>
-        </property>
+        <property name="solrServer" ref="solrIndexingServer"/>
         <property name="solrTools" ref="solrTools"/>
     </bean>
 
@@ -53,8 +49,6 @@
         <property name="tikaEnabled" value="true"/>
     </bean>
 
-    <bean id="solrLookupServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer" scope="singleton">
-        <constructor-arg value="${search.solr.server}"/>
-    </bean>
+    <bean id="solrLookupServer" class="uk.ac.ox.oucs.search.solr.util.SolrServerAdapter" init-method="init" destroy-method="shutdown"/>
     <alias alias="solrIndexingServer" name="solrLookupServer"/>
 </beans>
