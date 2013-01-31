@@ -48,7 +48,6 @@
     </properties>
 
     <modules>
-        <module>assembly</module>
         <module>impl</module>
         <module>pack</module>
     </modules>
