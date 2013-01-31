@@ -63,7 +63,7 @@ public class SolrServerAdapter extends SolrServer {
             logger.debug("Copying '" + solrXmlFile.getPath() + "'");
         solrXmlFile.createNewFile();
         IOUtils.copy(
-                SolrServerAdapter.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/conf/solr.xml"),
+                SolrServerAdapter.class.getResourceAsStream("/org/sakaiproject/search/solr/conf/solr.xml"),
                 new FileOutputStream(solrXmlFile));
 
         File solrConfigFile = new File(SOLR_NODE_PATH + "solrconfig.xml");
@@ -71,7 +71,7 @@ public class SolrServerAdapter extends SolrServer {
             logger.debug("Copying '" + solrConfigFile.getPath() + "'");
         solrConfigFile.createNewFile();
         IOUtils.copy(
-                SolrServerAdapter.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/conf/search/solrconfig.xml"),
+                SolrServerAdapter.class.getResourceAsStream("/org/sakaiproject/search/solr/conf/search/solrconfig.xml"),
                 new FileOutputStream(solrConfigFile));
 
         File schemaFile = new File(SOLR_NODE_PATH + "schema.xml");
@@ -79,7 +79,7 @@ public class SolrServerAdapter extends SolrServer {
             logger.debug("Copying '" + schemaFile.getPath() + "'");
         schemaFile.createNewFile();
         IOUtils.copy(
-                SolrServerAdapter.class.getResourceAsStream("/uk/ac/ox/oucs/search/solr/conf/search/schema.xml"),
+                SolrServerAdapter.class.getResourceAsStream("/org/sakaiproject/search/solr/conf/search/schema.xml"),
                 new FileOutputStream(schemaFile));
     }
 

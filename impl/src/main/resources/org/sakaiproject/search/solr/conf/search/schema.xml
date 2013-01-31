@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<schema name="SakaiSearch-2.8-ox" version="1.6">
+<schema name="SakaiSearch-2.8" version="1.6">
     <types>
         <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
