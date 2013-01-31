@@ -200,28 +200,10 @@
             <url>https://source.sakaiproject.org/maven2</url>
         </repository>
         <repository>
-            <id>maven-repo.oucs</id>
-            <name>OUCS Maven Repository</name>
-            <layout>default</layout>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>sakai.maven2-snapshot</id>
             <name>Sakai Maven Repo</name>
             <layout>default</layout>
             <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>maven-repo-snapshots.oucs</id>
-            <name>OUCS Snapshot Maven Repository</name>
-            <layout>default</layout>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -235,15 +217,6 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>maven-repo.plugin.oucs</id>
-            <name>OUCS Maven Repository</name>
-            <layout>default</layout>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </pluginRepository>
     </pluginRepositories>
 </project>
