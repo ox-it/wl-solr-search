@@ -21,7 +21,7 @@
     <bean id="uk.ac.ox.oucs.search.queueing.AmqpQueueing" class="uk.ac.ox.oucs.search.queueing.AmqpQueueing"
           destroy-method="destroy">
         <property name="connectionFactory" ref="amqpConnectionFactory"/>
-        <property name="queueName" value="hello.world.queue"/>
+        <property name="queueName" value="sakai.search.indexing.queue"/>
     </bean>
 
     <!-- Set lazy-init to false to have an always initialised client listening for the AMQP server -->
