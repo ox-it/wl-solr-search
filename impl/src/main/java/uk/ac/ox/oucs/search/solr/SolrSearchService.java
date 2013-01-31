@@ -309,6 +309,11 @@ public class SolrSearchService implements SearchService {
         return false;
     }
 
+    @Override
+    public boolean isSearchServer() {
+        return true;
+    }
+
     //-------------------------
     //Search services Accessors
     //-------------------------
