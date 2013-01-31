@@ -15,7 +15,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.notification.SearchNotificationAction;
-import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
+import org.sakaiproject.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.response.filter.SearchItemFilter;
 import org.sakaiproject.search.solr.response.SolrSearchList;
 

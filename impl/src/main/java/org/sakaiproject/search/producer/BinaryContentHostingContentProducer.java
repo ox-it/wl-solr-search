@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.producer;
+package org.sakaiproject.search.producer;
 
 import org.apache.tika.Tika;
 import org.sakaiproject.content.api.ContentResource;

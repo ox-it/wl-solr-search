@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.producer;
+package org.sakaiproject.search.producer;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
