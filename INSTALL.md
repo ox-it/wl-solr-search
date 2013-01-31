@@ -30,7 +30,7 @@ with the default implementation to this day.
 This implementation of Sakai Search works with solr in order to index and do
 full text search.
 
-It's recommanded to use Solr 3.6.x with Solr-Cell
+It's recommended to use Solr 3.6.x with Solr-Cell
 
 An example of configuration for Solr is available in the
 `impl/src/main/test/Resources/solr/conf` directory.
@@ -49,7 +49,7 @@ Solr-Cell isn't set up by default and needs some dependencies provided in the
 
 ####Request Handlers
 
-In order to work properly, Sakai-Solr relies on a few functionnalities of Solr.
+In order to work properly, Sakai-Solr relies on a few functionalities of Solr.
 Here are the URL used by Sakai-Solr and what is expected to be there
 
 - `/admin/stats`, for `SolrInfoMBeanHandler`, to obtain statistics about
