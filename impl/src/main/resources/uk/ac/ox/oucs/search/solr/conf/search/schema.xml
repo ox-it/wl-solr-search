@@ -24,9 +24,7 @@
         <field name="indexdate" type="date" indexed="true" stored="true" default="NOW" multiValued="false" />
         <field name="reference" type="string" indexed="true" stored="true" required="true"/>
         <field name="container" type="string" indexed="true" stored="true"/>
-        <field name="id" type="string" indexed="true" stored="true" required="true"/>
         <field name="type" type="string" indexed="true" stored="true" required="true"/>
-        <field name="subtype" type="string" indexed="true" stored="true"/>
         <field name="title" type="text_en" indexed="true" stored="true" required="true"/>
         <field name="tool" type="string" indexed="true" stored="true" required="true"/>
         <field name="url" type="text_en" indexed="true" stored="true" required="true"/>
@@ -38,7 +36,7 @@
         <!-- Properties are generally ignored, to activate the properties enable them one by one -->
         <dynamicField name="property_*" type="ignored"/>
     </fields>
-    <uniqueKey>id</uniqueKey>
+    <uniqueKey>reference</uniqueKey>
     <defaultSearchField>text</defaultSearchField>
     <solrQueryParser defaultOperator="OR"/>
     <copyField source="*" dest="text"/>
