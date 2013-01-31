@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.response;
+package org.sakaiproject.search.solr.response;
 
 import com.google.common.collect.ForwardingList;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -12,7 +12,7 @@ import org.sakaiproject.search.response.filter.SearchItemFilter;
 
 import java.util.*;
 
-import static uk.ac.ox.oucs.search.solr.response.TermVectorExtractor.TermInfo;
+import static org.sakaiproject.search.solr.response.TermVectorExtractor.TermInfo;
 
 /**
  * @author Colin Hebert

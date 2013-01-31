@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.response;
+package org.sakaiproject.search.solr.response;
 
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;

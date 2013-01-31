@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr;
+package org.sakaiproject.search.solr;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -13,7 +13,7 @@ import org.sakaiproject.search.indexing.Task;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.queueing.DefaultTask;
 import org.sakaiproject.search.queueing.IndexQueueing;
-import uk.ac.ox.oucs.search.solr.indexing.SolrTools;
+import org.sakaiproject.search.solr.indexing.SolrTools;
 
 import java.util.ArrayList;
 import java.util.List;

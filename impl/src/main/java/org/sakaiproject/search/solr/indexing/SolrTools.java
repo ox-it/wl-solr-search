@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.indexing;
+package org.sakaiproject.search.solr.indexing;
 
 import com.google.common.collect.Iterators;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ox.oucs.search.producer.BinaryEntityContentProducer;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
-import uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder;
-import uk.ac.ox.oucs.search.solr.util.AdminStatRequest;
-import uk.ac.ox.oucs.search.solr.util.UpdateRequestReader;
+import org.sakaiproject.search.solr.SolrSearchIndexBuilder;
+import org.sakaiproject.search.solr.util.AdminStatRequest;
+import org.sakaiproject.search.solr.util.UpdateRequestReader;
 
 import java.io.IOException;
 import java.io.InputStream;

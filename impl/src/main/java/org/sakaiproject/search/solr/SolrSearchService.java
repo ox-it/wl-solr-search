@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr;
+package org.sakaiproject.search.solr;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.notification.SearchNotificationAction;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.response.filter.SearchItemFilter;
-import uk.ac.ox.oucs.search.solr.response.SolrSearchList;
+import org.sakaiproject.search.solr.response.SolrSearchList;
 
 import java.io.IOException;
 import java.util.Collections;

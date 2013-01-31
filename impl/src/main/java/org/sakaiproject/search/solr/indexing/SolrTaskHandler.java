@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.indexing;
+package org.sakaiproject.search.solr.indexing;
 
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Queue;
 
 import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.*;
+import static org.sakaiproject.search.solr.indexing.SolrTask.Type.*;
 
 /**
  * @author Colin Hebert

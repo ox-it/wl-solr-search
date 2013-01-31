@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.indexing;
+package org.sakaiproject.search.solr.indexing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.Queue;
 
 import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.OPTIMISE_INDEX;
-import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
+import static org.sakaiproject.search.solr.indexing.SolrTask.Type.OPTIMISE_INDEX;
+import static org.sakaiproject.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
 
 /**
  * Intercept tasks that could be split in subtasks and add them to the queuing system

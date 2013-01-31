@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.util;
+package org.sakaiproject.search.solr.util;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrRequest;

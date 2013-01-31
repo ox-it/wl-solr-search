@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.indexing;
+package org.sakaiproject.search.solr.indexing;
 
 import org.sakaiproject.search.queueing.DefaultTask;
 

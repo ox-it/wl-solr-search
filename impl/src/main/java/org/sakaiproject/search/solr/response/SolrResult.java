@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.response;
+package org.sakaiproject.search.solr.response;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-import static uk.ac.ox.oucs.search.solr.response.TermVectorExtractor.TermInfo;
+import static org.sakaiproject.search.solr.response.TermVectorExtractor.TermInfo;
 
 /**
  * @author Colin Hebert

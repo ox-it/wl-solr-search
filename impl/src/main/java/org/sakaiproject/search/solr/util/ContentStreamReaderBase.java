@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.util;
+package org.sakaiproject.search.solr.util;
 
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.solr.common.util.ContentStreamBase;

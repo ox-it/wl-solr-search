@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.solr.util;
+package org.sakaiproject.search.solr.util;
 
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;

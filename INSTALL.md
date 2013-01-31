@@ -12,11 +12,11 @@ otherwise.
 These properties are specific to the Solr implementation:
 
 - `search.service.impl`, bean name of the `SearchService` implementation.
-Set it to `uk.ac.ox.oucs.search.solr.SolrSearchService` to use the Solr
+Set it to `org.sakaiproject.search.solr.SolrSearchService` to use the Solr
 implementation.
 - `search.indexbuilder.impl`, bean name of the `SearchIndexBuilder`
 implementation.
-Set it to `uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder` to use the Solr
+Set it to `org.sakaiproject.search.solr.SolrSearchIndexBuilder` to use the Solr
 implementation.
 - `search.solr.server`, url of the Solr instance.
 *eg: http://localhost:8983/solr/sakai-search*
