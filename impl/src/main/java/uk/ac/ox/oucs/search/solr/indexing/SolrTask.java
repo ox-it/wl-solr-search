@@ -1,6 +1,6 @@
 package uk.ac.ox.oucs.search.solr.indexing;
 
-import uk.ac.ox.oucs.search.queueing.DefaultTask;
+import org.sakaiproject.search.queueing.DefaultTask;
 
 import java.util.Date;
 

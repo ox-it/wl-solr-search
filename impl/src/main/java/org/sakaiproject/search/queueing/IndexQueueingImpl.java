@@ -1,13 +1,13 @@
-package uk.ac.ox.oucs.search.queueing;
+package org.sakaiproject.search.queueing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.Task;
+import org.sakaiproject.search.indexing.Task;
 
 import java.util.concurrent.ExecutorService;
 
-import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.INDEX_DOCUMENT;
-import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
+import static org.sakaiproject.search.queueing.DefaultTask.Type.INDEX_DOCUMENT;
+import static org.sakaiproject.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
 
 /**
  * @author Colin Hebert

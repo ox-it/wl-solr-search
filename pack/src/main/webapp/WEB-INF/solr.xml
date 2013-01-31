@@ -12,7 +12,7 @@
         <property name="searchIndexBuilder" ref="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="searchItemFilter">
-            <bean class="uk.ac.ox.oucs.search.response.filter.SecuritySearchFilter">
+            <bean class="org.sakaiproject.search.response.filter.SecuritySearchFilter">
                 <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
             </bean>
         </property>

@@ -9,16 +9,16 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ox.oucs.search.indexing.Task;
+import org.sakaiproject.search.indexing.Task;
 import uk.ac.ox.oucs.search.producer.ContentProducerFactory;
-import uk.ac.ox.oucs.search.queueing.DefaultTask;
-import uk.ac.ox.oucs.search.queueing.IndexQueueing;
+import org.sakaiproject.search.queueing.DefaultTask;
+import org.sakaiproject.search.queueing.IndexQueueing;
 import uk.ac.ox.oucs.search.solr.indexing.SolrTools;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
 
 /**
  * @author Colin Hebert

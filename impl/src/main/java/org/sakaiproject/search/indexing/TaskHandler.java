@@ -1,4 +1,6 @@
-package uk.ac.ox.oucs.search.indexing;
+package org.sakaiproject.search.indexing;
+
+import org.sakaiproject.search.indexing.Task;
 
 /**
  * @author Colin Hebert

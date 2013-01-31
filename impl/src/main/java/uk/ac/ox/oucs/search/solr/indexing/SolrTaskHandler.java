@@ -10,19 +10,18 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
-import uk.ac.ox.oucs.search.indexing.Task;
-import uk.ac.ox.oucs.search.indexing.TaskHandler;
-import uk.ac.ox.oucs.search.indexing.exception.NestedTaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TaskHandlingException;
-import uk.ac.ox.oucs.search.indexing.exception.TemporaryTaskHandlingException;
-import uk.ac.ox.oucs.search.queueing.DefaultTask;
+import org.sakaiproject.search.indexing.Task;
+import org.sakaiproject.search.indexing.TaskHandler;
+import org.sakaiproject.search.indexing.exception.NestedTaskHandlingException;
+import org.sakaiproject.search.indexing.exception.TaskHandlingException;
+import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException;
+import org.sakaiproject.search.queueing.DefaultTask;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.Queue;
 
-import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
 import static uk.ac.ox.oucs.search.solr.indexing.SolrTask.Type.*;
 
 /**

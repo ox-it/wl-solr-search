@@ -1,10 +1,10 @@
-package uk.ac.ox.oucs.search.indexing;
+package org.sakaiproject.search.indexing;
 
-import uk.ac.ox.oucs.search.queueing.DefaultTask;
+import org.sakaiproject.search.queueing.DefaultTask;
 
 import java.util.Date;
 
-import static uk.ac.ox.oucs.search.queueing.DefaultTask.Type.*;
+import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
 
 /**
  * @author Colin Hebert

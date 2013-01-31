@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.search.response.filter;
+package org.sakaiproject.search.response.filter;
 
 import org.sakaiproject.search.api.SearchResult;
 
