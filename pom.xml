@@ -2,6 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search</artifactId>
+        <version>1.3.8-SNAPSHOT</version>
+    </parent>
     <groupId>org.sakaiproject.search.solr</groupId>
     <artifactId>solr-base</artifactId>
     <packaging>pom</packaging>
@@ -36,11 +41,7 @@
         <tika.version>1.2</tika.version>
         <httpcomponents.version>4.1.3</httpcomponents.version>
         <guava.version>13.0.1</guava.version>
-        <sakai.kernel.version>1.2.5</sakai.kernel.version>
-        <sakai.search.version>1.3.7-SNAPSHOT</sakai.search.version>
-        <sakai.entitybroker.version>1.4.3</sakai.entitybroker.version>
         <sakai.citation.version>2.8.2</sakai.citation.version>
-        <spring.version>2.5.6.SEC02</spring.version>
         <junit.version>4.10</junit.version>
         <mockito.version>1.9.0</mockito.version>
         <slf4j.version>1.7.2</slf4j.version>
@@ -89,11 +90,6 @@
                 <version>${guava.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.rabbitmq</groupId>
                 <artifactId>amqp-client</artifactId>
                 <version>${amqp.version}</version>
@@ -126,17 +122,6 @@
             </dependency>
 
             <!-- Sakai dependencies -->
-            <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>search-api</artifactId>
-                <version>${sakai.search.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>sakai-search-tool</artifactId>
-                <version>${sakai.search.version}</version>
-                <type>war</type>
-            </dependency>
             <dependency>
                 <groupId>org.sakaiproject.kernel</groupId>
                 <artifactId>sakai-kernel-api</artifactId>
@@ -194,6 +179,21 @@
     </dependencyManagement>
 
     <build>
+        <!-- Go back to the maven file hierarchy -->
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <scriptSourceDirectory>src/main/script</scriptSourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+
         <plugins>
             <plugin>
                 <inherited>true</inherited>
@@ -203,6 +203,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <deployDirectory>${maven.tomcat.home}</deployDirectory>
+                    <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
                 </configuration>
             </plugin>
         </plugins>
