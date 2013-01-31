@@ -6,19 +6,19 @@
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
             http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
        default-lazy-init="true">
-    <bean id="uk.ac.ox.oucs.search.queueing.WaitingTaskRunner" class="org.sakaiproject.search.queueing.WaitingTaskRunner"
+    <bean id="org.sakaiproject.search.queueing.WaitingTaskRunner" class="org.sakaiproject.search.queueing.WaitingTaskRunner"
           abstract="true">
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="taskHandler" ref="uk.ac.ox.oucs.search.indexing.TaskHandler"/>
+        <property name="taskHandler" ref="org.sakaiproject.search.indexing.TaskHandler"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.queueing.IndexQueueingImpl" class="org.sakaiproject.search.queueing.IndexQueueingImpl"
-          destroy-method="destroy" parent="uk.ac.ox.oucs.search.queueing.WaitingTaskRunner">
+    <bean id="org.sakaiproject.search.queueing.IndexQueueingImpl" class="org.sakaiproject.search.queueing.IndexQueueingImpl"
+          destroy-method="destroy" parent="org.sakaiproject.search.queueing.WaitingTaskRunner">
         <property name="indexingExecutor" ref="indexingExecutor"/>
         <property name="taskSplittingExecutor" ref="splittingExecutor"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.queueing.AmqpQueueing" class="org.sakaiproject.search.queueing.AmqpQueueing"
+    <bean id="org.sakaiproject.search.queueing.AmqpQueueing" class="org.sakaiproject.search.queueing.AmqpQueueing"
           destroy-method="destroy">
         <property name="connectionFactory" ref="amqpConnectionFactory"/>
         <property name="queueName" value="sakai.search.indexing.queue"/>
@@ -26,11 +26,11 @@
 
     <!-- Set lazy-init to false to have an always initialised client listening for the AMQP server -->
     <bean id="amqpRunner" class="org.sakaiproject.search.queueing.AmqpRunner" lazy-init="true" init-method="init"
-          destroy-method="destroy" parent="uk.ac.ox.oucs.search.queueing.WaitingTaskRunner">
+          destroy-method="destroy" parent="org.sakaiproject.search.queueing.WaitingTaskRunner">
         <property name="queueName" value="hello.world.queue"/>
         <property name="connectionFactory" ref="amqpConnectionFactory"/>
         <property name="executor" ref="indexingExecutor"/>
-        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.AmqpQueueing"/>
+        <property name="indexQueueing" ref="org.sakaiproject.search.queueing.AmqpQueueing"/>
     </bean>
 
     <bean id="amqpConnectionFactory" class="com.rabbitmq.client.ConnectionFactory">

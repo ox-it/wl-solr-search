@@ -3,39 +3,39 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
        default-lazy-init="true">
-    <bean id="uk.ac.ox.oucs.search.solr.SolrSearchService"
+    <bean id="org.sakaiproject.search.solr.SolrSearchService"
           class="org.sakaiproject.search.solr.SolrSearchService" init-method="init">
         <property name="triggerFunctions">
             <list/>
         </property>
         <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
-        <property name="searchIndexBuilder" ref="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.solr.SolrSearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
         <property name="searchItemFilter">
             <bean class="org.sakaiproject.search.response.filter.SecuritySearchFilter">
-                <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
+                <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
             </bean>
         </property>
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
+        <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.solr.SolrSearchIndexBuilder"
+    <bean id="org.sakaiproject.search.solr.SolrSearchIndexBuilder"
           class="org.sakaiproject.search.solr.SolrSearchIndexBuilder">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="solrTools" ref="solrTools"/>
         <property name="searchToolRequired" value="${search.tool.required}"/>
         <property name="ignoreUserSites" value="${search.usersites.ignored}"/>
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
-        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.IndexQueueing"/>
+        <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
+        <property name="indexQueueing" ref="org.sakaiproject.search.queueing.IndexQueueing"/>
     </bean>
-    <bean id="uk.ac.ox.oucs.search.solr.indexing.SolrSplitterProcesses"
+    <bean id="org.sakaiproject.search.solr.indexing.SolrSplitterProcesses"
           class="org.sakaiproject.search.solr.indexing.SolrSplitterProcesses">
-        <property name="actualTaskHandler" ref="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler"/>
-        <property name="indexQueueing" ref="uk.ac.ox.oucs.search.queueing.IndexQueueing"/>
+        <property name="actualTaskHandler" ref="org.sakaiproject.search.solr.indexing.SolrTaskHandler"/>
+        <property name="indexQueueing" ref="org.sakaiproject.search.queueing.IndexQueueing"/>
         <property name="solrTools" ref="solrTools"/>
     </bean>
 
-    <bean id="uk.ac.ox.oucs.search.solr.indexing.SolrTaskHandler"
+    <bean id="org.sakaiproject.search.solr.indexing.SolrTaskHandler"
           class="org.sakaiproject.search.solr.indexing.SolrTaskHandler">
         <property name="solrServer" ref="solrIndexingServer"/>
         <property name="solrTools" ref="solrTools"/>
@@ -45,7 +45,7 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
         <property name="solrServer" ref="solrLookupServer"/>
-        <property name="contentProducerFactory" ref="uk.ac.ox.oucs.search.producer.ContentProducerFactory"/>
+        <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
         <property name="tikaEnabled" value="true"/>
     </bean>
 
