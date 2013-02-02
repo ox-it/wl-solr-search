@@ -43,12 +43,14 @@ public class SolrServerAdapter extends SolrServer {
             instance = new HttpSolrServer(serverUrl);
         } else {
             logger.info("The Solr server isn't set up, using an embedded one");
-            if (!isConfigurationPresent())
+            if (!isConfigurationPresent()) {
                 try {
                     createDefaultConfiguration();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+
             ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             System.setProperty(SOLR_HOME_PROPERTY, SOLR_CONFIGURATION_PATH);

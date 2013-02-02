@@ -12,12 +12,12 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.*;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.notification.SearchNotificationAction;
 import org.sakaiproject.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.response.filter.SearchItemFilter;
 import org.sakaiproject.search.solr.response.SolrSearchList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
