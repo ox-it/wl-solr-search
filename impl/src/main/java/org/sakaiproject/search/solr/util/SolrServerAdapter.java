@@ -49,9 +49,12 @@ public class SolrServerAdapter extends SolrServer {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             System.setProperty(SOLR_HOME_PROPERTY, SOLR_CONFIGURATION_PATH);
             CoreContainer coreContainer = new CoreContainer.Initializer().initialize();
             instance = new EmbeddedSolrServer(coreContainer, CORE_NAME);
+            Thread.currentThread().setContextClassLoader(currentClassLoader);
         }
     }
 
