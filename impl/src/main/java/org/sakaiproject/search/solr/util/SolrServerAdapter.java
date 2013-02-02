@@ -31,7 +31,7 @@ import java.util.List;
 public class SolrServerAdapter extends SolrServer {
     public static final String CORE_NAME = "search";
     public static final String SOLR_HOME_PROPERTY = "solr.solr.home";
-    public static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "/solr/";
+    public static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
     public static final String SOLR_NODE_PATH = SOLR_CONFIGURATION_PATH + "search/conf/";
     private static final Logger logger = LoggerFactory.getLogger(SolrServerAdapter.class);
     private SolrServer instance;
@@ -43,12 +43,14 @@ public class SolrServerAdapter extends SolrServer {
             instance = new HttpSolrServer(serverUrl);
         } else {
             logger.info("The Solr server isn't set up, using an embedded one");
-            if (!isConfigurationPresent())
+            if (!isConfigurationPresent()) {
                 try {
                     createDefaultConfiguration();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+
             ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             System.setProperty(SOLR_HOME_PROPERTY, SOLR_CONFIGURATION_PATH);
