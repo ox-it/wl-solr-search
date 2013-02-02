@@ -3,6 +3,11 @@ package org.sakaiproject.search.indexing.exception;
 import org.sakaiproject.search.indexing.Task;
 
 /**
+ * Recoverable exception occurring during the execution of a task.
+ * <p>
+ * This exception is recoverable and provides the recovering task to run later.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public class TemporaryTaskHandlingException extends TaskHandlingException {
