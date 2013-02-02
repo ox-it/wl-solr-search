@@ -7,6 +7,8 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.w3c.dom.Element;
 
 /**
+ * NotificationAction which captures events related to the search system and relay them to the {@link SearchIndexBuilder}.
+ *
  * @author Colin Hebert
  */
 public class SearchNotificationAction implements NotificationAction {
