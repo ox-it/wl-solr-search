@@ -31,7 +31,7 @@ import java.util.List;
 public class SolrServerAdapter extends SolrServer {
     public static final String CORE_NAME = "search";
     public static final String SOLR_HOME_PROPERTY = "solr.solr.home";
-    public static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "/solr/";
+    public static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
     public static final String SOLR_NODE_PATH = SOLR_CONFIGURATION_PATH + "search/conf/";
     private static final Logger logger = LoggerFactory.getLogger(SolrServerAdapter.class);
     private SolrServer instance;
