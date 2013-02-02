@@ -5,6 +5,10 @@
     <bean id="org.sakaiproject.search.producer.ContentProducerFactory"
           class="org.sakaiproject.search.producer.ContentProducerFactory"/>
 
+    <!--
+    TODO: Remove ContentHostingContentProducer and the content of contentAdapterComponents to support
+    a newer content producer for binary files.
     <import resource="binaryContentAdapterComponents.xml"/>
+    -->
     <import resource="citationContentAdapterComponents.xml"/>
 </beans>
