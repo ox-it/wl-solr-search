@@ -7,12 +7,12 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.indexing.DefaultTask;
 import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.indexing.TaskHandler;
 import org.sakaiproject.search.indexing.exception.NestedTaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException;
-import org.sakaiproject.search.queueing.DefaultTask;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Queue;
 
-import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
+import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
 import static org.sakaiproject.search.solr.indexing.SolrTask.Type.*;
 
 /**

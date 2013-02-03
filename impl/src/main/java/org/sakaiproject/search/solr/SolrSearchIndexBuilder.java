@@ -5,10 +5,10 @@ import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.indexing.DefaultTask;
 import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.producer.ContentProducerFactory;
-import org.sakaiproject.search.queueing.DefaultTask;
 import org.sakaiproject.search.queueing.IndexQueueing;
 import org.sakaiproject.search.solr.indexing.SolrTools;
 import org.sakaiproject.site.api.SiteService;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
+import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
 
 /**
  * @author Colin Hebert

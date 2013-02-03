@@ -1,6 +1,6 @@
 package org.sakaiproject.search.solr.indexing;
 
-import org.sakaiproject.search.queueing.DefaultTask;
+import org.sakaiproject.search.indexing.DefaultTask;
 
 import java.util.Date;
 

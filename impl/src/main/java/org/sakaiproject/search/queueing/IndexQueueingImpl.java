@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
-import static org.sakaiproject.search.queueing.DefaultTask.Type.INDEX_DOCUMENT;
-import static org.sakaiproject.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
+import static org.sakaiproject.search.indexing.DefaultTask.Type.INDEX_DOCUMENT;
+import static org.sakaiproject.search.indexing.DefaultTask.Type.REMOVE_DOCUMENT;
 
 /**
  * Basic queueing system putting Tasks in an ExecutorService.

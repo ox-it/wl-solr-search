@@ -1,6 +1,4 @@
-package org.sakaiproject.search.queueing;
-
-import org.sakaiproject.search.indexing.Task;
+package org.sakaiproject.search.indexing;
 
 import java.util.Date;
 import java.util.HashMap;
