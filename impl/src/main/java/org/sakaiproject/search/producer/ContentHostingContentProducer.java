@@ -113,48 +113,18 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     @Override
     public Iterator<String> getSiteContentIterator(String context) {
         String siteCollection = contentHostingService.getSiteCollection(context);
-        final Iterable<ContentResource> siteContent;
+        final Collection<ContentResource> siteContent;
         if (!"/".equals(siteCollection)) siteContent = contentHostingService.getAllResources(siteCollection);
         else siteContent = Collections.emptyList();
 
-        return new Iterator<String>() {
-            Iterator<ContentResource> scIterator = siteContent.iterator();
-            String nextReference;
-            boolean hasNext = true;
-
-            {
-                checkForNext();
-            }
-
-            public boolean hasNext() {
-                return hasNext;
-            }
-
-            public String next() {
-                if (!hasNext)
-                    throw new NoSuchElementException();
-
-                String nextReference = this.nextReference;
-                checkForNext();
-                return nextReference;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException("Remove is not implemented ");
-            }
-
-            private void checkForNext() {
-                while (scIterator.hasNext()) {
-                    String reference = scIterator.next().getReference();
-                    String resourceType = getResourceType(reference);
-                    if (isResourceTypeSupported(resourceType)) {
-                        nextReference = reference;
-                        return;
-                    }
-                }
-                hasNext = false;
-            }
-        };
+        //Extract references withing the given site and return only the supported ones
+        Collection<String> contentReferences = new ArrayList<String>(siteContent.size());
+        for (ContentResource contentResource : siteContent) {
+            String reference = contentResource.getReference();
+            if (isResourceTypeSupported(reference))
+                contentReferences.add(reference);
+        }
+        return contentReferences.iterator();
     }
 
     /**
