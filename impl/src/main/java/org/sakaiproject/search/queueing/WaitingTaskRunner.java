@@ -71,13 +71,9 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             }
 
             // A TemporaryTaskException occurred, stop everything for a while (so the search server can recover)
-            if (taskRunnerLock.isHeldByCurrentThread()) {
-                logger.warn("A temporary exception has been caught, put the indexing system to sleep for " + waitingTime + "ms.");
-                Thread.sleep(waitingTime);
-                //Multiply the waiting time by two
-                if (waitingTime <= maximumWaitingTime)
-                    waitingTime <<= 1;
-            }
+            if (taskRunnerLock.isHeldByCurrentThread())
+                initiateLockdown();
+
         } catch (InterruptedException e) {
             logger.error("Thread interrupted while trying to do '" + task + "'.", e);
             indexQueueing.addTaskToQueue(task);
@@ -118,6 +114,19 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                     logger.debug("Lockdown terminated, ready to process new tasks.");
             }
         }
+    }
+
+    /**
+     * Initiates the lockdown preventing new tasks to be executed.
+     *
+     * @throws InterruptedException
+     */
+    private void initiateLockdown() throws InterruptedException {
+        logger.warn("A temporary exception has been caught, put the indexation system on lockdown for " + waitingTime + "ms.");
+        Thread.sleep(waitingTime);
+        // Multiply the waiting time by two
+        if (waitingTime <= maximumWaitingTime)
+            waitingTime <<= 1;
     }
 
     private void unfoldNestedTaskException(NestedTaskHandlingException e) {
