@@ -44,13 +44,13 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
 
             //Not mandatory highlighting
             Map<String, List<String>> highlights = rsp.getHighlighting().get(reference);
-            if(highlights == null)
+            if (highlights == null)
                 highlights = Collections.emptyMap();
             solrResult.setHighlights(highlights);
 
             //Not mandatory terms counting
             Map<String, Map<String, TermInfo>> terms = termsPerDocument.get(reference);
-            if(terms == null)
+            if (terms == null)
                 terms = Collections.emptyMap();
             solrResult.setTerms(terms);
 

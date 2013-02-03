@@ -14,9 +14,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 
 import java.util.*;
 
-import static org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD;
-import static org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_REMOVE;
-import static org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_WRITE;
+import static org.sakaiproject.content.api.ContentHostingService.*;
 
 /**
  * Abstract implementation defining basic tools to provide indexable documents from the ContentHostingService
@@ -51,25 +49,24 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
             throw new RuntimeException("Failed to resolve resource ", e);
         }
         ResourceProperties rp = contentResource.getProperties();
-        String displayNameProp = rp.getNamePropDisplayName();
-        return rp.getProperty(displayNameProp);
+        return rp.getProperty(rp.getNamePropDisplayName());
     }
 
     @Override
     public Integer getAction(Event event) {
         String eventName = event.getEvent();
         //Skip the resourceType check if the event isn't about resources
-        if(!EVENT_RESOURCE_REMOVE.equals(eventName) && !EVENT_RESOURCE_ADD.equals(eventName) && !EVENT_RESOURCE_WRITE.equals(eventName))
+        if (!EVENT_RESOURCE_REMOVE.equals(eventName) && !EVENT_RESOURCE_ADD.equals(eventName) && !EVENT_RESOURCE_WRITE.equals(eventName))
             return SearchBuilderItem.ACTION_UNKNOWN;
 
         String resourceType = getResourceType(event.getResource());
         //If the resource type isn't provided, assume that it's a document we want to delete, try to proceed.
         //The resource type should always be provided, if it isn't, it's safe to assume that the document doesn't exist anymore
-        if(resourceType == null && EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
+        if (resourceType == null && EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
             return SearchBuilderItem.ACTION_DELETE;
-        } else if(isResourceTypeSupported(resourceType) &&
+        } else if (isResourceTypeSupported(resourceType) &&
                 (EVENT_RESOURCE_ADD.equals(eventName) || EVENT_RESOURCE_WRITE.equals(eventName)) &&
-                isForIndex(event.getResource())){
+                isForIndex(event.getResource())) {
             return SearchBuilderItem.ACTION_ADD;
         } else {
             return SearchBuilderItem.ACTION_UNKNOWN;

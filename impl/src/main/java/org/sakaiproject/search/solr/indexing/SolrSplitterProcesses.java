@@ -1,12 +1,12 @@
 package org.sakaiproject.search.solr.indexing;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.indexing.TaskHandler;
 import org.sakaiproject.search.indexing.exception.TaskHandlingException;
 import org.sakaiproject.search.queueing.DefaultTask;
 import org.sakaiproject.search.queueing.IndexQueueing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Queue;

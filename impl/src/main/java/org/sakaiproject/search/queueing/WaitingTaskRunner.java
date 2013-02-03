@@ -3,14 +3,14 @@ package org.sakaiproject.search.queueing;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.indexing.TaskHandler;
 import org.sakaiproject.search.indexing.exception.NestedTaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.ReentrantLock;
 

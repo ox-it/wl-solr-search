@@ -7,15 +7,15 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.indexing.TaskHandler;
 import org.sakaiproject.search.indexing.exception.NestedTaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException;
 import org.sakaiproject.search.queueing.DefaultTask;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Date;
@@ -249,7 +249,7 @@ public class SolrTaskHandler implements TaskHandler {
     private TaskHandlingException wrapException(Exception e, String message, Task potentialNewTask) {
         if (e instanceof SolrServerException && ((SolrServerException) e).getRootCause() instanceof IOException) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
-        } else if(e instanceof SolrException && ((SolrException) e).code() == SolrException.ErrorCode.SERVICE_UNAVAILABLE.code){
+        } else if (e instanceof SolrException && ((SolrException) e).code() == SolrException.ErrorCode.SERVICE_UNAVAILABLE.code) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
         } else if (e instanceof IOException) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);

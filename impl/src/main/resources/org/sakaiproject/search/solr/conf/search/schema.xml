@@ -21,7 +21,7 @@
     </types>
 
     <fields>
-        <field name="indexdate" type="date" indexed="true" stored="true" default="NOW" multiValued="false" />
+        <field name="indexdate" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
         <field name="reference" type="string" indexed="true" stored="true" required="true"/>
         <field name="container" type="string" indexed="true" stored="true"/>
         <field name="type" type="string" indexed="true" stored="true" required="true"/>
