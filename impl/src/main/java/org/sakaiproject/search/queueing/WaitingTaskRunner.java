@@ -57,8 +57,6 @@ public abstract class WaitingTaskRunner implements TaskRunner {
 
             try {
                 taskHandler.executeTask(task);
-                //The task was successful, reset the waiting time
-                waitingTime = BASE_WAITING_TIME;
             } catch (NestedTaskHandlingException e) {
                 logger.warn("Some exceptions happened during the execution of '" + task + "'.", e);
                 unfoldNestedTaskException(e);
@@ -87,14 +85,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
 
             // A TemporaryTaskException occurred and the waiting time is now passed (or an exception killed it)
             // unlock everything and get back to work
-            if (taskRunnerLock.isHeldByCurrentThread()) {
-                if (logger.isDebugEnabled())
-                    logger.debug("Wait finished, restart all the indexing threads.");
-                synchronized (taskRunnerLock) {
-                    taskRunnerLock.notifyAll();
-                    taskRunnerLock.unlock();
-                }
-            }
+            if (taskRunnerLock.isHeldByCurrentThread())
+                terminateLockdown();
         }
     }
 
@@ -127,6 +119,20 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         // Multiply the waiting time by two
         if (waitingTime <= maximumWaitingTime)
             waitingTime <<= 1;
+    }
+
+    /**
+     * Terminates the lockdown, resuming tasks running.
+     */
+    private void terminateLockdown() {
+        if (logger.isDebugEnabled())
+            logger.info("Lockdown terminated, restart all the indexing threads.");
+        synchronized (taskRunnerLock) {
+            taskRunnerLock.notifyAll();
+            taskRunnerLock.unlock();
+            // Reset the waiting time
+            waitingTime = BASE_WAITING_TIME;
+        }
     }
 
     private void unfoldNestedTaskException(NestedTaskHandlingException e) {
