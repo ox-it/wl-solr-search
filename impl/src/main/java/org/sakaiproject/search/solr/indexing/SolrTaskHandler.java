@@ -40,23 +40,23 @@ public class SolrTaskHandler implements TaskHandler {
             String taskType = task.getType();
             try {
                 if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
-                    indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate(), solrServer);
+                    indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
                 } else if (REMOVE_DOCUMENT.getTypeName().equals(taskType)) {
-                    removeDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate(), solrServer);
+                    removeDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
                 } else if (INDEX_SITE.getTypeName().equals(taskType)) {
-                    indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
+                    indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
                 } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
-                    refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
+                    refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
                 } else if (INDEX_ALL.getTypeName().equals(taskType)) {
-                    indexAll(task.getCreationDate(), solrServer);
+                    indexAll(task.getCreationDate());
                 } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
-                    refreshAll(task.getCreationDate(), solrServer);
+                    refreshAll(task.getCreationDate());
                 } else if (REMOVE_SITE_DOCUMENTS.getTypeName().equals(taskType)) {
-                    removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate(), solrServer);
+                    removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
                 } else if (REMOVE_ALL_DOCUMENTS.getTypeName().equals(taskType)) {
-                    removeAllDocuments(task.getCreationDate(), solrServer);
+                    removeAllDocuments(task.getCreationDate());
                 } else if (OPTIMISE_INDEX.getTypeName().equals(taskType)) {
-                    optimiseSolrIndex(solrServer);
+                    optimiseSolrIndex();
                 } else {
                     throw new TaskHandlingException("Task '" + task + "' can't be handled");
                 }
@@ -68,7 +68,7 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void indexDocument(String reference, Date actionDate, SolrServer solrServer) {
+    public void indexDocument(String reference, Date actionDate) {
         if (logger.isDebugEnabled())
             logger.debug("Add '" + reference + "' to the index");
 
@@ -87,7 +87,7 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void removeDocument(String reference, Date actionDate, SolrServer solrServer) {
+    public void removeDocument(String reference, Date actionDate) {
         if (logger.isDebugEnabled())
             logger.debug("Remove '" + reference + "' from the index");
         try {
@@ -100,19 +100,19 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void indexSite(final String siteId, Date actionDate, SolrServer solrServer) {
+    public void indexSite(final String siteId, Date actionDate) {
         logger.info("Rebuilding the index for '" + siteId + "'");
         NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while indexing the site '" + siteId + "'");
         Queue<String> siteReferences = solrTools.getSiteDocumentsReferences(siteId);
         while (siteReferences.peek() != null) {
             try {
-                indexDocument(siteReferences.poll(), actionDate, solrServer);
+                indexDocument(siteReferences.poll(), actionDate);
             } catch (TaskHandlingException t) {
                 nthe.addTaskHandlingException(t);
             }
         }
         try {
-            removeSiteDocuments(siteId, actionDate, solrServer);
+            removeSiteDocuments(siteId, actionDate);
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
@@ -120,7 +120,7 @@ public class SolrTaskHandler implements TaskHandler {
         if (!nthe.isEmpty()) throw nthe;
     }
 
-    public void refreshSite(String siteId, Date actionDate, SolrServer solrServer) {
+    public void refreshSite(String siteId, Date actionDate) {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
             NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while indexing the site '" + siteId + "'");
@@ -136,14 +136,14 @@ public class SolrTaskHandler implements TaskHandler {
                 logger.debug(references.size() + " elements will be refreshed");
             while (!references.isEmpty()) {
                 try {
-                    indexDocument(references.poll(), actionDate, solrServer);
+                    indexDocument(references.poll(), actionDate);
                 } catch (TaskHandlingException t) {
                     nthe.addTaskHandlingException(t);
                 }
 
             }
             try {
-                removeSiteDocuments(siteId, actionDate, solrServer);
+                removeSiteDocuments(siteId, actionDate);
             } catch (TaskHandlingException t) {
                 nthe.addTaskHandlingException(t);
             }
@@ -156,24 +156,24 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void indexAll(Date actionDate, SolrServer solrServer) {
+    public void indexAll(Date actionDate) {
         logger.info("Rebuilding the index for every indexable site");
         NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while reindexing everything");
         Queue<String> reindexedSites = solrTools.getIndexableSites();
         while (!reindexedSites.isEmpty()) {
             try {
-                indexSite(reindexedSites.poll(), actionDate, solrServer);
+                indexSite(reindexedSites.poll(), actionDate);
             } catch (TaskHandlingException t) {
                 nthe.addTaskHandlingException(t);
             }
         }
         try {
-            removeAllDocuments(actionDate, solrServer);
+            removeAllDocuments(actionDate);
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
         try {
-            optimiseSolrIndex(solrServer);
+            optimiseSolrIndex();
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
@@ -181,24 +181,24 @@ public class SolrTaskHandler implements TaskHandler {
         if (nthe.isEmpty()) throw nthe;
     }
 
-    public void refreshAll(Date actionDate, SolrServer solrServer) {
+    public void refreshAll(Date actionDate) {
         logger.info("Refreshing the index for every indexable site");
         NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while refreshing everything");
         Queue<String> refreshedSites = solrTools.getIndexableSites();
         while (!refreshedSites.isEmpty()) {
             try {
-                refreshSite(refreshedSites.poll(), actionDate, solrServer);
+                refreshSite(refreshedSites.poll(), actionDate);
             } catch (TaskHandlingException t) {
                 nthe.addTaskHandlingException(t);
             }
         }
         try {
-            removeAllDocuments(actionDate, solrServer);
+            removeAllDocuments(actionDate);
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
         try {
-            optimiseSolrIndex(solrServer);
+            optimiseSolrIndex();
         } catch (TaskHandlingException t) {
             nthe.addTaskHandlingException(t);
         }
@@ -206,7 +206,7 @@ public class SolrTaskHandler implements TaskHandler {
         if (nthe.isEmpty()) throw nthe;
     }
 
-    public void removeSiteDocuments(String siteId, Date creationDate, SolrServer solrServer) {
+    public void removeSiteDocuments(String siteId, Date creationDate) {
         logger.info("Remove old documents from '" + siteId + "'");
         try {
             solrServer.deleteByQuery(
@@ -218,7 +218,7 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void removeAllDocuments(Date creationDate, SolrServer solrServer) {
+    public void removeAllDocuments(Date creationDate) {
         logger.info("Remove old documents from every sites");
         try {
             solrServer.deleteByQuery(SearchService.DATE_STAMP + ":{* TO " + solrTools.format(creationDate) + "}");
@@ -228,7 +228,7 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
-    public void optimiseSolrIndex(SolrServer solrServer) {
+    public void optimiseSolrIndex() {
         logger.info("Optimise the index");
         try {
             solrServer.optimize();
