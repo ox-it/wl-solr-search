@@ -15,15 +15,15 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Task runner putting Tasks on hold if a TemporaryTaskHandlingException has been caught.
+ * TaskRunner putting itself on lockdown if a TemporaryTaskHandlingException has been caught.
  * <p>
- * Assuming that every {@link Task} should be successfully executed or completely fail, a {@link TemporaryTaskHandlingException}
- * means that the {@link TaskHandler} can't process new tasks.
+ * Assuming that every {@link Task} should either be successfully executed or completely fail, a {@link TemporaryTaskHandlingException}
+ * means that the {@link TaskHandler} shouldn't process new tasks for a short period of time.
  * </p>
  * <p>
- * This TaskRunner will put every thread that attempt to run a task on hold each time a TemporaryTaskHandlingException is caught.<br />
+ * This TaskRunner will put every thread in charge of running tasks on hold each time a TemporaryTaskHandlingException is caught.<br />
  * The waiting time is doubled each time a Task fails with a TemporaryTaskHandlingException until it reaches the {@link #maximumWaitingTime}.<br />
- * The waiting time is reset each time a task is successfully executed.
+ * The waiting time is reset once a task has been successfully executed.
  * </p>
  *
  * @author Colin Hebert

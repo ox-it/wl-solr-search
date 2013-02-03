@@ -10,6 +10,27 @@ import static org.sakaiproject.search.queueing.DefaultTask.Type.INDEX_DOCUMENT;
 import static org.sakaiproject.search.queueing.DefaultTask.Type.REMOVE_DOCUMENT;
 
 /**
+ * Basic queueing system putting Tasks in an ExecutorService.
+ * <p>
+ * IndexQueueingImpl uses two ExecutorServices:
+ * <ul>
+ * <li>one to queue simple Tasks (index document, remove document from the index) that should be mostly busy</li>
+ * <li>the second one is in charge of splitting big tasks (such as reindex everything) in smaller ones then queued in
+ * the first Executor</li>
+ * </ul>
+ * This is done to avoid having only one queue filling itself while not being able to process new tasks<br />
+ * ie. if there is a lot of new tasks being "reindex everything", having only one queue would cause troubles.
+ * </p>
+ * <p>
+ * It is recommended to have a big queue and more threads allocated to the indexingExecutor in charge of basic tasks.<br />
+ * Usually one thread and a small queue should be enough for the TaskSplittingExecutor.
+ * </p>
+ * <p>
+ * This implementation stores everything in memory, and while it's easier to setup, doesn't scale.<br />
+ * The tasks are queued and executed on only one server, the memory consumption can get out of hand.<br />
+ * An external queueing system (such as an AMQP server) will allow to dispatch tasks and will scale independently.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueueing {
@@ -47,6 +68,9 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
         this.taskSplittingExecutor = taskSplittingExecutor;
     }
 
+    /**
+     * Wrapper allowing Tasks to be run by an executor.
+     */
     private class RunnableTask implements Runnable {
         private final Task task;
 
