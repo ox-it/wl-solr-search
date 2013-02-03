@@ -50,16 +50,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
 
     public void runTask(Task task) {
         try {
-            //Stop for a while because some tasks failed and should be run again.
-            synchronized (taskRunnerLock) {
-                while (taskRunnerLock.isLocked()) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Indexing thread locked due to a temporary failure of the system.");
-                    taskRunnerLock.wait();
-                    if (logger.isDebugEnabled())
-                        logger.debug("Indexing thread unlocked, ready to process new taks.");
-                }
-            }
+            checkLockdown();
 
             // Unlock permissions so every resource is accessible
             securityService.pushAdvisor(OPEN_SECURITY_ADVISOR);
@@ -107,6 +98,24 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                     taskRunnerLock.notifyAll();
                     taskRunnerLock.unlock();
                 }
+            }
+        }
+    }
+
+    /**
+     * Checks if the lockdown has been initiated, wait until it has been terminated if it's the case.
+     *
+     * @throws InterruptedException
+     */
+    private void checkLockdown() throws InterruptedException {
+        // Stop for a while because some tasks failed and should be run again.
+        synchronized (taskRunnerLock) {
+            while (taskRunnerLock.isLocked()) {
+                if (logger.isDebugEnabled())
+                    logger.debug("Indexation system on lockdown due to a temporary failure of the system.");
+                taskRunnerLock.wait();
+                if (logger.isDebugEnabled())
+                    logger.debug("Lockdown terminated, ready to process new tasks.");
             }
         }
     }
