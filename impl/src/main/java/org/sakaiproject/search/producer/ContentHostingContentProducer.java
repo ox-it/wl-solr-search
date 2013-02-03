@@ -19,6 +19,11 @@ import static org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_
 import static org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_WRITE;
 
 /**
+ * Abstract implementation defining basic tools to provide indexable documents from the ContentHostingService
+ * <p>
+ * Extend this class to create an EntityContentProducer for new custom content types.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public abstract class ContentHostingContentProducer implements EntityContentProducer {
@@ -33,7 +38,6 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
             searchService.registerFunction(EVENT_RESOURCE_ADD);
             searchService.registerFunction(EVENT_RESOURCE_WRITE);
             searchService.registerFunction(EVENT_RESOURCE_REMOVE);
-            //TODO: Replace this with a registration on a factory
             searchIndexBuilder.registerEntityContentProducer(this);
         }
     }
@@ -60,6 +64,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
         String resourceType = getResourceType(event.getResource());
         //If the resource type isn't provided, assume that it's a document we want to delete, try to proceed.
+        //The resource type should always be provided, if it isn't, it's safe to assume that the document doesn't exist anymore
         if(resourceType == null && EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
             return SearchBuilderItem.ACTION_DELETE;
         } else if(isResourceTypeSupported(resourceType) &&
@@ -71,18 +76,31 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
         }
     }
 
+    /**
+     * Obtains the resource type of some hosted content.
+     *
+     * @param reference reference to the hosted content.
+     * @return the resource type of the content or null if either the reference is null or or the reference is invalid.
+     */
     private String getResourceType(String reference) {
         try {
             if (reference == null)
                 return null;
             return contentHostingService.getResource(getId(reference)).getResourceType();
         } catch (IdUnusedException e) {
+            //It isn't uncommon to have an old reference to some content that doesn't exist anymore
             return null;
         } catch (Exception e) {
             throw new RuntimeException("Failed to resolve resource ", e);
         }
     }
 
+    /**
+     * Provides the list of resource type supported by the implementation of ContentHostingContentProducer
+     *
+     * @param contentType tested content type.
+     * @return true if the content type is handled, false otherwise.
+     */
     protected abstract boolean isResourceTypeSupported(String contentType);
 
     @Override
