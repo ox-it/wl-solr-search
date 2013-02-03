@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * ContentProducer in charge of generating documents for Citations.
+ *
  * @author Colin Hebert
  */
 public class CitationContentProducer extends ContentHostingContentProducer {
@@ -43,7 +45,7 @@ public class CitationContentProducer extends ContentHostingContentProducer {
 
                 for (Map.Entry<String, Object> property : ((Map<String, Object>) citation.getCitationProperties()).entrySet()) {
                     // Some properties are given as Collections (Vector?!) other are simple Strings, it's rather
-                    // difficult to check for every possible type of content, so the toString method will be used instead
+                    // difficult to check for every possible type of content, so the toString() method will be used instead
                     sb.append(property.getKey()).append(':').append(property.getValue()).append('\n');
                 }
             }
@@ -59,6 +61,7 @@ public class CitationContentProducer extends ContentHostingContentProducer {
 
     @Override
     public boolean matches(String reference) {
+        //A reference to a citation has always an instance of CitationService for entityProducer
         return entityManager.newReference(reference).getEntityProducer() instanceof CitationService;
     }
 }

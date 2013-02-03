@@ -5,22 +5,24 @@ import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.indexing.DefaultTask;
+import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.producer.ContentProducerFactory;
+import org.sakaiproject.search.queueing.IndexQueueing;
+import org.sakaiproject.search.solr.indexing.SolrTools;
 import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.search.indexing.Task;
-import org.sakaiproject.search.producer.ContentProducerFactory;
-import org.sakaiproject.search.queueing.DefaultTask;
-import org.sakaiproject.search.queueing.IndexQueueing;
-import org.sakaiproject.search.solr.indexing.SolrTools;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.sakaiproject.search.queueing.DefaultTask.Type.*;
+import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
 
 /**
+ * IndexBuilder in charge of adding or removing documents from the Solr index.
+ *
  * @author Colin Hebert
  */
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
@@ -38,10 +40,16 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         try {
             processEvent(event);
         } catch (Exception e) {
+            //addResource is directly related to the event system, it must not throw an exception.
             logger.error("Event handling failed (this should NEVER happen)", e);
         }
     }
 
+    /**
+     * Handle an event that should affect the search index.
+     *
+     * @param event event affecting the index.
+     */
     private void processEvent(Event event) {
         String resourceName = event.getResource();
         if (logger.isDebugEnabled())
@@ -74,6 +82,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             }
         }
 
+        //Create a task for the current event
         Task task;
         switch (entityContentProducer.getAction(event)) {
             case 1: //SearchBuilderItem.ACTION_ADD
@@ -169,7 +178,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public void destroy() {
-        //TODO: Nope, we don't kill the search that easily
+        // Nope, we don't kill search that easily
     }
 
     @Override
@@ -189,19 +198,19 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public List<SearchBuilderItem> getGlobalMasterSearchItems() {
-        //TODO: Don't return any item now as the indexing is handled by solr
+        // Don't return any item now as the indexing is handled by solr
         return null;
     }
 
     @Override
     public List<SearchBuilderItem> getAllSearchItems() {
-        //TODO: Don't return any item now as the indexing is handled by solr
+        // Don't return any item now as the indexing is handled by solr
         return null;
     }
 
     @Override
     public List<SearchBuilderItem> getSiteMasterSearchItems() {
-        //TODO: Don't return any item now as the indexing is handled by solr
+        // Don't return any item now as the indexing is handled by solr
         return null;
     }
 

@@ -12,6 +12,8 @@ import java.util.*;
 import static org.sakaiproject.search.solr.response.TermVectorExtractor.TermInfo;
 
 /**
+ * Search result obtained from a Solr server.
+ *
  * @author Colin Hebert
  */
 public class SolrResult implements SearchResult {
@@ -152,20 +154,29 @@ public class SolrResult implements SearchResult {
         return contentProducer instanceof PortalUrlEnabledProducer;
     }
 
-    private String[] collectionToStringArray(Collection<?> objectValues) {
-        String[] values = new String[objectValues.size()];
+    /**
+     * Transforms an Collection of Objects in an array of Strings.
+     * <p>
+     * Useful with {@link SolrDocument#getFieldValues(String)} which returns a collection values.
+     * </p>
+     *
+     * @param collection collection of Objects.
+     * @return an array of String containing each value from the collection.
+     */
+    private String[] collectionToStringArray(Collection<?> collection) {
+        String[] array = new String[collection.size()];
         int i = 0;
-        for (Iterator<?> iterator = objectValues.iterator(); iterator.hasNext(); i++) {
-            values[i] = iterator.next().toString();
+        for (Object object : collection) {
+            array[i++] = object.toString();
         }
-        return values;
+        return array;
     }
 
     /**
-     * Extract a {@link TermFrequency} from the result of a {@link org.apache.solr.handler.component.TermVectorComponent}
+     * Extracts a {@link TermFrequency} from the result of a {@link org.apache.solr.handler.component.TermVectorComponent}.
      *
-     * @param termsByField A map of field/terms
-     * @return
+     * @param termsByField A map of field/terms.
+     * @return a term frequency.
      */
     private TermFrequency extractTermFrequency(Map<String, Map<String, TermInfo>> termsByField) {
         Map<String, Long> termFrequencies = new HashMap<String, Long>();

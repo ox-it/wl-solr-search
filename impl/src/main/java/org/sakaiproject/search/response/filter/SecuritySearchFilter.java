@@ -9,6 +9,14 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Filter for search results based on the current user's rights.
+ * <p>
+ * Every result considered as not accessible to the current user is automatically censored.
+ * </p>
+ *
+ * @author Colin Hebert
+ */
 public class SecuritySearchFilter implements SearchItemFilter {
     public static final SearchResult censoredSearchResult = new CensoredSearchResult();
     private ContentProducerFactory contentProducerFactory;

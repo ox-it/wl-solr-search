@@ -1,9 +1,9 @@
 package org.sakaiproject.search.queueing;
 
 import com.rabbitmq.client.*;
+import org.sakaiproject.search.indexing.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.search.indexing.Task;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

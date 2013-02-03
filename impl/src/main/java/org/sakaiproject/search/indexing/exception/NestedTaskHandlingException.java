@@ -4,6 +4,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 /**
+ * Exception aggregating multiple {@link TaskHandlingException} occurring during the execution of a composite task.
+ * <p>
+ * Adding a NestedTaskHandlingException to another NestedTaskHandlingException will copy the exceptions
+ * of the first one in the second one.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public class NestedTaskHandlingException extends TaskHandlingException {

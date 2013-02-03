@@ -1,6 +1,11 @@
 package org.sakaiproject.search.indexing.exception;
 
 /**
+ * Exception occurring during the execution of a task.
+ * <p>
+ * This exception is supposed to not be recoverable, otherwise use {@link TemporaryTaskHandlingException}.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public class TaskHandlingException extends RuntimeException {

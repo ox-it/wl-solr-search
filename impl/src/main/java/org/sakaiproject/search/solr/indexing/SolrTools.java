@@ -20,21 +20,23 @@ import org.apache.tika.metadata.Metadata;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.producer.BinaryEntityContentProducer;
 import org.sakaiproject.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.solr.SolrSearchIndexBuilder;
 import org.sakaiproject.search.solr.util.AdminStatRequest;
 import org.sakaiproject.search.solr.util.UpdateRequestReader;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
 /**
+ * Set of methods used to facilitate the usage of solr.
+ *
  * @author Colin Hebert
  */
 public class SolrTools {
@@ -56,7 +58,7 @@ public class SolrTools {
     }
 
     /**
-     * Generate a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
+     * Generates a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
      *
      * @param reference  resource to index
      * @param actionDate date of creation of the indexation task
@@ -74,6 +76,7 @@ public class SolrTools {
         //Prepare the actual request based on a stream/reader/string
         if (contentProducer instanceof BinaryEntityContentProducer) {
             BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
+            //Depending on whether Tika is enabled or not, rely on solr cell.
             if (!tikaEnabled) {
                 if (logger.isDebugEnabled())
                     logger.debug("Create a SolrCell request");
@@ -99,6 +102,13 @@ public class SolrTools {
         return request;
     }
 
+    /**
+     * Extract additional document properties and content through Tika.
+     *
+     * @param reference             reference of the document to index.
+     * @param document              solr document about to be index.
+     * @param binaryContentProducer contentProducer for the document.
+     */
     private void setDocumentTikaProperties(String reference, SolrInputDocument document, BinaryEntityContentProducer binaryContentProducer) {
         try {
             Metadata metadata = new Metadata();
@@ -108,9 +118,11 @@ public class SolrTools {
                 metadata.add(Metadata.RESOURCE_NAME_KEY, resourceName);
             if (contentType != null)
                 metadata.add(Metadata.CONTENT_TYPE, contentType);
+            //Extract the content of the document (and additional properties in metadata)
             String documentContent = tika.parseToString(binaryContentProducer.getContentStream(reference), metadata);
             document.setField(SearchService.FIELD_CONTENTS, documentContent);
 
+            //Add additional properties extracted by Tika to the document
             for (String metadataName : metadata.names())
                 for (String metadataValue : metadata.getValues(metadataName))
                     document.addField(UPREFIX + metadataName, metadataValue);
@@ -238,10 +250,10 @@ public class SolrTools {
     }
 
     /**
-     * Replace special characters, turn to lower case and avoid repetitive '_'
+     * Replace special characters, turn to lower case and avoid repetitive '_'.
      *
-     * @param propertyName String to filter
-     * @return a filtered name more appropriate to use with solr
+     * @param propertyName String to filter.
+     * @return a filtered name more appropriate to use with solr.
      */
     private String toSolrFieldName(String propertyName) {
         StringBuilder sb = new StringBuilder(propertyName.length());
@@ -258,10 +270,24 @@ public class SolrTools {
         return sb.toString();
     }
 
-    public String format(Date creationDate) {
-        return DateUtil.getThreadLocalDateFormat().format(creationDate);
+    /**
+     * Transforms dates to the Solr date format.
+     *
+     * @param date date to format.
+     * @return a String respecting the format used by Solr.
+     */
+    public String format(Date date) {
+        return DateUtil.getThreadLocalDateFormat().format(date);
     }
 
+    /**
+     * Gets every indexable site.
+     * <p>
+     * Usually this method is used for heavy operations affecting every site using the search index.
+     * </p>
+     *
+     * @return every site that is considered as indexable.
+     */
     public Queue<String> getIndexableSites() {
         Queue<String> refreshedSites = new LinkedList<String>();
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
@@ -272,6 +298,16 @@ public class SolrTools {
         return refreshedSites;
     }
 
+    /**
+     * Gets the reference of every indexed document for a specific site.
+     * <p>
+     * This method is most commonly used to refresh a site.
+     * </p>
+     *
+     * @param siteId site in which the documents are.
+     * @return a queue of every reference related to a site.
+     * @throws SolrServerException
+     */
     public Queue<String> getReferences(String siteId) throws SolrServerException {
         if (logger.isDebugEnabled())
             logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
@@ -280,6 +316,7 @@ public class SolrTools {
                         //TODO: Use paging?
                 .setRows(Integer.MAX_VALUE)
                 .addField(SearchService.FIELD_REFERENCE);
+
         SolrDocumentList results = solrServer.query(query).getResults();
         Queue<String> references = new LinkedList<String>();
         for (SolrDocument document : results) {
@@ -288,6 +325,16 @@ public class SolrTools {
         return references;
     }
 
+    /**
+     * Get the reference of every document available (not only the indexed ones) for a specific site.
+     * <p>
+     * This method gets the documents currently available in a site, not only the indexed ones.<br />
+     * This method is most commonly used to reindex a site.
+     * </p>
+     *
+     * @param siteId identifier of the site which contains documents
+     * @return a queue of references for every document available within a site.
+     */
     public Queue<String> getSiteDocumentsReferences(String siteId) {
         //TODO: Replace by a lazy queuing system
         Queue<String> references = new LinkedList<String>();
@@ -299,6 +346,18 @@ public class SolrTools {
         return references;
     }
 
+    /**
+     * Checks if a document is outdated (not updated since the current time).
+     * <p>
+     * As tasks are executed in different threads, race conditions could appear.<br />
+     * To avoid that, verify if the document in the index isn't already more recent than the current task.
+     * </p>
+     *
+     * @param reference   reference of the document.
+     * @param currentDate creation date of the currently executed task.
+     * @return true if the document is outdated (and should be updated), false otherwise.
+     * @throws SolrServerException
+     */
     public boolean isDocumentOutdated(String reference, Date currentDate) throws SolrServerException {
         if (logger.isDebugEnabled())
             logger.debug("Obtaining creation date for document '" + reference + "'");
@@ -309,12 +368,23 @@ public class SolrTools {
         return solrServer.query(query).getResults().getNumFound() == 0;
     }
 
+    /**
+     * Checks whether a site should be indexed or not.
+     *
+     * @param site site to check.
+     * @return true if the site is indexable, false otherwise.
+     */
     private boolean isSiteIndexable(Site site) {
         return !(siteService.isSpecialSite(site.getId()) ||
                 (searchIndexBuilder.isOnlyIndexSearchToolSites() && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null) ||
                 (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
     }
 
+    /**
+     * Gets the number of documents currently pending in the solr server.
+     *
+     * @return the number of documents awaiting indexation in the solr server.
+     */
     public int getPendingDocuments() {
         try {
             AdminStatRequest adminStatRequest = new AdminStatRequest();
