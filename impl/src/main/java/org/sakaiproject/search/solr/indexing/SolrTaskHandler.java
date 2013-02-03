@@ -40,30 +40,26 @@ public class SolrTaskHandler implements TaskHandler {
             logger.debug("Attempt to handle '" + task + "'");
         try {
             String taskType = task.getType();
-            try {
-                if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
-                    indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
-                } else if (REMOVE_DOCUMENT.getTypeName().equals(taskType)) {
-                    removeDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
-                } else if (INDEX_SITE.getTypeName().equals(taskType)) {
-                    indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
-                } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
-                    refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
-                } else if (INDEX_ALL.getTypeName().equals(taskType)) {
-                    indexAll(task.getCreationDate());
-                } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
-                    refreshAll(task.getCreationDate());
-                } else if (REMOVE_SITE_DOCUMENTS.getTypeName().equals(taskType)) {
-                    removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
-                } else if (REMOVE_ALL_DOCUMENTS.getTypeName().equals(taskType)) {
-                    removeAllDocuments(task.getCreationDate());
-                } else if (OPTIMISE_INDEX.getTypeName().equals(taskType)) {
-                    optimiseSolrIndex();
-                } else {
-                    throw new TaskHandlingException("Task '" + task + "' can't be executed");
-                }
-            } finally {
-                solrServer.commit();
+            if (INDEX_DOCUMENT.getTypeName().equals(taskType)) {
+                indexDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
+            } else if (REMOVE_DOCUMENT.getTypeName().equals(taskType)) {
+                removeDocument(task.getProperty(DefaultTask.REFERENCE), task.getCreationDate());
+            } else if (INDEX_SITE.getTypeName().equals(taskType)) {
+                indexSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
+            } else if (REFRESH_SITE.getTypeName().equals(taskType)) {
+                refreshSite(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
+            } else if (INDEX_ALL.getTypeName().equals(taskType)) {
+                indexAll(task.getCreationDate());
+            } else if (REFRESH_ALL.getTypeName().equals(taskType)) {
+                refreshAll(task.getCreationDate());
+            } else if (REMOVE_SITE_DOCUMENTS.getTypeName().equals(taskType)) {
+                removeSiteDocuments(task.getProperty(DefaultTask.SITE_ID), task.getCreationDate());
+            } else if (REMOVE_ALL_DOCUMENTS.getTypeName().equals(taskType)) {
+                removeAllDocuments(task.getCreationDate());
+            } else if (OPTIMISE_INDEX.getTypeName().equals(taskType)) {
+                optimiseSolrIndex();
+            } else {
+                throw new TaskHandlingException("Task '" + task + "' can't be executed");
             }
         } catch (Exception e) {
             throw wrapException(e, "Couldn't execute the task '" + task + "'", task);
