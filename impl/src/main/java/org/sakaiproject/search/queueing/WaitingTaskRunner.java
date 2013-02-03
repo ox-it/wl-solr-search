@@ -61,9 +61,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                 logger.warn("Some exceptions happened during the execution of '" + task + "'.", e);
                 unfoldNestedTaskException(e);
             } catch (TemporaryTaskHandlingException e) {
-                taskRunnerLock.tryLock();
-                logger.warn("The task '" + task + "' couldn't be executed, try again later.", e);
-                indexQueueing.addTaskToQueue(task);
+                logger.warn("Couldn't execute task '" + task + "'.", e);
+                handleTemporaryTaskHandlingException(e);
             } catch (Exception e) {
                 logger.error("Couldn't execute task '" + task + "'.", e);
             }
@@ -138,16 +137,25 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     private void unfoldNestedTaskException(NestedTaskHandlingException e) {
         for (TaskHandlingException t : e.getTaskHandlingExceptions()) {
             if (t instanceof TemporaryTaskHandlingException) {
-                taskRunnerLock.tryLock();
-                TemporaryTaskHandlingException tthe = (TemporaryTaskHandlingException) t;
-                logger.warn("A task failed '" + tthe.getNewTask() + "' will be tried again later.", t);
-                indexQueueing.addTaskToQueue(tthe.getNewTask());
+                handleTemporaryTaskHandlingException((TemporaryTaskHandlingException) t);
             } else {
                 logger.error("An exception occurred during the task execution.", t);
             }
         }
     }
 
+    /**
+     * Handle a handleTemporaryTaskHandlingException by obtaining a lock to initiate the lockdown and add the new tasks
+     * to the queue.
+     *
+     * @param tthe TemporaryTaskHandlingException to handle.
+     */
+    private void handleTemporaryTaskHandlingException(TemporaryTaskHandlingException tthe) {
+        // A TemporaryTaskHandlingException means that the locking system must be initialised
+        // If it's already initialised, carry on
+        taskRunnerLock.tryLock();
+        logger.info("A task failed because of a temporary exception. '" + tthe.getNewTask() + "' will be executed later", tthe);
+        indexQueueing.addTaskToQueue(tthe.getNewTask());
     }
 
     public void setSecurityService(SecurityService securityService) {
