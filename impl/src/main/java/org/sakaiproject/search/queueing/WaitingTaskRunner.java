@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Colin Hebert
  */
 public abstract class WaitingTaskRunner implements TaskRunner {
-    public static final int BASE_WAITING_TIME = 1000;
+    private static final int BASE_WAITING_TIME = 1000;
     private static final Logger logger = LoggerFactory.getLogger(WaitingTaskRunner.class);
     private final ReentrantLock taskRunnerLock = new ReentrantLock();
     /**
