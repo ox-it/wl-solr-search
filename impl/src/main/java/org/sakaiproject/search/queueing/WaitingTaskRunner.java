@@ -31,6 +31,12 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class WaitingTaskRunner implements TaskRunner {
     private static final int BASE_WAITING_TIME = 1000;
     private static final Logger logger = LoggerFactory.getLogger(WaitingTaskRunner.class);
+    private static final SecurityAdvisor OPEN_SECURITY_ADVISOR = new SecurityAdvisor() {
+        @Override
+        public SecurityAdvice isAllowed(String userId, String function, String reference) {
+            return SecurityAdvice.ALLOWED;
+        }
+    };
     private final ReentrantLock taskRunnerLock = new ReentrantLock();
     /**
      * Maximum wait
@@ -55,8 +61,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                 }
             }
 
-            //Unlock permissions so every resource is accessible
-            unlockPermissions();
+            // Unlock permissions so every resource is accessible
+            securityService.pushAdvisor(OPEN_SECURITY_ADVISOR);
 
             try {
                 taskHandler.executeTask(task);
@@ -85,7 +91,10 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             logger.error("Thread interrupted while trying to do '" + task + "'.", e);
             indexQueueing.addTaskToQueue(task);
         } finally {
-            //Clean up the localThread after each task
+            // Lock permissions to avoid security issues
+            securityService.popAdvisor(OPEN_SECURITY_ADVISOR);
+
+            // Clean up the localThread after each task
             ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
             threadLocalManager.clear();
 
@@ -115,13 +124,6 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         }
     }
 
-    private void unlockPermissions() {
-        securityService.pushAdvisor(new SecurityAdvisor() {
-            @Override
-            public SecurityAdvice isAllowed(String userId, String function, String reference) {
-                return SecurityAdvice.ALLOWED;
-            }
-        });
     }
 
     public void setSecurityService(SecurityService securityService) {
