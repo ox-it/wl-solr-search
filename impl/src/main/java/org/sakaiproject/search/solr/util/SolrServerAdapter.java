@@ -26,6 +26,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * SolrServerAdapter allows to generate a SolrServer object on the fly depending on the configuration in sakai.properties
+ * <p>
+ * By default an embedded server will be spawned, otherwise, if search.solr.server is set in sakai.properties,
+ * a client for that server will be created.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public class SolrServerAdapter extends SolrServer {
@@ -60,6 +66,11 @@ public class SolrServerAdapter extends SolrServer {
         }
     }
 
+    /**
+     * Copies the default solr configuration in Sakai_home in order to use an embedded solr instance.
+     *
+     * @throws IOException
+     */
     private void createDefaultConfiguration() throws IOException {
         logger.info("Setting up the embedded solr server for the first time");
 
@@ -88,6 +99,11 @@ public class SolrServerAdapter extends SolrServer {
                 new FileOutputStream(schemaFile));
     }
 
+    /**
+     * Checks whether the solr configuration is already in Sakai_home or not.
+     *
+     * @return true if the configuration is already there, false otherwise.
+     */
     private boolean isConfigurationPresent() {
         File nodeConfigDir = new File(SOLR_NODE_PATH);
 
