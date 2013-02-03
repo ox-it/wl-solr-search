@@ -15,6 +15,8 @@ import java.util.*;
 import static org.sakaiproject.search.solr.response.TermVectorExtractor.TermInfo;
 
 /**
+ * List of results after a solr search query.
+ *
  * @author Colin Hebert
  */
 public class SolrSearchList extends ForwardingList<SearchResult> implements SearchList {
@@ -25,7 +27,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
     public SolrSearchList(QueryResponse rsp, SearchItemFilter filter, ContentProducerFactory contentProducerFactory) {
         this.rsp = rsp;
 
-        //Get the 'start' value. If not set, use 0
+        //Get the 'start' index of the result list. If not set, use 0
         String expectedStart = ((NamedList<String>) rsp.getHeader().get("params")).get("start");
         this.start = (expectedStart != null) ? Integer.parseInt(expectedStart) : 0;
 
@@ -35,6 +37,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
         TermVectorExtractor termVectorExtractor = new TermVectorExtractor(rsp);
         Map<String, Map<String, Map<String, TermInfo>>> termsPerDocument = termVectorExtractor.getTermVectorInfo();
 
+        //Generate a SolrResult for each document
         for (SolrDocument document : rsp.getResults()) {
             String reference = (String) document.getFieldValue(SearchService.FIELD_REFERENCE);
 
