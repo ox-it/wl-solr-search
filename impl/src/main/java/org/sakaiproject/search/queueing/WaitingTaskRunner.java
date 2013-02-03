@@ -48,6 +48,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     private SecurityService securityService;
     private IndexQueueing indexQueueing;
 
+    @Override
     public void runTask(Task task) {
         try {
             checkLockdown();
@@ -58,7 +59,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             try {
                 taskHandler.executeTask(task);
             } catch (NestedTaskHandlingException e) {
-                logger.warn("Some exceptions happened during the execution of '" + task + "'.", e);
+                logger.warn("Some exceptions happened during the execution of '" + task + "'.");
                 unfoldNestedTaskException(e);
             } catch (TemporaryTaskHandlingException e) {
                 logger.warn("Couldn't execute task '" + task + "'.", e);
@@ -134,6 +135,11 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         }
     }
 
+    /**
+     * Handles the content of a NestedTaskHandlingException exception.
+     *
+     * @param e NestedTaskHandlingException to unfold.
+     */
     private void unfoldNestedTaskException(NestedTaskHandlingException e) {
         for (TaskHandlingException t : e.getTaskHandlingExceptions()) {
             if (t instanceof TemporaryTaskHandlingException) {
@@ -156,6 +162,10 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         taskRunnerLock.tryLock();
         logger.info("A task failed because of a temporary exception. '" + tthe.getNewTask() + "' will be executed later", tthe);
         indexQueueing.addTaskToQueue(tthe.getNewTask());
+    }
+
+    public void setMaximumWaitingTime(int maximumWaitingTime) {
+        this.maximumWaitingTime = maximumWaitingTime;
     }
 
     public void setSecurityService(SecurityService securityService) {
