@@ -163,13 +163,13 @@ public class SolrResult implements SearchResult {
      * @param collection collection of Objects.
      * @return an array of String containing each value from the collection.
      */
-    private String[] collectionToStringArray(Collection<?> objectValues) {
-        String[] values = new String[objectValues.size()];
+    private String[] collectionToStringArray(Collection<?> collection) {
+        String[] array = new String[collection.size()];
         int i = 0;
-        for (Iterator<?> iterator = objectValues.iterator(); iterator.hasNext(); i++) {
-            values[i] = iterator.next().toString();
+        for (Object object : collection) {
+            array[i++] = object.toString();
         }
-        return values;
+        return array;
     }
 
     /**
