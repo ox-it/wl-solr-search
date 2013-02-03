@@ -26,6 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Search service using Solr to execute search queries.
+ * <p>
+ * There is some dummy implementation for certain methods as what was relevant in the default implementation of search
+ * isn't when there is an external solr server to administrate.
+ * </p>
+ *
  * @author Colin Hebert
  */
 public class SolrSearchService implements SearchService {
@@ -36,6 +42,12 @@ public class SolrSearchService implements SearchService {
     private ContentProducerFactory contentProducerFactory;
     private List<String> triggerFunctions;
     private NotificationService notificationService;
+    /**
+     * Filter applied to search results.
+     * <p>
+     * By default the filter will let everything go through without any filtering.
+     * </p>
+     */
     private SearchItemFilter searchItemFilter = new SearchItemFilter() {
         @Override
         public SearchResult filter(SearchResult result) {
@@ -44,8 +56,8 @@ public class SolrSearchService implements SearchService {
     };
 
     /**
-     * Register a notification action to listen to events and modify the search
-     * index
+     * Initialises the search service (as long is {@link #isEnabled()} is true) to capture and process event affecting
+     * the search index
      */
     public void init() {
         if (!isEnabled()) {
@@ -107,6 +119,12 @@ public class SolrSearchService implements SearchService {
         }
     }
 
+    /**
+     * Creates a solr filter query based on a list of site ids
+     *
+     * @param siteIds sites ID to add to the filter
+     * @return a filter query allowing to search only in the given sites
+     */
     private String createSitesFilterQuery(List<String> siteIds) {
         StringBuilder sb = new StringBuilder();
         sb.append('+').append(SearchService.FIELD_SITEID).append(":");

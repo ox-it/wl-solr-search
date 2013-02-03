@@ -25,6 +25,8 @@ import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
 import static org.sakaiproject.search.solr.indexing.SolrTask.Type.*;
 
 /**
+ * Component in charge of executing a Task by generating a solr request and modifying the search index.
+ *
  * @author Colin Hebert
  */
 public class SolrTaskHandler implements TaskHandler {
@@ -58,7 +60,7 @@ public class SolrTaskHandler implements TaskHandler {
                 } else if (OPTIMISE_INDEX.getTypeName().equals(taskType)) {
                     optimiseSolrIndex();
                 } else {
-                    throw new TaskHandlingException("Task '" + task + "' can't be handled");
+                    throw new TaskHandlingException("Task '" + task + "' can't be executed");
                 }
             } finally {
                 solrServer.commit();
@@ -68,16 +70,27 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
+    /**
+     * Indexes a document based on the reference to the document and a date.
+     * <p>
+     * If the document has been updated since the actionDate, the document won't be updated.
+     * </p>
+     *
+     * @param reference  reference to the document.
+     * @param actionDate creation date of the task.
+     */
     public void indexDocument(String reference, Date actionDate) {
         if (logger.isDebugEnabled())
             logger.debug("Add '" + reference + "' to the index");
 
         try {
+            //Check if the document hasn't been indexed since the creation of the task
             if (!solrTools.isDocumentOutdated(reference, actionDate)) {
                 if (logger.isDebugEnabled())
                     logger.debug("Indexation not useful as the document was updated earlier");
                 return;
             }
+
             SolrRequest request = solrTools.toSolrRequest(reference, actionDate);
             logger.debug("Executing the following request '" + request + "'");
             solrServer.request(request);
@@ -87,6 +100,15 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
+    /**
+     * Removes a document from the index based on the given reference.
+     * <p>
+     * If the action date is inferior to the indexation date of the document, the document won't be removed.
+     * </p>
+     *
+     * @param reference  reference to the document.
+     * @param actionDate creation date of the task.
+     */
     public void removeDocument(String reference, Date actionDate) {
         if (logger.isDebugEnabled())
             logger.debug("Remove '" + reference + "' from the index");
@@ -100,6 +122,15 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
+    /**
+     * Indexes every document available within a site.
+     * <p>
+     * Every document indexed before the actionDate will be removed.
+     * </p>
+     *
+     * @param siteId     id of the site to index.
+     * @param actionDate creation date of the task.
+     */
     public void indexSite(final String siteId, Date actionDate) {
         logger.info("Rebuilding the index for '" + siteId + "'");
         NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while indexing the site '" + siteId + "'");
@@ -111,6 +142,7 @@ public class SolrTaskHandler implements TaskHandler {
                 nthe.addTaskHandlingException(t);
             }
         }
+
         try {
             removeSiteDocuments(siteId, actionDate);
         } catch (TaskHandlingException t) {
@@ -120,6 +152,15 @@ public class SolrTaskHandler implements TaskHandler {
         if (!nthe.isEmpty()) throw nthe;
     }
 
+    /**
+     * Updates the documents currently indexed for a given site.
+     * <p>
+     * Only the documents already indexed will be updated or removed if necessary.
+     * </p>
+     *
+     * @param siteId
+     * @param actionDate
+     */
     public void refreshSite(String siteId, Date actionDate) {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
@@ -156,6 +197,14 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
+    /**
+     * Indexes every available site.
+     * <p>
+     * Every document indexed before the creation date of the task will be removed.
+     * </p>
+     *
+     * @param actionDate creation date of the task
+     */
     public void indexAll(Date actionDate) {
         logger.info("Rebuilding the index for every indexable site");
         NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while reindexing everything");
@@ -181,6 +230,11 @@ public class SolrTaskHandler implements TaskHandler {
         if (nthe.isEmpty()) throw nthe;
     }
 
+    /**
+     * Updates the content of every document indexed and remove every document that shouldn't be here.
+     *
+     * @param actionDate creation date of the task
+     */
     public void refreshAll(Date actionDate) {
         logger.info("Refreshing the index for every indexable site");
         NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while refreshing everything");
@@ -206,6 +260,15 @@ public class SolrTaskHandler implements TaskHandler {
         if (nthe.isEmpty()) throw nthe;
     }
 
+    /**
+     * Removes every document from a site.
+     * <p>
+     * Every document of this site, indexed before the creation date of that task will be removed from the index.
+     * </p>
+     *
+     * @param siteId       Identifier of the site to clean.
+     * @param creationDate creation date of the task.
+     */
     public void removeSiteDocuments(String siteId, Date creationDate) {
         logger.info("Remove old documents from '" + siteId + "'");
         try {
@@ -218,6 +281,14 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
+    /**
+     * Removes every document from the index.
+     * <p>
+     * Every document indexed before the creation date of that task will be removed from the index.
+     * </p>
+     *
+     * @param creationDate creation date of the task.
+     */
     public void removeAllDocuments(Date creationDate) {
         logger.info("Remove old documents from every sites");
         try {
@@ -228,6 +299,9 @@ public class SolrTaskHandler implements TaskHandler {
         }
     }
 
+    /**
+     * Optimises the solr index.
+     */
     public void optimiseSolrIndex() {
         logger.info("Optimise the index");
         try {
@@ -239,7 +313,7 @@ public class SolrTaskHandler implements TaskHandler {
     }
 
     /**
-     * Wraps an Exception in a TaskHandlingException that can be thrown
+     * Wraps an Exception in a TaskHandlingException that can be thrown.
      *
      * @param e                caught Exception
      * @param message          message to associate with the wrapper

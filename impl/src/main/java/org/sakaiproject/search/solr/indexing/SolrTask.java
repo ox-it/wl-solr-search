@@ -5,7 +5,9 @@ import org.sakaiproject.search.indexing.DefaultTask;
 import java.util.Date;
 
 /**
- * @author Colin Gevert
+ * Tasks specific to a Solr search index (such as optimise, remove site documents and remove all documents).
+ *
+ * @author Colin Hebert
  */
 public class SolrTask extends DefaultTask {
     public SolrTask(Type type) {
