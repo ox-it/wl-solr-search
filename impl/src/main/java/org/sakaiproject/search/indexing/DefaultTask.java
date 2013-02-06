@@ -93,11 +93,11 @@ public class DefaultTask implements Task {
 
     @Override
     public String toString() {
-        return "DefaultTask{" +
-                "type='" + type + '\'' +
-                ", creationDate=" + creationDate +
-                ", properties=" + properties +
-                '}';
+        return "DefaultTask{"
+                + "type='" + type + '\''
+                + ", creationDate=" + creationDate
+                + ", properties=" + properties
+                + '}';
     }
 
     /**

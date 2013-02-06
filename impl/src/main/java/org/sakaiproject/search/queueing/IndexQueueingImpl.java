@@ -55,7 +55,8 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
 
     @Override
     public void addTaskToQueue(Task task) {
-        if (INDEX_DOCUMENT.getTypeName().equals(task.getType()) || REMOVE_DOCUMENT.getTypeName().equals(task.getType())) {
+        if (INDEX_DOCUMENT.getTypeName().equals(task.getType())
+                || REMOVE_DOCUMENT.getTypeName().equals(task.getType())) {
             if (logger.isDebugEnabled())
                 logger.debug("Add task '" + task + "' to the indexing executor");
             indexingExecutor.execute(new RunnableTask(task));

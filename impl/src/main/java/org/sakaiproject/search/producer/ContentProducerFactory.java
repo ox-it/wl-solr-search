@@ -25,7 +25,8 @@ public class ContentProducerFactory {
      * @param contentProducer entityContentProducer to register
      */
     public void addContentProducer(EntityContentProducer contentProducer) {
-        logger.info(contentProducer.getClass() + " registered to provide content to the search index from " + contentProducer.getTool());
+        logger.info(contentProducer.getClass() + " registered to provide content to the search index from "
+                + contentProducer.getTool());
         contentProducers.add(contentProducer);
     }
 
@@ -42,7 +43,8 @@ public class ContentProducerFactory {
             try {
                 if (contentProducer.matches(reference)) {
                     if (logger.isDebugEnabled())
-                        logger.debug("The content producer '" + contentProducer + "' matches the reference '" + reference + "'");
+                        logger.debug("The content producer '" + contentProducer + "'"
+                                + "matches the reference '" + reference + "'");
                     return contentProducer;
                 }
             } catch (Exception e) {
@@ -64,7 +66,8 @@ public class ContentProducerFactory {
             try {
                 if (contentProducer.matches(event)) {
                     if (logger.isDebugEnabled())
-                        logger.debug("The content producer '" + contentProducer + "' matches the event '" + event + "'");
+                        logger.debug("The content producer '" + contentProducer + "'"
+                                + "matches the event '" + event + "'");
                     return contentProducer;
                 }
             } catch (Exception e) {

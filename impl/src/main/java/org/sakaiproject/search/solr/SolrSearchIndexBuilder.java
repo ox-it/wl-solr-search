@@ -76,7 +76,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             try {
                 if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null) {
                     if (logger.isDebugEnabled())
-                        logger.debug("Impossible to index the content of the site '" + siteId + "' because the search tool hasn't been added");
+                        logger.debug("Impossible to index the content of the site '" + siteId + "'"
+                                + "because the search tool hasn't been added");
                     return;
                 }
             } catch (IdUnusedException e) {
@@ -97,7 +98,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                         .setProperty(DefaultTask.REFERENCE, resourceName);
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event) + " is not yet supported");
+                throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event)
+                        + " is not yet supported");
         }
         if (logger.isDebugEnabled())
             logger.debug("Add the task '" + task + "' to the queuing system");

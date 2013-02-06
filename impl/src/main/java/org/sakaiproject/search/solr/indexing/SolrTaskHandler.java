@@ -110,8 +110,8 @@ public class SolrTaskHandler implements TaskHandler {
             logger.debug("Remove '" + reference + "' from the index");
         try {
             solrServer.deleteByQuery(
-                    SearchService.DATE_STAMP + ":{* TO " + solrTools.format(actionDate) + "} AND " +
-                            SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference));
+                    SearchService.DATE_STAMP + ":{* TO " + solrTools.format(actionDate) + "} AND "
+                            + SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference));
         } catch (Exception e) {
             Task task = new DefaultTask(REMOVE_DOCUMENT, actionDate).setProperty(DefaultTask.REFERENCE, reference);
             throw wrapException(e, "An exception occurred while removing the document '" + reference + "'", task);
@@ -269,8 +269,8 @@ public class SolrTaskHandler implements TaskHandler {
         logger.info("Remove old documents from '" + siteId + "'");
         try {
             solrServer.deleteByQuery(
-                    SearchService.DATE_STAMP + ":{* TO " + solrTools.format(creationDate) + "} AND " +
-                            SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
+                    SearchService.DATE_STAMP + ":{* TO " + solrTools.format(creationDate) + "} AND "
+                            + SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId));
         } catch (Exception e) {
             Task task = new SolrTask(REMOVE_SITE_DOCUMENTS, creationDate).setProperty(DefaultTask.SITE_ID, siteId);
             throw wrapException(e, "Couldn't remove old documents the site '" + siteId + "'", task);
@@ -320,7 +320,8 @@ public class SolrTaskHandler implements TaskHandler {
     private TaskHandlingException wrapException(Exception e, String message, Task potentialNewTask) {
         if (e instanceof SolrServerException && ((SolrServerException) e).getRootCause() instanceof IOException) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
-        } else if (e instanceof SolrException && ((SolrException) e).code() == SolrException.ErrorCode.SERVICE_UNAVAILABLE.code) {
+        } else if (e instanceof SolrException
+                && ((SolrException) e).code() == SolrException.ErrorCode.SERVICE_UNAVAILABLE.code) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
         } else if (e instanceof IOException) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);

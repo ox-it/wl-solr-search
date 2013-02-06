@@ -121,7 +121,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
      * @throws InterruptedException
      */
     private void initiateLockdown() throws InterruptedException {
-        logger.warn("A temporary exception has been caught, put the indexation system on lockdown for " + waitingTime + "ms.");
+        logger.warn("A temporary exception has been caught, "
+                + "put the indexation system on lockdown for " + waitingTime + "ms.");
         Thread.sleep(waitingTime);
         // Multiply the waiting time by two
         if (waitingTime <= maximumWaitingTime)
@@ -167,7 +168,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         // A TemporaryTaskHandlingException means that the locking system must be initialised
         // If it's already initialised, carry on
         taskRunnerLock.tryLock();
-        logger.info("A task failed because of a temporary exception. '" + tthe.getNewTask() + "' will be executed later", tthe);
+        logger.info("A task failed because of a temporary exception. "
+                + "'" + tthe.getNewTask() + "' will be executed later", tthe);
         indexQueueing.addTaskToQueue(tthe.getNewTask());
     }
 

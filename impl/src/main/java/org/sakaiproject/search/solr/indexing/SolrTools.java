@@ -238,7 +238,8 @@ public class SolrTools {
             // If this property was already present there
             // This shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
-                logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
+                logger.warn("Two properties had a really similar name '" + propertyName + "' and were merged. "
+                        + "This shouldn't happen!");
                 if (logger.isDebugEnabled())
                     logger.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
                 values = new ArrayList<String>(values);
@@ -364,8 +365,8 @@ public class SolrTools {
         if (logger.isDebugEnabled())
             logger.debug("Obtaining creation date for document '" + reference + "'");
         SolrQuery query = new SolrQuery()
-                .setQuery(SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference) + " AND " +
-                        SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
+                .setQuery(SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference) + " AND "
+                        + SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
                 .setRows(0);
         return solrServer.query(query).getResults().getNumFound() == 0;
     }
@@ -377,9 +378,10 @@ public class SolrTools {
      * @return true if the site is indexable, false otherwise.
      */
     private boolean isSiteIndexable(Site site) {
-        return !(siteService.isSpecialSite(site.getId()) ||
-                (searchIndexBuilder.isOnlyIndexSearchToolSites() && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null) ||
-                (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
+        return !(siteService.isSpecialSite(site.getId())
+                || (searchIndexBuilder.isOnlyIndexSearchToolSites()
+                && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null)
+                || (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
     }
 
     /**
