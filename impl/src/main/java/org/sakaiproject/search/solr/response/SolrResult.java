@@ -173,7 +173,8 @@ public class SolrResult implements SearchResult {
     }
 
     /**
-     * Extracts a {@link TermFrequency} from the result of a {@link org.apache.solr.handler.component.TermVectorComponent}.
+     * Extracts a {@link TermFrequency} from the result of a
+     * {@link org.apache.solr.handler.component.TermVectorComponent}.
      *
      * @param termsByField A map of field/terms.
      * @return a term frequency.

@@ -12,10 +12,12 @@ import java.io.Reader;
 import java.util.List;
 
 /**
- * Produces indexable documents from binary files provided by the {@link org.sakaiproject.content.api.ContentHostingService}.
+ * Produces indexable documents from binary files provided by the
+ * {@link org.sakaiproject.content.api.ContentHostingService}.
  * <p>
  * The content is provided as a binary stream (if the index supports binary streams).
- * For backward compatibility reasons, the content can also be provided as a string once it has been parsed with Tika.<br />
+ * For backward compatibility reasons, the content can also be provided as a string,
+ * once it has been parsed with Tika.<br />
  * The binary stream allows to offload the process of parsing the document.
  * </p>
  *
@@ -41,7 +43,8 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
     /**
      * {@inheritDoc}
      * <p>
-     * This method is deprecated because BinaryContentHostingContentProducer is supposed to only provide binary streams.<br />
+     * This method is deprecated because BinaryContentHostingContentProducer is supposed to provide
+     * binary streams only.<br />
      * For compatibility reasons, it's possible to obtain the content of the file through this method thanks to Tika.
      * </p>
      *

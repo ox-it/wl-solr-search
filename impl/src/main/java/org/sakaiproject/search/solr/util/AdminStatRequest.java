@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 /**
- * SolrRequest used to get results from {@link org.apache.solr.handler.admin.SolrInfoMBeanHandler}
+ * SolrRequest used to get results from {@link org.apache.solr.handler.admin.SolrInfoMBeanHandler}.
  * <p>
  * By default, {@link AdminStatRequest} considers that {@link org.apache.solr.handler.admin.SolrInfoMBeanHandler} is
  * mapped on "/admin/stats"
@@ -24,15 +24,29 @@ import java.util.Collection;
 public class AdminStatRequest extends SolrRequest {
     private final ModifiableSolrParams params = new ModifiableSolrParams();
 
+    /**
+     * Creates an AdminStatRequest on the default path "/admin/stats".
+     */
     public AdminStatRequest() {
         this("/admin/stats");
     }
 
+    /**
+     * Creates an AdminStatRequest on a custom path.
+     *
+     * @param path path on which the request is sent
+     */
     public AdminStatRequest(String path) {
         super(METHOD.GET, path);
         params.add("stats", "true");
     }
 
+    /**
+     * Set a request parameter.
+     *
+     * @param param parameter name
+     * @param value parameter value
+     */
     public void setParam(String param, String value) {
         params.set(param, value);
     }

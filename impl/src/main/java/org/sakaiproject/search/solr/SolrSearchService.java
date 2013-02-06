@@ -57,7 +57,7 @@ public class SolrSearchService implements SearchService {
 
     /**
      * Initialises the search service (as long is {@link #isEnabled()} is true) to capture and process event affecting
-     * the search index
+     * the search index.
      */
     public void init() {
         if (!isEnabled()) {
@@ -120,7 +120,7 @@ public class SolrSearchService implements SearchService {
     }
 
     /**
-     * Creates a solr filter query based on a list of site ids
+     * Creates a solr filter query based on a list of site ids.
      *
      * @param siteIds sites ID to add to the filter
      * @return a filter query allowing to search only in the given sites

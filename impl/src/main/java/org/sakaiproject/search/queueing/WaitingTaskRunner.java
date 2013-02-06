@@ -17,12 +17,15 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * TaskRunner putting itself on lockdown if a TemporaryTaskHandlingException has been caught.
  * <p>
- * Assuming that every {@link Task} should either be successfully executed or completely fail, a {@link TemporaryTaskHandlingException}
- * means that the {@link TaskHandler} shouldn't process new tasks for a short period of time.
+ * Assuming that every {@link Task} should either be successfully executed or completely fail,
+ * a {@link TemporaryTaskHandlingException} means that the {@link TaskHandler} shouldn't process new tasks
+ * for a short period of time.
  * </p>
  * <p>
- * This TaskRunner will put every thread in charge of running tasks on hold each time a TemporaryTaskHandlingException is caught.<br />
- * The waiting time is doubled each time a Task fails with a TemporaryTaskHandlingException until it reaches the {@link #maximumWaitingTime}.<br />
+ * This TaskRunner will put every thread in charge of running tasks on hold each time a
+ * {@code TemporaryTaskHandlingException} is caught.<br />
+ * The waiting time is doubled each time a Task fails with a {@code TemporaryTaskHandlingException}
+ * until it reaches the {@link #maximumWaitingTime}.<br />
  * The waiting time is reset once a task has been successfully executed.
  * </p>
  *
@@ -39,8 +42,12 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     };
     private final ReentrantLock taskRunnerLock = new ReentrantLock();
     /**
-     * Maximum wait
-     * Set to 5 minutes by default
+     * Maximum period of lockdown.
+     * <p>
+     * To avoid an over reaction of the lockdown (which doubles in time for every
+     * {@code TemporaryTaskHandlingException}), a maximum can be reached.<br />
+     * The maximum period defaults to 5 minutes.
+     * </p>
      */
     private int maximumWaitingTime = 5 * 60 * BASE_WAITING_TIME;
     private int waitingTime = BASE_WAITING_TIME;

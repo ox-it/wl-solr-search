@@ -28,9 +28,19 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     protected ServerConfigurationService serverConfigurationService;
     protected SearchService searchService;
     protected SearchIndexBuilder searchIndexBuilder;
+    /**
+     * Content hosting service providing details on the potentially indexed documents.
+     */
     protected ContentHostingService contentHostingService;
+    /**
+     * Entity manager giving details on any entity given its reference.
+     */
     protected EntityManager entityManager;
 
+    /**
+     * Initialisation method in charge of registering events related to ContentHosting
+     * that should trigger an indexation.
+     */
     public void init() {
         if (serverConfigurationService.getBoolean("search.enable", false)) {
             searchService.registerFunction(EVENT_RESOURCE_ADD);
@@ -61,7 +71,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
         String resourceType = getResourceType(event.getResource());
         //If the resource type isn't provided, assume that it's a document we want to delete, try to proceed.
-        //The resource type should always be provided, if it isn't, it's safe to assume that the document doesn't exist anymore
+        //The resource type should always be provided, if it isn't assume that the document doesn't exist anymore.
         if (resourceType == null && EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
             return SearchBuilderItem.ACTION_DELETE;
         } else if (isResourceTypeSupported(resourceType) &&
@@ -93,7 +103,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     }
 
     /**
-     * Provides the list of resource type supported by the implementation of ContentHostingContentProducer
+     * Provides the list of resource type supported by the implementation of ContentHostingContentProducer.
      *
      * @param contentType tested content type.
      * @return true if the content type is handled, false otherwise.
@@ -128,7 +138,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     }
 
     /**
-     * nasty hack to not index dropbox without loading an entity from the DB
+     * Nasty hack to not index dropbox without loading an entity from the DB.
      */
     private boolean isInDropbox(String reference) {
         return reference.length() > "/content".length() && contentHostingService.isInDropbox(reference.substring("/content".length()));

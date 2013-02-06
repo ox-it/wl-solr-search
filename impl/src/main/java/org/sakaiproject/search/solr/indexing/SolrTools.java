@@ -52,13 +52,16 @@ public class SolrTools {
     private boolean tikaEnabled;
     private Tika tika;
 
+    /**
+     * Initialise tika if needed.
+     */
     public void init() {
         if (tikaEnabled)
             tika = new Tika();
     }
 
     /**
-     * Generates a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
+     * Generates a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}.
      *
      * @param reference  resource to index
      * @param actionDate date of creation of the indexation task
@@ -132,7 +135,7 @@ public class SolrTools {
     }
 
     /**
-     * Create a solrDocument for a specific resource
+     * Create a solrDocument for a specific resource.
      *
      * @param reference       resource used to generate the document
      * @param contentProducer contentProducer in charge of extracting the data
@@ -197,8 +200,8 @@ public class SolrTools {
      * Extract properties from the {@link EntityContentProducer}
      * <p>
      * The {@link EntityContentProducer#getCustomProperties(String)} method returns a map of different kind of elements.
-     * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work and returns a formatted
-     * map containing only {@link Collection<String>}.
+     * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work
+     * and returns a formatted map containing only {@link Collection<String>}.
      * </p>
      *
      * @param reference       affected resource
@@ -217,9 +220,9 @@ public class SolrTools {
             Object propertyValue = propertyEntry.getValue();
             Collection<String> values;
 
-            //Check for basic data type that could be provided by the EntityContentProducer
-            //If the data type can't be defined, nothing is stored. The toString method could be called, but some values
-            //could be not meant to be indexed.
+            // Check for basic data type that could be provided by the EntityContentProducer
+            // If the data type can't be defined, nothing is stored. The toString method could be called,
+            // but some values could be not meant to be indexed.
             if (propertyValue instanceof String)
                 values = Collections.singleton((String) propertyValue);
             else if (propertyValue instanceof String[])
@@ -232,7 +235,8 @@ public class SolrTools {
                 values = Collections.emptyList();
             }
 
-            //If this property was already present there (this shouldn't happen, but if it does everything must be stored
+            // If this property was already present there
+            // This shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
                 logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
                 if (logger.isDebugEnabled())
@@ -304,7 +308,7 @@ public class SolrTools {
      *
      * @param siteId site in which the documents are.
      * @return a queue of every reference related to a site.
-     * @throws SolrServerException
+     * @throws SolrServerException thrown if the query to get references failed.
      */
     public Queue<String> getReferences(String siteId) throws SolrServerException {
         if (logger.isDebugEnabled())
@@ -354,7 +358,7 @@ public class SolrTools {
      * @param reference   reference of the document.
      * @param currentDate creation date of the currently executed task.
      * @return true if the document is outdated (and should be updated), false otherwise.
-     * @throws SolrServerException
+     * @throws SolrServerException thrown if the query to get the referenced document from the index failed.
      */
     public boolean isDocumentOutdated(String reference, Date currentDate) throws SolrServerException {
         if (logger.isDebugEnabled())

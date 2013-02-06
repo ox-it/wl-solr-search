@@ -26,6 +26,9 @@ import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
  * @author Colin Hebert
  */
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
+    /**
+     * Unique identifier of the search tool across sakai.
+     */
     public static final String SEARCH_TOOL_ID = "sakai.search";
     private static final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private SiteService siteService;

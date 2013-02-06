@@ -26,7 +26,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * SolrServerAdapter allows to generate a SolrServer object on the fly depending on the configuration in sakai.properties
+ * SolrServerAdapter allows to generate a SolrServer object on the fly depending on the configuration in
+ * sakai.properties.
  * <p>
  * By default an embedded server will be spawned, otherwise, if search.solr.server is set in sakai.properties,
  * a client for that server will be created.

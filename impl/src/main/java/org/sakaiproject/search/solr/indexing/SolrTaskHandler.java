@@ -154,8 +154,8 @@ public class SolrTaskHandler implements TaskHandler {
      * Only the documents already indexed will be updated or removed if necessary.
      * </p>
      *
-     * @param siteId
-     * @param actionDate
+     * @param siteId     Id of the site to update
+     * @param actionDate creation date of the task to execute
      */
     public void refreshSite(String siteId, Date actionDate) {
         logger.info("Refreshing the index for '" + siteId + "'");
@@ -313,7 +313,8 @@ public class SolrTaskHandler implements TaskHandler {
      *
      * @param e                caught Exception
      * @param message          message to associate with the wrapper
-     * @param potentialNewTask new task that could be executed if the caught throwable is considered as a temporary failure
+     * @param potentialNewTask new task that could be executed if the caught throwable is considered
+     *                         as a temporary failure
      * @return the wrapped exception or the original one if it was already wrapped
      */
     private TaskHandlingException wrapException(Exception e, String message, Task potentialNewTask) {

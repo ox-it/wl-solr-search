@@ -30,6 +30,11 @@ public class NestedTaskHandlingException extends TaskHandlingException {
         super(cause);
     }
 
+    /**
+     * Adds an exception to the group of nested exceptions.
+     *
+     * @param t new exception to add to the nested exceptions
+     */
     public void addTaskHandlingException(TaskHandlingException t) {
         if (t instanceof NestedTaskHandlingException)
             taskHandlingExceptions.addAll(((NestedTaskHandlingException) t).getTaskHandlingExceptions());
