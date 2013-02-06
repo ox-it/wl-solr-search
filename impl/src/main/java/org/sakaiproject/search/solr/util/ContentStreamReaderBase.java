@@ -15,6 +15,7 @@ import java.io.Reader;
  * @author Colin Hebert
  */
 public abstract class ContentStreamReaderBase extends ContentStreamBase {
+    @Override
     public abstract Reader getReader() throws IOException;
 
     @Override

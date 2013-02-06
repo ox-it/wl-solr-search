@@ -13,5 +13,5 @@ public interface IndexQueueing {
      *
      * @param task task to queue
      */
-    public void addTaskToQueue(Task task);
+    void addTaskToQueue(Task task);
 }

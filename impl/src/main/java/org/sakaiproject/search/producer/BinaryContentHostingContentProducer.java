@@ -63,6 +63,7 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
         }
     }
 
+    @Override
     protected boolean isResourceTypeSupported(String resourceType) {
         return supportedResourceTypes.contains(resourceType);
     }

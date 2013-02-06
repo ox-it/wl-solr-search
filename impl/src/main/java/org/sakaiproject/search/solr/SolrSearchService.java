@@ -94,13 +94,14 @@ public class SolrSearchService implements SearchService {
                              String filterName, String sorterName)
             throws InvalidSearchQueryException {
         try {
+            final int highlightSnippets = 5;
             SolrQuery query = new SolrQuery();
 
             query.setStart(start);
             query.setRows(end - start);
             query.setFields("*", "score");
 
-            query.setHighlight(true).setHighlightSnippets(5);
+            query.setHighlight(true).setHighlightSnippets(highlightSnippets);
             query.setParam("hl.useFastVectorHighlighter", true);
             query.setParam("hl.mergeContiguous", true);
             query.setParam("hl.fl", SearchService.FIELD_CONTENTS);

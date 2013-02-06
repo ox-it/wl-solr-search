@@ -78,7 +78,7 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
     /**
      * Wrapper allowing Tasks to be run by an executor.
      */
-    private class RunnableTask implements Runnable {
+    private final class RunnableTask implements Runnable {
         private final Task task;
 
         private RunnableTask(Task task) {

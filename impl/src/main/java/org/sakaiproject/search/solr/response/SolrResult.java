@@ -17,12 +17,12 @@ import static org.sakaiproject.search.solr.response.TermVectorExtractor.TermInfo
  * @author Colin Hebert
  */
 public class SolrResult implements SearchResult {
-    public static final String SCORE_FIELD = "score";
+    private static final String SCORE_FIELD = "score";
     private int index;
     private SolrDocument document;
     private Map<String, List<String>> highlights;
     private TermFrequency terms;
-    private String newUrl;
+    private String url;
     private EntityContentProducer contentProducer;
 
     public void setDocument(SolrDocument document) {
@@ -70,12 +70,12 @@ public class SolrResult implements SearchResult {
 
     @Override
     public String getUrl() {
-        return (newUrl == null) ? (String) document.getFieldValue(SearchService.FIELD_URL) : newUrl;
+        return (url == null) ? (String) document.getFieldValue(SearchService.FIELD_URL) : url;
     }
 
     @Override
-    public void setUrl(String newUrl) {
-        this.newUrl = newUrl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override

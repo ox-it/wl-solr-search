@@ -36,10 +36,10 @@ import java.util.List;
  * @author Colin Hebert
  */
 public class SolrServerAdapter extends SolrServer {
-    public static final String CORE_NAME = "search";
-    public static final String SOLR_HOME_PROPERTY = "solr.solr.home";
-    public static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
-    public static final String SOLR_NODE_PATH = SOLR_CONFIGURATION_PATH + "search/conf/";
+    private static final String CORE_NAME = "search";
+    private static final String SOLR_HOME_PROPERTY = "solr.solr.home";
+    private static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
+    private static final String SOLR_NODE_PATH = SOLR_CONFIGURATION_PATH + "search/conf/";
     private static final Logger logger = LoggerFactory.getLogger(SolrServerAdapter.class);
     private SolrServer instance;
 
@@ -115,11 +115,11 @@ public class SolrServerAdapter extends SolrServer {
                     + "couldn't be created");
         }
 
-        String solrXmlPath = SOLR_CONFIGURATION_PATH + "solr.xml";
-        String solrConfigPath = SOLR_NODE_PATH + "solrconfig.xml";
-        String solrSchemaPath = SOLR_NODE_PATH + "schema.xml";
+        File solrXmlFile = new File(SOLR_CONFIGURATION_PATH + "solr.xml");
+        File solrConfigFile = new File(SOLR_NODE_PATH + "solrconfig.xml");
+        File solrSchemaFile = new File(SOLR_NODE_PATH + "schema.xml");
 
-        return (new File(solrXmlPath).exists() && new File(solrConfigPath).exists() && new File(solrSchemaPath).exists());
+        return solrXmlFile.exists() && solrConfigFile.exists() && solrSchemaFile.exists();
     }
 
     @Override

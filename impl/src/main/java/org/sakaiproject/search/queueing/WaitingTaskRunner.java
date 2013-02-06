@@ -33,6 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public abstract class WaitingTaskRunner implements TaskRunner {
     private static final int BASE_WAITING_TIME = 1000;
+    private static final int DEFAULT_MAXIMUM_WAITING_TIME = 5 * 60 * BASE_WAITING_TIME;
     private static final Logger logger = LoggerFactory.getLogger(WaitingTaskRunner.class);
     private static final SecurityAdvisor OPEN_SECURITY_ADVISOR = new SecurityAdvisor() {
         @Override
@@ -49,7 +50,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
      * The maximum period defaults to 5 minutes.
      * </p>
      */
-    private int maximumWaitingTime = 5 * 60 * BASE_WAITING_TIME;
+    private int maximumWaitingTime = DEFAULT_MAXIMUM_WAITING_TIME;
     private int waitingTime = BASE_WAITING_TIME;
     private TaskHandler taskHandler;
     private SecurityService securityService;

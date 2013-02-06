@@ -40,10 +40,10 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class SolrTools {
-    public static final String LITERAL = "literal.";
-    public static final String PROPERTY_PREFIX = "property_";
-    public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
-    public static final String SOLRCELL_PATH = "/update/extract";
+    private static final String LITERAL = "literal.";
+    private static final String PROPERTY_PREFIX = "property_";
+    private static final String UPREFIX = PROPERTY_PREFIX + "tika_";
+    private static final String SOLRCELL_PATH = "/update/extract";
     private static final Logger logger = LoggerFactory.getLogger(SolrTools.class);
     private SiteService siteService;
     private SearchIndexBuilder searchIndexBuilder;
@@ -235,7 +235,7 @@ public class SolrTools {
                 values = (Collection<String>) propertyValue;
             else {
                 if (propertyValue != null)
-                    logger.warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored. " + propertyName.getClass());
+                    logger.warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored.");
                 values = Collections.emptyList();
             }
 

@@ -137,8 +137,7 @@ public class TermVectorExtractor {
 
     private List<TermInfo.Offset> extractTermOffsets(NamedList<Number> termOffsetsRaw) {
         List<TermInfo.Offset> offsets = new ArrayList<TermInfo.Offset>(termOffsetsRaw.size() / 2);
-        for (Iterator<Map.Entry<String, Number>> iterator = termOffsetsRaw.iterator(); iterator
-                .hasNext(); ) {
+        for (Iterator<Map.Entry<String, Number>> iterator = termOffsetsRaw.iterator(); iterator.hasNext(); ) {
             TermInfo.Offset offset = new TermInfo.Offset();
             offset.setStart(iterator.next().getValue().longValue());
             offset.setEnd(iterator.next().getValue().longValue());

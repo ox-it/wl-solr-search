@@ -25,9 +25,6 @@ import static org.sakaiproject.content.api.ContentHostingService.*;
  * @author Colin Hebert
  */
 public abstract class ContentHostingContentProducer implements EntityContentProducer {
-    protected ServerConfigurationService serverConfigurationService;
-    protected SearchService searchService;
-    protected SearchIndexBuilder searchIndexBuilder;
     /**
      * Content hosting service providing details on the potentially indexed documents.
      */
@@ -36,6 +33,9 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
      * Entity manager giving details on any entity given its reference.
      */
     protected EntityManager entityManager;
+    private ServerConfigurationService serverConfigurationService;
+    private SearchService searchService;
+    private SearchIndexBuilder searchIndexBuilder;
 
     /**
      * Initialisation method in charge of registering events related to ContentHosting
