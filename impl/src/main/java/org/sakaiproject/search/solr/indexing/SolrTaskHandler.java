@@ -129,7 +129,8 @@ public class SolrTaskHandler implements TaskHandler {
      */
     public void indexSite(final String siteId, Date actionDate) {
         logger.info("Rebuilding the index for '" + siteId + "'");
-        NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while indexing the site '" + siteId + "'");
+        NestedTaskHandlingException nthe = new NestedTaskHandlingException(
+                "An exception occurred while indexing the site '" + siteId + "'");
         Queue<String> siteReferences = solrTools.getSiteDocumentsReferences(siteId);
         while (siteReferences.peek() != null) {
             try {
@@ -160,7 +161,8 @@ public class SolrTaskHandler implements TaskHandler {
     public void refreshSite(String siteId, Date actionDate) {
         logger.info("Refreshing the index for '" + siteId + "'");
         try {
-            NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while indexing the site '" + siteId + "'");
+            NestedTaskHandlingException nthe = new NestedTaskHandlingException(
+                    "An exception occurred while indexing the site '" + siteId + "'");
             //Get the currently indexed resources for this site
             Queue<String> references;
             try {
@@ -203,7 +205,8 @@ public class SolrTaskHandler implements TaskHandler {
      */
     public void indexAll(Date actionDate) {
         logger.info("Rebuilding the index for every indexable site");
-        NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while reindexing everything");
+        NestedTaskHandlingException nthe = new NestedTaskHandlingException(
+                "An exception occurred while reindexing everything");
         Queue<String> reindexedSites = solrTools.getIndexableSites();
         while (!reindexedSites.isEmpty()) {
             try {
@@ -233,7 +236,8 @@ public class SolrTaskHandler implements TaskHandler {
      */
     public void refreshAll(Date actionDate) {
         logger.info("Refreshing the index for every indexable site");
-        NestedTaskHandlingException nthe = new NestedTaskHandlingException("An exception occurred while refreshing everything");
+        NestedTaskHandlingException nthe = new NestedTaskHandlingException(
+                "An exception occurred while refreshing everything");
         Queue<String> refreshedSites = solrTools.getIndexableSites();
         while (!refreshedSites.isEmpty()) {
             try {

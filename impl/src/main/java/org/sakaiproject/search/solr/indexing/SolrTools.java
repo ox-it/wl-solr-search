@@ -112,7 +112,8 @@ public class SolrTools {
      * @param document              solr document about to be index.
      * @param binaryContentProducer contentProducer for the document.
      */
-    private void setDocumentTikaProperties(String reference, SolrInputDocument document, BinaryEntityContentProducer binaryContentProducer) {
+    private void setDocumentTikaProperties(String reference, SolrInputDocument document,
+                                           BinaryEntityContentProducer binaryContentProducer) {
         try {
             Metadata metadata = new Metadata();
             String resourceName = binaryContentProducer.getResourceName(reference);
@@ -141,7 +142,8 @@ public class SolrTools {
      * @param contentProducer contentProducer in charge of extracting the data
      * @return a SolrDocument
      */
-    private SolrInputDocument generateBaseSolrDocument(String reference, Date actionDate, EntityContentProducer contentProducer) {
+    private SolrInputDocument generateBaseSolrDocument(String reference, Date actionDate,
+                                                       EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
         //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
@@ -173,7 +175,8 @@ public class SolrTools {
      * @param document        {@link SolrInputDocument} used to prepare index fields
      * @return a solrCell request
      */
-    private SolrRequest prepareSolrCellRequest(final String reference, final BinaryEntityContentProducer contentProducer,
+    private SolrRequest prepareSolrCellRequest(final String reference,
+                                               final BinaryEntityContentProducer contentProducer,
                                                SolrInputDocument document) {
         //Send to tika
         ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
@@ -208,7 +211,8 @@ public class SolrTools {
      * @param contentProducer producer providing properties for the given resource
      * @return a formated map of {@link Collection<String>}
      */
-    private Map<String, Collection<String>> extractCustomProperties(String reference, EntityContentProducer contentProducer) {
+    private Map<String, Collection<String>> extractCustomProperties(String reference,
+                                                                    EntityContentProducer contentProducer) {
         Map<String, ?> m = contentProducer.getCustomProperties(reference);
 
         if (m == null)
@@ -293,7 +297,9 @@ public class SolrTools {
      */
     public Queue<String> getIndexableSites() {
         Queue<String> refreshedSites = new LinkedList<String>();
-        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
+        List<Site> sites = siteService.getSites(SiteService.SelectionType.ANY, null, null, null,
+                SiteService.SortType.NONE, null);
+        for (Site s : sites) {
             if (isSiteIndexable(s)) {
                 refreshedSites.offer(s.getId());
             }

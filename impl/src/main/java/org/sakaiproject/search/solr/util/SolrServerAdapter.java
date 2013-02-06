@@ -128,7 +128,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public UpdateResponse add(Collection<SolrInputDocument> docs, int commitWithinMs) throws SolrServerException, IOException {
+    public UpdateResponse add(Collection<SolrInputDocument> docs, int commitWithinMs)
+            throws SolrServerException, IOException {
         return instance.add(docs, commitWithinMs);
     }
 
@@ -178,7 +179,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public UpdateResponse commit(boolean waitFlush, boolean waitSearcher, boolean softCommit) throws SolrServerException, IOException {
+    public UpdateResponse commit(boolean waitFlush, boolean waitSearcher, boolean softCommit)
+            throws SolrServerException, IOException {
         return instance.commit(waitFlush, waitSearcher, softCommit);
     }
 
@@ -188,7 +190,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public UpdateResponse optimize(boolean waitFlush, boolean waitSearcher, int maxSegments) throws SolrServerException, IOException {
+    public UpdateResponse optimize(boolean waitFlush, boolean waitSearcher, int maxSegments)
+            throws SolrServerException, IOException {
         return instance.optimize(waitFlush, waitSearcher, maxSegments);
     }
 
@@ -243,7 +246,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public QueryResponse queryAndStreamResponse(SolrParams params, StreamingResponseCallback callback) throws SolrServerException, IOException {
+    public QueryResponse queryAndStreamResponse(SolrParams params, StreamingResponseCallback callback)
+            throws SolrServerException, IOException {
         return instance.queryAndStreamResponse(params, callback);
     }
 

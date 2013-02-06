@@ -84,12 +84,15 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd)
+            throws InvalidSearchQueryException {
         return search(searchTerms, siteIds, searchStart, searchEnd, null, null);
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, int start, int end,
+                             String filterName, String sorterName)
+            throws InvalidSearchQueryException {
         try {
             SolrQuery query = new SolrQuery();
 

@@ -141,7 +141,8 @@ public class SolrResult implements SearchResult {
         sb.append(" site=\"").append(StringEscapeUtils.escapeXml(getSiteId())).append("\" ");
         sb.append(" reference=\"").append(StringEscapeUtils.escapeXml(getReference())).append("\" ");
         try {
-            sb.append(" title=\"").append(new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")), "UTF-8")).append("\" ");
+            String title = new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")), "UTF-8");
+            sb.append(" title=\"").append(title).append("\" ");
         } catch (UnsupportedEncodingException e) {
             sb.append(" title=\"").append(StringEscapeUtils.escapeXml(getTitle())).append("\" ");
         }
@@ -196,13 +197,14 @@ public class SolrResult implements SearchResult {
         //Sort tuples (Term/Frequency)
         //A SortedSet consider that two elements that are equals based on compare are the same
         //This is why, if the frequency is the same, then the term is used to do the comparison
-        SortedSet<Map.Entry<String, Long>> sortedFrequencies = new TreeSet<Map.Entry<String, Long>>(new Comparator<Map.Entry<String, Long>>() {
-            @Override
-            public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
-                int longComparison = -o1.getValue().compareTo(o2.getValue());
-                return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
-            }
-        });
+        SortedSet<Map.Entry<String, Long>> sortedFrequencies = new TreeSet<Map.Entry<String, Long>>(
+                new Comparator<Map.Entry<String, Long>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
+                        int longComparison = -o1.getValue().compareTo(o2.getValue());
+                        return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
+                    }
+                });
         sortedFrequencies.addAll(termFrequencies.entrySet());
 
         //Extract data from each Entry into two arrays

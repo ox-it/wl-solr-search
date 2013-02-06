@@ -23,7 +23,8 @@ import java.util.List;
  *
  * @author Colin Hebert
  */
-public class BinaryContentHostingContentProducer extends ContentHostingContentProducer implements BinaryEntityContentProducer, StoredDigestContentProducer {
+public class BinaryContentHostingContentProducer extends ContentHostingContentProducer
+        implements BinaryEntityContentProducer, StoredDigestContentProducer {
     private static final Logger logger = LoggerFactory.getLogger(BinaryContentHostingContentProducer.class);
     private static final byte[] EMPTY_DOCUMENT = new byte[0];
     private List<String> supportedResourceTypes;
