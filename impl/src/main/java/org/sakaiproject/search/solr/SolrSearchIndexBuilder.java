@@ -106,38 +106,46 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
         indexQueueing.addTaskToQueue(task);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Use {@link ContentProducerFactory#addContentProducer(EntityContentProducer)} instead
+     */
     @Override
     @Deprecated
-    /**
-     * @deprecated Use {@link ContentProducerFactory#addContentProducer(org.sakaiproject.search.api.EntityContentProducer)} instead
-     */
     public void registerEntityContentProducer(EntityContentProducer ecp) {
         contentProducerFactory.addContentProducer(ecp);
     }
 
-    @Override
-    @Deprecated
     /**
+     * {@inheritDoc}
+     *
      * @deprecated Use {@link ContentProducerFactory#getContentProducerForElement(String)} instead
      */
+    @Override
+    @Deprecated
     public EntityContentProducer newEntityContentProducer(String ref) {
         return contentProducerFactory.getContentProducerForElement(ref);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Use {@link ContentProducerFactory#getContentProducerForEvent(Event)} instead
+     */
     @Override
     @Deprecated
-    /**
-     * @deprecated Use {@link ContentProducerFactory#getContentProducerForEvent(org.sakaiproject.event.api.Event)} instead
-     */
     public EntityContentProducer newEntityContentProducer(Event event) {
         return contentProducerFactory.getContentProducerForEvent(event);
     }
 
-    @Override
-    @Deprecated
     /**
+     * {@inheritDoc}
+     *
      * @deprecated Use {@link ContentProducerFactory#getContentProducers()} instead
      */
+    @Override
+    @Deprecated
     public List<EntityContentProducer> getContentProducers() {
         return new ArrayList<EntityContentProducer>(contentProducerFactory.getContentProducers());
     }
