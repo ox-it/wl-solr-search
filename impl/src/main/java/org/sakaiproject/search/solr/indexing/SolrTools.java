@@ -384,10 +384,28 @@ public class SolrTools {
      * @return true if the site is indexable, false otherwise.
      */
     private boolean isSiteIndexable(Site site) {
-        return !(siteService.isSpecialSite(site.getId())
-                || (searchIndexBuilder.isOnlyIndexSearchToolSites()
-                && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null)
-                || (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
+        return !siteService.isSpecialSite(site.getId()) && isSiteWithToolIndexable(site) && isSiteTypeIndexable(site);
+    }
+
+    /**
+     * Checks if a site is indexable depending if it's a user site.
+     *
+     * @param site site to check.
+     * @return true if the site is indexable based on the site type.
+     */
+    private boolean isSiteTypeIndexable(Site site) {
+        return !(searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId()));
+    }
+
+    /**
+     * Checks if the site is indexable based on the presence of search tool.
+     *
+     * @param site site to check.
+     * @return true if the site is indexable based on the site type.
+     */
+    private boolean isSiteWithToolIndexable(Site site) {
+        return !searchIndexBuilder.isOnlyIndexSearchToolSites()
+                || site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) != null;
     }
 
     /**
