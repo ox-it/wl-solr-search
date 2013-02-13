@@ -32,6 +32,9 @@ public class SolrTask extends DefaultTask {
         super(type.getTypeName(), creationDate);
     }
 
+    /**
+     * Task types specific to Solr.
+     */
     public static enum Type {
         /**
          * Type of a task in charge of removing every indexed document from a site.
