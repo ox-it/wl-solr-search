@@ -201,7 +201,7 @@ public class SolrResult implements SearchResult {
                 new Comparator<Map.Entry<String, Long>>() {
                     @Override
                     public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
-                        int longComparison = -o1.getValue().compareTo(o2.getValue());
+                        int longComparison = o2.getValue().compareTo(o1.getValue());
                         return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
                     }
                 });
