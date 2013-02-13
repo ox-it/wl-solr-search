@@ -63,7 +63,7 @@ public class DefaultTask implements Task {
 
     @Override
     public Date getCreationDate() {
-        return creationDate;
+        return new Date(creationDate.getTime());
     }
 
     @Override
