@@ -43,7 +43,7 @@ public class SolrServerAdapter extends SolrServer {
     private static final Logger logger = LoggerFactory.getLogger(SolrServerAdapter.class);
     private SolrServer instance;
 
-    private void init() {
+    public void init() {
         String serverUrl = ServerConfigurationService.getString("search.solr.server");
         if (!serverUrl.isEmpty()) {
             logger.info("The Solr server is set up");
