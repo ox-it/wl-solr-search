@@ -49,8 +49,7 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
      * For compatibility reasons, it's possible to obtain the content of the file through this method thanks to Tika.
      * </p>
      *
-     * @param reference
-     * @return
+     * @deprecated Use {@link #getContentStream(String)} as the content is a binary stream.
      */
     @Override
     @Deprecated
