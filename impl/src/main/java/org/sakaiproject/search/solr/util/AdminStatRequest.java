@@ -42,7 +42,7 @@ public class AdminStatRequest extends SolrRequest {
     }
 
     /**
-     * Set a request parameter.
+     * Sets a request parameter.
      *
      * @param param parameter name
      * @param value parameter value

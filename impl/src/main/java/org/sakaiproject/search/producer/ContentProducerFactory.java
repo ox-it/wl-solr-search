@@ -20,7 +20,7 @@ public class ContentProducerFactory {
     private final Collection<EntityContentProducer> contentProducers = new HashSet<EntityContentProducer>();
 
     /**
-     * Register an {@link EntityContentProducer} for a later use.
+     * Registers an {@link EntityContentProducer} for a later use.
      *
      * @param contentProducer entityContentProducer to register
      */
@@ -80,7 +80,7 @@ public class ContentProducerFactory {
     }
 
     /**
-     * Get the list of registered {@link EntityContentProducer}.
+     * Gets the list of registered {@link EntityContentProducer}.
      *
      * @return an unmodifiable collection of {@link EntityContentProducer} automatically registered
      */

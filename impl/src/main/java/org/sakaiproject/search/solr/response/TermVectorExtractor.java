@@ -59,7 +59,7 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Extract documents from the {@link org.apache.solr.handler.component.TermVectorComponent} result.
+     * Extracts documents from the {@link org.apache.solr.handler.component.TermVectorComponent} result.
      *
      * @param termVectorInfosRaw Raw data extracted from the solr query
      * @return A map of document ids associated with a map of fields in these documents
@@ -84,7 +84,7 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Extract fields from a document.
+     * Extracts fields from a document.
      *
      * @param documentContentRaw Raw data extracted from the solr query
      * @return A map of field names associated with a map of terms in these fields
@@ -107,7 +107,7 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Extract terms from a field.
+     * Extracts terms from a field.
      *
      * @param fieldContentRaw Raw data extracted from the solr query
      * @return A map of terms associated with various data on these fields, {@link }

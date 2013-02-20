@@ -53,7 +53,7 @@ public class SolrTools {
     private Tika tika;
 
     /**
-     * Initialise tika if needed.
+     * Initialises tika if needed.
      */
     public void init() {
         if (tikaEnabled)
@@ -106,7 +106,7 @@ public class SolrTools {
     }
 
     /**
-     * Extract additional document properties and content through Tika.
+     * Extracts additional document properties and content through Tika.
      *
      * @param reference             reference of the document to index.
      * @param document              solr document about to be index.
@@ -136,7 +136,7 @@ public class SolrTools {
     }
 
     /**
-     * Create a solrDocument for a specific resource.
+     * Creates a solrDocument for a specific resource.
      *
      * @param reference       resource used to generate the document
      * @param contentProducer contentProducer in charge of extracting the data
@@ -165,7 +165,7 @@ public class SolrTools {
     }
 
     /**
-     * Prepare a request toward SolrCell to parse a binary document.
+     * Prepares a request toward SolrCell to parse a binary document.
      * <p>
      * The given document will be send in its binary form to apache tika to be analysed and stored in the index.
      * </p>
@@ -200,7 +200,7 @@ public class SolrTools {
     }
 
     /**
-     * Extract properties from the {@link EntityContentProducer}
+     * Extracts properties from the {@link EntityContentProducer}
      * <p>
      * The {@link EntityContentProducer#getCustomProperties(String)} method returns a map of different kind of elements.
      * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work
@@ -257,7 +257,7 @@ public class SolrTools {
     }
 
     /**
-     * Replace special characters, turn to lower case and avoid repetitive '_'.
+     * Replaces special characters, turn to lower case and avoid repetitive '_'.
      *
      * @param propertyName String to filter.
      * @return a filtered name more appropriate to use with solr.
@@ -335,7 +335,7 @@ public class SolrTools {
     }
 
     /**
-     * Get the reference of every document available (not only the indexed ones) for a specific site.
+     * Gets the reference of every document available (not only the indexed ones) for a specific site.
      * <p>
      * This method gets the documents currently available in a site, not only the indexed ones.<br />
      * This method is most commonly used to reindex a site.

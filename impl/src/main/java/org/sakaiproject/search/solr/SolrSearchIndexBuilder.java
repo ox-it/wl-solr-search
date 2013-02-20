@@ -49,7 +49,7 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     /**
-     * Handle an event that should affect the search index.
+     * Handles an event that should affect the search index.
      *
      * @param event event affecting the index.
      */
