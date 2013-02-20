@@ -26,6 +26,9 @@ import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
  * @author Colin Hebert
  */
 public class SolrSearchIndexBuilder implements SearchIndexBuilder {
+    /**
+     * Unique identifier of the search tool across sakai.
+     */
     public static final String SEARCH_TOOL_ID = "sakai.search";
     private static final Logger logger = LoggerFactory.getLogger(SolrSearchIndexBuilder.class);
     private SiteService siteService;
@@ -73,7 +76,8 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
             try {
                 if (siteService.getSite(siteId).getToolForCommonId(SEARCH_TOOL_ID) == null) {
                     if (logger.isDebugEnabled())
-                        logger.debug("Impossible to index the content of the site '" + siteId + "' because the search tool hasn't been added");
+                        logger.debug("Impossible to index the content of the site '" + siteId + "'"
+                                + "because the search tool hasn't been added");
                     return;
                 }
             } catch (IdUnusedException e) {
@@ -94,45 +98,54 @@ public class SolrSearchIndexBuilder implements SearchIndexBuilder {
                         .setProperty(DefaultTask.REFERENCE, resourceName);
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event) + " is not yet supported");
+                throw new UnsupportedOperationException("Unsupported action " + entityContentProducer.getAction(event)
+                        + " is not yet supported");
         }
         if (logger.isDebugEnabled())
             logger.debug("Add the task '" + task + "' to the queuing system");
         indexQueueing.addTaskToQueue(task);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Use {@link ContentProducerFactory#addContentProducer(EntityContentProducer)} instead
+     */
     @Override
     @Deprecated
-    /**
-     * @deprecated Use {@link ContentProducerFactory#addContentProducer(org.sakaiproject.search.api.EntityContentProducer)} instead
-     */
     public void registerEntityContentProducer(EntityContentProducer ecp) {
         contentProducerFactory.addContentProducer(ecp);
     }
 
-    @Override
-    @Deprecated
     /**
+     * {@inheritDoc}
+     *
      * @deprecated Use {@link ContentProducerFactory#getContentProducerForElement(String)} instead
      */
+    @Override
+    @Deprecated
     public EntityContentProducer newEntityContentProducer(String ref) {
         return contentProducerFactory.getContentProducerForElement(ref);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Use {@link ContentProducerFactory#getContentProducerForEvent(Event)} instead
+     */
     @Override
     @Deprecated
-    /**
-     * @deprecated Use {@link ContentProducerFactory#getContentProducerForEvent(org.sakaiproject.event.api.Event)} instead
-     */
     public EntityContentProducer newEntityContentProducer(Event event) {
         return contentProducerFactory.getContentProducerForEvent(event);
     }
 
-    @Override
-    @Deprecated
     /**
+     * {@inheritDoc}
+     *
      * @deprecated Use {@link ContentProducerFactory#getContentProducers()} instead
      */
+    @Override
+    @Deprecated
     public List<EntityContentProducer> getContentProducers() {
         return new ArrayList<EntityContentProducer>(contentProducerFactory.getContentProducers());
     }

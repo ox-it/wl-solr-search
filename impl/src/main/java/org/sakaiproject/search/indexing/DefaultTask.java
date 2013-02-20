@@ -13,8 +13,14 @@ import java.util.Map;
  * @author Colin Hebert
  */
 public class DefaultTask implements Task {
-    public final static String REFERENCE = DefaultTask.class.getCanonicalName() + ".reference";
-    public final static String SITE_ID = DefaultTask.class.getCanonicalName() + ".siteId";
+    /**
+     * Unique reference to an element within sakai that should be indexed.
+     */
+    public static final String REFERENCE = DefaultTask.class.getCanonicalName() + ".reference";
+    /**
+     * Identifier of a site to index/reindex/cleanup.
+     */
+    public static final String SITE_ID = DefaultTask.class.getCanonicalName() + ".siteId";
     private final String type;
     private final Date creationDate;
     private final Map<String, String> properties = new HashMap<String, String>();
@@ -57,7 +63,7 @@ public class DefaultTask implements Task {
 
     @Override
     public Date getCreationDate() {
-        return creationDate;
+        return new Date(creationDate.getTime());
     }
 
     @Override
@@ -87,24 +93,51 @@ public class DefaultTask implements Task {
 
     @Override
     public String toString() {
-        return "DefaultTask{" +
-                "type='" + type + '\'' +
-                ", creationDate=" + creationDate +
-                ", properties=" + properties +
-                '}';
+        return "DefaultTask{"
+                + "type='" + type + '\''
+                + ", creationDate=" + creationDate
+                + ", properties=" + properties
+                + '}';
     }
 
     /**
-     * Task type with an automatically generated name (based on the class name) to avoid collisions
+     * Task type with an automatically generated name (based on the class name) to avoid collisions.
      */
     public static enum Type {
+        /**
+         * Type of a task in charge of indexing an unique document.
+         */
         INDEX_DOCUMENT,
+        /**
+         * Type of a task in charge of removing an unique document from the index.
+         */
         REMOVE_DOCUMENT,
 
+        /**
+         * Type of a task in charge of indexing a complete site.
+         */
         INDEX_SITE,
+        /**
+         * Type of a task in charge of refreshing a complete site.
+         * <p>
+         * Refreshing a site consists in reindexing already indexed documents (new documents won't be indexed)
+         * and deleting old documents.
+         * </p>
+         */
         REFRESH_SITE,
 
+
+        /**
+         * Type of a task in charge of rebuilding the entire index.
+         */
         INDEX_ALL,
+        /**
+         * Type of a task in charge of refreshing the entire index.
+         * <p>
+         * Refreshing the index site consists in reindexing already indexed documents (new documents won't be indexed)
+         * and deleting old documents.
+         * </p>
+         */
         REFRESH_ALL;
         private final String typeName = Type.class.getCanonicalName() + '.' + this.toString();
 

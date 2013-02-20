@@ -22,7 +22,7 @@ import static org.sakaiproject.search.indexing.DefaultTask.Type.REMOVE_DOCUMENT;
  * ie. if there is a lot of new tasks being "reindex everything", having only one queue would cause troubles.
  * </p>
  * <p>
- * It is recommended to have a big queue and more threads allocated to the indexingExecutor in charge of basic tasks.<br />
+ * It is recommended to have a large queue and more threads for the indexingExecutor in charge of basic tasks.<br />
  * Usually one thread and a small queue should be enough for the TaskSplittingExecutor.
  * </p>
  * <p>
@@ -38,10 +38,16 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
     private ExecutorService taskSplittingExecutor;
     private ExecutorService indexingExecutor;
 
+    /**
+     * Creates an {@link IndexQueueing} automatically coupled with a {@link TaskRunner}.
+     */
     public IndexQueueingImpl() {
         setIndexQueueing(this);
     }
 
+    /**
+     * Shuts the queuing system down and forces the executors to stop.
+     */
     public void destroy() {
         indexingExecutor.shutdownNow();
         taskSplittingExecutor.shutdownNow();
@@ -49,7 +55,8 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
 
     @Override
     public void addTaskToQueue(Task task) {
-        if (INDEX_DOCUMENT.getTypeName().equals(task.getType()) || REMOVE_DOCUMENT.getTypeName().equals(task.getType())) {
+        if (INDEX_DOCUMENT.getTypeName().equals(task.getType())
+                || REMOVE_DOCUMENT.getTypeName().equals(task.getType())) {
             if (logger.isDebugEnabled())
                 logger.debug("Add task '" + task + "' to the indexing executor");
             indexingExecutor.execute(new RunnableTask(task));
@@ -71,7 +78,7 @@ public class IndexQueueingImpl extends WaitingTaskRunner implements IndexQueuein
     /**
      * Wrapper allowing Tasks to be run by an executor.
      */
-    private class RunnableTask implements Runnable {
+    private final class RunnableTask implements Runnable {
         private final Task task;
 
         private RunnableTask(Task task) {

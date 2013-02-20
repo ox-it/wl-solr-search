@@ -9,9 +9,9 @@ import org.sakaiproject.search.indexing.Task;
  */
 public interface IndexQueueing {
     /**
-     * Receives a newly created Task and queues it to be run as soon as possible
+     * Receives a newly created Task and queues it to be run as soon as possible.
      *
      * @param task task to queue
      */
-    public void addTaskToQueue(Task task);
+    void addTaskToQueue(Task task);
 }

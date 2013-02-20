@@ -11,7 +11,8 @@ import java.util.*;
  * Based on <a href="https://issues.apache.org/jira/browse/SOLR-949">SOLR-949</a>, this extractor will get every
  * information provided by  {@link org.apache.solr.handler.component.TermVectorComponent} and put that in a {@link Map}
  * of documents with the documentReference as the key.<br />
- * The document map contain itself a {@link Map} of fields available in the document, with the field name as the key.<br />
+ * The document map contain itself a {@link Map} of fields available in the document, with
+ * the field name as the key.<br />
  * The field map contains itself a {@link Map} of terms used in the field, with the term as the key.<br />
  * The term map associate a term to a {@link TermInfo}.
  * </p>
@@ -46,6 +47,11 @@ public class TermVectorExtractor {
      */
     private Map<String, Map<String, Map<String, TermInfo>>> termVectorInfo = Collections.emptyMap();
 
+    /**
+     * Creates a TermVectorExtractor for the given query response sent by Solr.
+     *
+     * @param queryResponse response sent by the solr server for a search query.
+     */
     public TermVectorExtractor(QueryResponse queryResponse) {
         NamedList<Object> res = (NamedList<Object>) queryResponse.getResponse().get(TERM_VECTORS);
         if (res != null)
@@ -53,19 +59,19 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Extract documents from the {@link org.apache.solr.handler.component.TermVectorComponent} result
+     * Extract documents from the {@link org.apache.solr.handler.component.TermVectorComponent} result.
      *
      * @param termVectorInfosRaw Raw data extracted from the solr query
      * @return A map of document ids associated with a map of fields in these documents
      */
-    private Map<String, Map<String, Map<String, TermInfo>>> extractTermVectorInfo(NamedList<Object> termVectorInfosRaw) {
-        Map<String, Map<String, Map<String, TermInfo>>> documents = new HashMap<String, Map<String, Map<String, TermInfo>>>(termVectorInfosRaw.size());
+    private Map<String, Map<String, Map<String, TermInfo>>> extractTermVectorInfo(
+            NamedList<Object> termVectorInfosRaw) {
+        Map<String, Map<String, Map<String, TermInfo>>> documents =
+                new HashMap<String, Map<String, Map<String, TermInfo>>>(termVectorInfosRaw.size());
         for (Map.Entry<String, Object> termVectorInfoEntryRaw : termVectorInfosRaw) {
-            if (UNIQUE_KEY_FIELD_NAME.equals(termVectorInfoEntryRaw.getKey())) {
-                //Ignore unique key field name
-            } else if (WARNINGS.equals(termVectorInfoEntryRaw.getKey())) {
-                //Ignore warnings
-            } else {
+            //Ignore unique key field name and warnings
+            if (!UNIQUE_KEY_FIELD_NAME.equals(termVectorInfoEntryRaw.getKey())
+                    && !WARNINGS.equals(termVectorInfoEntryRaw.getKey())) {
                 //From this point, the entry can be considered as always a document
                 NamedList<Object> documentContentRaw = (NamedList<Object>) termVectorInfoEntryRaw.getValue();
                 String documentReference = (String) documentContentRaw.get(UNIQUE_KEY);
@@ -78,17 +84,17 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Extract fields from a document
+     * Extract fields from a document.
      *
      * @param documentContentRaw Raw data extracted from the solr query
      * @return A map of field names associated with a map of terms in these fields
      */
     private Map<String, Map<String, TermInfo>> extractDocumentContent(NamedList<Object> documentContentRaw) {
-        Map<String, Map<String, TermInfo>> fields = new HashMap<String, Map<String, TermInfo>>(documentContentRaw.size());
+        Map<String, Map<String, TermInfo>> fields =
+                new HashMap<String, Map<String, TermInfo>>(documentContentRaw.size());
         for (Map.Entry<String, Object> documentContentEntryRaw : documentContentRaw) {
-            if (UNIQUE_KEY.equals(documentContentEntryRaw.getKey())) {
-                //Ignore documentId, we already got that earlier
-            } else {
+            //Ignore documentId, we already got that earlier
+            if (!UNIQUE_KEY.equals(documentContentEntryRaw.getKey())) {
                 //From this point, the entry can be considered as always a field in the document
                 NamedList<Object> fieldContentRaw = (NamedList<Object>) documentContentEntryRaw.getValue();
                 String fieldName = documentContentEntryRaw.getKey();
@@ -101,7 +107,7 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Extract terms from a field
+     * Extract terms from a field.
      *
      * @param fieldContentRaw Raw data extracted from the solr query
      * @return A map of terms associated with various data on these fields, {@link }
@@ -137,8 +143,7 @@ public class TermVectorExtractor {
 
     private List<TermInfo.Offset> extractTermOffsets(NamedList<Number> termOffsetsRaw) {
         List<TermInfo.Offset> offsets = new ArrayList<TermInfo.Offset>(termOffsetsRaw.size() / 2);
-        for (Iterator<Map.Entry<String, Number>> iterator = termOffsetsRaw.iterator(); iterator
-                .hasNext(); ) {
+        for (Iterator<Map.Entry<String, Number>> iterator = termOffsetsRaw.iterator(); iterator.hasNext(); ) {
             TermInfo.Offset offset = new TermInfo.Offset();
             offset.setStart(iterator.next().getValue().longValue());
             offset.setEnd(iterator.next().getValue().longValue());
@@ -152,7 +157,9 @@ public class TermVectorExtractor {
     }
 
     /**
-     * Various data about a term, such as :
+     * Various data about a term within a document.
+     * <p>
+     * The information on a term contains:
      * <ul>
      * <li>document frequency (df), which is the number of documents containing the term</li>
      * <li>term frequency (tf), which is the number of times the term appears in the current document</li>
@@ -160,8 +167,9 @@ public class TermVectorExtractor {
      * <li>positions</li>
      * <li>offsets</li>
      * </ul>
+     * </p>
      */
-    public static class TermInfo {
+    public static final class TermInfo {
         private Long documentFrequency;
         private Long termFrequency;
         private Double termFrequencyInverseDocumentFrequency;
@@ -211,7 +219,10 @@ public class TermVectorExtractor {
             this.positions = positions;
         }
 
-        public static class Offset {
+        /**
+         * Offset
+         */
+        public static final class Offset {
             private Long start;
             private Long end;
 

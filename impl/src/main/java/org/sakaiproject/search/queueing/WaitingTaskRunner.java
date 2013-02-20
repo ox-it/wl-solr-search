@@ -17,12 +17,15 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * TaskRunner putting itself on lockdown if a TemporaryTaskHandlingException has been caught.
  * <p>
- * Assuming that every {@link Task} should either be successfully executed or completely fail, a {@link TemporaryTaskHandlingException}
- * means that the {@link TaskHandler} shouldn't process new tasks for a short period of time.
+ * Assuming that every {@link Task} should either be successfully executed or completely fail,
+ * a {@link TemporaryTaskHandlingException} means that the {@link TaskHandler} shouldn't process new tasks
+ * for a short period of time.
  * </p>
  * <p>
- * This TaskRunner will put every thread in charge of running tasks on hold each time a TemporaryTaskHandlingException is caught.<br />
- * The waiting time is doubled each time a Task fails with a TemporaryTaskHandlingException until it reaches the {@link #maximumWaitingTime}.<br />
+ * This TaskRunner will put every thread in charge of running tasks on hold each time a
+ * {@code TemporaryTaskHandlingException} is caught.<br />
+ * The waiting time is doubled each time a Task fails with a {@code TemporaryTaskHandlingException}
+ * until it reaches the {@link #maximumWaitingTime}.<br />
  * The waiting time is reset once a task has been successfully executed.
  * </p>
  *
@@ -30,6 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public abstract class WaitingTaskRunner implements TaskRunner {
     private static final int BASE_WAITING_TIME = 1000;
+    private static final int DEFAULT_MAXIMUM_WAITING_TIME = 5 * 60 * BASE_WAITING_TIME;
     private static final Logger logger = LoggerFactory.getLogger(WaitingTaskRunner.class);
     private static final SecurityAdvisor OPEN_SECURITY_ADVISOR = new SecurityAdvisor() {
         @Override
@@ -39,10 +43,14 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     };
     private final ReentrantLock taskRunnerLock = new ReentrantLock();
     /**
-     * Maximum wait
-     * Set to 5 minutes by default
+     * Maximum period of lockdown.
+     * <p>
+     * To avoid an over reaction of the lockdown (which doubles in time for every
+     * {@code TemporaryTaskHandlingException}), a maximum can be reached.<br />
+     * The maximum period defaults to 5 minutes.
+     * </p>
      */
-    private int maximumWaitingTime = 5 * 60 * BASE_WAITING_TIME;
+    private int maximumWaitingTime = DEFAULT_MAXIMUM_WAITING_TIME;
     private int waitingTime = BASE_WAITING_TIME;
     private TaskHandler taskHandler;
     private SecurityService securityService;
@@ -114,7 +122,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
      * @throws InterruptedException
      */
     private void initiateLockdown() throws InterruptedException {
-        logger.warn("A temporary exception has been caught, put the indexation system on lockdown for " + waitingTime + "ms.");
+        logger.warn("A temporary exception has been caught, "
+                + "put the indexation system on lockdown for " + waitingTime + "ms.");
         Thread.sleep(waitingTime);
         // Multiply the waiting time by two
         if (waitingTime <= maximumWaitingTime)
@@ -160,7 +169,8 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         // A TemporaryTaskHandlingException means that the locking system must be initialised
         // If it's already initialised, carry on
         taskRunnerLock.tryLock();
-        logger.info("A task failed because of a temporary exception. '" + tthe.getNewTask() + "' will be executed later", tthe);
+        logger.info("A task failed because of a temporary exception. "
+                + "'" + tthe.getNewTask() + "' will be executed later", tthe);
         indexQueueing.addTaskToQueue(tthe.getNewTask());
     }
 

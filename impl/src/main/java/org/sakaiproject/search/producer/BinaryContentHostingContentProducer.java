@@ -12,16 +12,19 @@ import java.io.Reader;
 import java.util.List;
 
 /**
- * Produces indexable documents from binary files provided by the {@link org.sakaiproject.content.api.ContentHostingService}.
+ * Produces indexable documents from binary files provided by the
+ * {@link org.sakaiproject.content.api.ContentHostingService}.
  * <p>
  * The content is provided as a binary stream (if the index supports binary streams).
- * For backward compatibility reasons, the content can also be provided as a string once it has been parsed with Tika.<br />
+ * For backward compatibility reasons, the content can also be provided as a string,
+ * once it has been parsed with Tika.<br />
  * The binary stream allows to offload the process of parsing the document.
  * </p>
  *
  * @author Colin Hebert
  */
-public class BinaryContentHostingContentProducer extends ContentHostingContentProducer implements BinaryEntityContentProducer, StoredDigestContentProducer {
+public class BinaryContentHostingContentProducer extends ContentHostingContentProducer
+        implements BinaryEntityContentProducer, StoredDigestContentProducer {
     private static final Logger logger = LoggerFactory.getLogger(BinaryContentHostingContentProducer.class);
     private static final byte[] EMPTY_DOCUMENT = new byte[0];
     private List<String> supportedResourceTypes;
@@ -41,12 +44,12 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
     /**
      * {@inheritDoc}
      * <p>
-     * This method is deprecated because BinaryContentHostingContentProducer is supposed to only provide binary streams.<br />
+     * This method is deprecated because BinaryContentHostingContentProducer is supposed to provide
+     * binary streams only.<br />
      * For compatibility reasons, it's possible to obtain the content of the file through this method thanks to Tika.
      * </p>
      *
-     * @param reference
-     * @return
+     * @deprecated Use {@link #getContentStream(String)} as the content is a binary stream.
      */
     @Override
     @Deprecated
@@ -59,6 +62,7 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
         }
     }
 
+    @Override
     protected boolean isResourceTypeSupported(String resourceType) {
         return supportedResourceTypes.contains(resourceType);
     }
@@ -70,8 +74,8 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
             contentResource = contentHostingService.getResource(getId(reference));
 
             if (contentResource.getContentLength() > documentMaximumSize) {
-                logger.info("The document '" + reference + "' was bigger (" + contentResource.getContentLength() + "B) " +
-                        "than the maximum expected size (" + documentMaximumSize + "B), its content won't be handled");
+                logger.info("The document '" + reference + "' was bigger (" + contentResource.getContentLength() + "B) "
+                        + "than the maximum expected size " + documentMaximumSize + "B, its content won't be handled");
                 return new ByteArrayInputStream(EMPTY_DOCUMENT);
             } else {
                 return contentResource.streamContent();

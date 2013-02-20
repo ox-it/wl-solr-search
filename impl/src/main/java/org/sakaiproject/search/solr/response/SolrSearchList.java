@@ -31,7 +31,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
         String expectedStart = ((NamedList<String>) rsp.getHeader().get("params")).get("start");
         this.start = (expectedStart != null) ? Integer.parseInt(expectedStart) : 0;
 
-        List<SearchResult> solrResults = new ArrayList<SearchResult>(rsp.getResults().size());
+        List<SearchResult> results = new ArrayList<SearchResult>(rsp.getResults().size());
 
         //Extract TermVector information from the response
         TermVectorExtractor termVectorExtractor = new TermVectorExtractor(rsp);
@@ -42,7 +42,7 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
             String reference = (String) document.getFieldValue(SearchService.FIELD_REFERENCE);
 
             SolrResult solrResult = new SolrResult();
-            solrResult.setIndex(solrResults.size());
+            solrResult.setIndex(results.size());
             solrResult.setDocument(document);
 
             //Not mandatory highlighting
@@ -59,9 +59,9 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
 
             solrResult.setContentProducer(contentProducerFactory.getContentProducerForElement(reference));
 
-            solrResults.add(filter.filter(solrResult));
+            results.add(filter.filter(solrResult));
         }
-        this.solrResults = Collections.unmodifiableList(solrResults);
+        this.solrResults = Collections.unmodifiableList(results);
     }
 
     @Override

@@ -18,14 +18,14 @@ import java.util.Map;
  * @author Colin Hebert
  */
 public class SecuritySearchFilter implements SearchItemFilter {
-    public static final SearchResult censoredSearchResult = new CensoredSearchResult();
+    private static final SearchResult CENSORED_SEARCH_RESULT = new CensoredSearchResult();
     private ContentProducerFactory contentProducerFactory;
 
     @Override
     public SearchResult filter(SearchResult result) {
         String reference = result.getReference();
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
-        return contentProducer == null || !contentProducer.canRead(reference) ? censoredSearchResult : result;
+        return contentProducer == null || !contentProducer.canRead(reference) ? CENSORED_SEARCH_RESULT : result;
     }
 
     public void setContentProducerFactory(ContentProducerFactory contentProducerFactory) {
@@ -33,7 +33,7 @@ public class SecuritySearchFilter implements SearchItemFilter {
     }
 
     private static class CensoredSearchResult implements SearchResult {
-        private static final TermFrequency termFrequency = new TermFrequency() {
+        private static final TermFrequency TERM_FREQUENCY = new TermFrequency() {
             @Override
             public String[] getTerms() {
                 return new String[0];
@@ -101,7 +101,7 @@ public class SecuritySearchFilter implements SearchItemFilter {
 
         @Override
         public TermFrequency getTerms() throws IOException {
-            return termFrequency;
+            return TERM_FREQUENCY;
         }
 
         @Override

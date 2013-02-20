@@ -25,12 +25,22 @@ import static org.sakaiproject.content.api.ContentHostingService.*;
  * @author Colin Hebert
  */
 public abstract class ContentHostingContentProducer implements EntityContentProducer {
-    protected ServerConfigurationService serverConfigurationService;
-    protected SearchService searchService;
-    protected SearchIndexBuilder searchIndexBuilder;
+    /**
+     * Content hosting service providing details on the potentially indexed documents.
+     */
     protected ContentHostingService contentHostingService;
+    /**
+     * Entity manager giving details on any entity given its reference.
+     */
     protected EntityManager entityManager;
+    private ServerConfigurationService serverConfigurationService;
+    private SearchService searchService;
+    private SearchIndexBuilder searchIndexBuilder;
 
+    /**
+     * Initialisation method in charge of registering events related to ContentHosting
+     * that should trigger an indexation.
+     */
     public void init() {
         if (serverConfigurationService.getBoolean("search.enable", false)) {
             searchService.registerFunction(EVENT_RESOURCE_ADD);
@@ -56,17 +66,18 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     public Integer getAction(Event event) {
         String eventName = event.getEvent();
         //Skip the resourceType check if the event isn't about resources
-        if (!EVENT_RESOURCE_REMOVE.equals(eventName) && !EVENT_RESOURCE_ADD.equals(eventName) && !EVENT_RESOURCE_WRITE.equals(eventName))
+        if (!EVENT_RESOURCE_REMOVE.equals(eventName) && !EVENT_RESOURCE_ADD.equals(eventName)
+                && !EVENT_RESOURCE_WRITE.equals(eventName))
             return SearchBuilderItem.ACTION_UNKNOWN;
 
         String resourceType = getResourceType(event.getResource());
         //If the resource type isn't provided, assume that it's a document we want to delete, try to proceed.
-        //The resource type should always be provided, if it isn't, it's safe to assume that the document doesn't exist anymore
+        //The resource type should always be provided, if it isn't assume that the document doesn't exist anymore.
         if (resourceType == null && EVENT_RESOURCE_REMOVE.equals(eventName) && isForIndexDelete(event.getResource())) {
             return SearchBuilderItem.ACTION_DELETE;
-        } else if (isResourceTypeSupported(resourceType) &&
-                (EVENT_RESOURCE_ADD.equals(eventName) || EVENT_RESOURCE_WRITE.equals(eventName)) &&
-                isForIndex(event.getResource())) {
+        } else if (isResourceTypeSupported(resourceType)
+                && (EVENT_RESOURCE_ADD.equals(eventName) || EVENT_RESOURCE_WRITE.equals(eventName))
+                && isForIndex(event.getResource())) {
             return SearchBuilderItem.ACTION_ADD;
         } else {
             return SearchBuilderItem.ACTION_UNKNOWN;
@@ -93,7 +104,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     }
 
     /**
-     * Provides the list of resource type supported by the implementation of ContentHostingContentProducer
+     * Provides the list of resource type supported by the implementation of ContentHostingContentProducer.
      *
      * @param contentType tested content type.
      * @return true if the content type is handled, false otherwise.
@@ -102,7 +113,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public boolean matches(Event event) {
-        return SearchBuilderItem.ACTION_UNKNOWN != getAction(event);
+        return SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
     }
 
     @Override
@@ -128,15 +139,18 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     }
 
     /**
-     * nasty hack to not index dropbox without loading an entity from the DB
+     * Nasty hack to not index dropbox without loading an entity from the DB.
      */
     private boolean isInDropbox(String reference) {
-        return reference.length() > "/content".length() && contentHostingService.isInDropbox(reference.substring("/content".length()));
+        return reference.length() > "/content".length()
+                && contentHostingService.isInDropbox(reference.substring("/content".length()));
     }
 
     private boolean isAnAssignment(String reference) {
+        final int assignmentPosition = 4;
         String[] parts = reference.split("/");
-        return parts.length > 4 && "Assignments".equals(parts[4]) && ContentHostingService.ATTACHMENTS_COLLECTION.equals("/" + parts[2] + "/");
+        return parts.length > assignmentPosition && "Assignments".equals(parts[assignmentPosition])
+                && ContentHostingService.ATTACHMENTS_COLLECTION.equals("/" + parts[2] + "/");
     }
 
     private boolean isForIndexDelete(String reference) {

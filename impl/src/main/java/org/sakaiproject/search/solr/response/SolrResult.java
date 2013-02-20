@@ -17,12 +17,12 @@ import static org.sakaiproject.search.solr.response.TermVectorExtractor.TermInfo
  * @author Colin Hebert
  */
 public class SolrResult implements SearchResult {
-    public static final String SCORE_FIELD = "score";
+    private static final String SCORE_FIELD = "score";
     private int index;
     private SolrDocument document;
     private Map<String, List<String>> highlights;
     private TermFrequency terms;
-    private String newUrl;
+    private String url;
     private EntityContentProducer contentProducer;
 
     public void setDocument(SolrDocument document) {
@@ -70,12 +70,12 @@ public class SolrResult implements SearchResult {
 
     @Override
     public String getUrl() {
-        return (newUrl == null) ? (String) document.getFieldValue(SearchService.FIELD_URL) : newUrl;
+        return (url == null) ? (String) document.getFieldValue(SearchService.FIELD_URL) : url;
     }
 
     @Override
-    public void setUrl(String newUrl) {
-        this.newUrl = newUrl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override
@@ -141,7 +141,8 @@ public class SolrResult implements SearchResult {
         sb.append(" site=\"").append(StringEscapeUtils.escapeXml(getSiteId())).append("\" ");
         sb.append(" reference=\"").append(StringEscapeUtils.escapeXml(getReference())).append("\" ");
         try {
-            sb.append(" title=\"").append(new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")), "UTF-8")).append("\" ");
+            String title = new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")), "UTF-8");
+            sb.append(" title=\"").append(title).append("\" ");
         } catch (UnsupportedEncodingException e) {
             sb.append(" title=\"").append(StringEscapeUtils.escapeXml(getTitle())).append("\" ");
         }
@@ -173,7 +174,8 @@ public class SolrResult implements SearchResult {
     }
 
     /**
-     * Extracts a {@link TermFrequency} from the result of a {@link org.apache.solr.handler.component.TermVectorComponent}.
+     * Extracts a {@link TermFrequency} from the result of a
+     * {@link org.apache.solr.handler.component.TermVectorComponent}.
      *
      * @param termsByField A map of field/terms.
      * @return a term frequency.
@@ -195,13 +197,14 @@ public class SolrResult implements SearchResult {
         //Sort tuples (Term/Frequency)
         //A SortedSet consider that two elements that are equals based on compare are the same
         //This is why, if the frequency is the same, then the term is used to do the comparison
-        SortedSet<Map.Entry<String, Long>> sortedFrequencies = new TreeSet<Map.Entry<String, Long>>(new Comparator<Map.Entry<String, Long>>() {
-            @Override
-            public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
-                int longComparison = -o1.getValue().compareTo(o2.getValue());
-                return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
-            }
-        });
+        SortedSet<Map.Entry<String, Long>> sortedFrequencies = new TreeSet<Map.Entry<String, Long>>(
+                new Comparator<Map.Entry<String, Long>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
+                        int longComparison = o2.getValue().compareTo(o1.getValue());
+                        return (longComparison != 0) ? longComparison : o1.getKey().compareTo(o2.getKey());
+                    }
+                });
         sortedFrequencies.addAll(termFrequencies.entrySet());
 
         //Extract data from each Entry into two arrays

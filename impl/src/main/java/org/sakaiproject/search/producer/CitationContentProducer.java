@@ -43,9 +43,10 @@ public class CitationContentProducer extends ContentHostingContentProducer {
                 sb.append(citation.getId()).append('\n')
                         .append(citation.getSchema().getIdentifier()).append('\n');
 
-                for (Map.Entry<String, Object> property : ((Map<String, Object>) citation.getCitationProperties()).entrySet()) {
-                    // Some properties are given as Collections (Vector?!) other are simple Strings, it's rather
-                    // difficult to check for every possible type of content, so the toString() method will be used instead
+                Map<String, Object> citationProperties = (Map<String, Object>) citation.getCitationProperties();
+                for (Map.Entry<String, Object> property : citationProperties.entrySet()) {
+                    // Some properties are provided as Collections (Vector?!), other are simple Strings. It's rather
+                    // difficult to check for every possible type of content, so the toString() method will be used.
                     sb.append(property.getKey()).append(':').append(property.getValue()).append('\n');
                 }
             }

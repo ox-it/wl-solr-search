@@ -40,10 +40,10 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class SolrTools {
-    public static final String LITERAL = "literal.";
-    public static final String PROPERTY_PREFIX = "property_";
-    public static final String UPREFIX = PROPERTY_PREFIX + "tika_";
-    public static final String SOLRCELL_PATH = "/update/extract";
+    private static final String LITERAL = "literal.";
+    private static final String PROPERTY_PREFIX = "property_";
+    private static final String UPREFIX = PROPERTY_PREFIX + "tika_";
+    private static final String SOLRCELL_PATH = "/update/extract";
     private static final Logger logger = LoggerFactory.getLogger(SolrTools.class);
     private SiteService siteService;
     private SearchIndexBuilder searchIndexBuilder;
@@ -52,13 +52,16 @@ public class SolrTools {
     private boolean tikaEnabled;
     private Tika tika;
 
+    /**
+     * Initialise tika if needed.
+     */
     public void init() {
         if (tikaEnabled)
             tika = new Tika();
     }
 
     /**
-     * Generates a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}
+     * Generates a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}.
      *
      * @param reference  resource to index
      * @param actionDate date of creation of the indexation task
@@ -109,7 +112,8 @@ public class SolrTools {
      * @param document              solr document about to be index.
      * @param binaryContentProducer contentProducer for the document.
      */
-    private void setDocumentTikaProperties(String reference, SolrInputDocument document, BinaryEntityContentProducer binaryContentProducer) {
+    private void setDocumentTikaProperties(String reference, SolrInputDocument document,
+                                           BinaryEntityContentProducer binaryContentProducer) {
         try {
             Metadata metadata = new Metadata();
             String resourceName = binaryContentProducer.getResourceName(reference);
@@ -132,13 +136,14 @@ public class SolrTools {
     }
 
     /**
-     * Create a solrDocument for a specific resource
+     * Create a solrDocument for a specific resource.
      *
      * @param reference       resource used to generate the document
      * @param contentProducer contentProducer in charge of extracting the data
      * @return a SolrDocument
      */
-    private SolrInputDocument generateBaseSolrDocument(String reference, Date actionDate, EntityContentProducer contentProducer) {
+    private SolrInputDocument generateBaseSolrDocument(String reference, Date actionDate,
+                                                       EntityContentProducer contentProducer) {
         SolrInputDocument document = new SolrInputDocument();
 
         //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
@@ -172,7 +177,8 @@ public class SolrTools {
      * @param document        {@link SolrInputDocument} used to prepare index fields
      * @return a solrCell request
      */
-    private SolrRequest prepareSolrCellRequest(final String reference, final BinaryEntityContentProducer contentProducer,
+    private SolrRequest prepareSolrCellRequest(final String reference,
+                                               final BinaryEntityContentProducer contentProducer,
                                                SolrInputDocument document) {
         //Send to tika
         ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
@@ -199,15 +205,16 @@ public class SolrTools {
      * Extract properties from the {@link EntityContentProducer}
      * <p>
      * The {@link EntityContentProducer#getCustomProperties(String)} method returns a map of different kind of elements.
-     * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work and returns a formatted
-     * map containing only {@link Collection<String>}.
+     * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work
+     * and returns a formatted map containing only {@link Collection<String>}.
      * </p>
      *
      * @param reference       affected resource
      * @param contentProducer producer providing properties for the given resource
      * @return a formated map of {@link Collection<String>}
      */
-    private Map<String, Collection<String>> extractCustomProperties(String reference, EntityContentProducer contentProducer) {
+    private Map<String, Collection<String>> extractCustomProperties(String reference,
+                                                                    EntityContentProducer contentProducer) {
         Map<String, ?> m = contentProducer.getCustomProperties(reference);
 
         if (m == null)
@@ -219,9 +226,9 @@ public class SolrTools {
             Object propertyValue = propertyEntry.getValue();
             Collection<String> values;
 
-            //Check for basic data type that could be provided by the EntityContentProducer
-            //If the data type can't be defined, nothing is stored. The toString method could be called, but some values
-            //could be not meant to be indexed.
+            // Check for basic data type that could be provided by the EntityContentProducer
+            // If the data type can't be defined, nothing is stored. The toString method could be called,
+            // but some values could be not meant to be indexed.
             if (propertyValue instanceof String)
                 values = Collections.singleton((String) propertyValue);
             else if (propertyValue instanceof String[])
@@ -230,13 +237,15 @@ public class SolrTools {
                 values = (Collection<String>) propertyValue;
             else {
                 if (propertyValue != null)
-                    logger.warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored. " + propertyName.getClass());
+                    logger.warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored.");
                 values = Collections.emptyList();
             }
 
-            //If this property was already present there (this shouldn't happen, but if it does everything must be stored
+            // If this property was already present there
+            // This shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
-                logger.warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
+                logger.warn("Two properties had a really similar name '" + propertyName + "' and were merged. "
+                        + "This shouldn't happen!");
                 if (logger.isDebugEnabled())
                     logger.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
                 values = new ArrayList<String>(values);
@@ -290,7 +299,9 @@ public class SolrTools {
      */
     public Queue<String> getIndexableSites() {
         Queue<String> refreshedSites = new LinkedList<String>();
-        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
+        List<Site> sites = siteService.getSites(SiteService.SelectionType.ANY, null, null, null,
+                SiteService.SortType.NONE, null);
+        for (Site s : sites) {
             if (isSiteIndexable(s)) {
                 refreshedSites.offer(s.getId());
             }
@@ -306,7 +317,7 @@ public class SolrTools {
      *
      * @param siteId site in which the documents are.
      * @return a queue of every reference related to a site.
-     * @throws SolrServerException
+     * @throws SolrServerException thrown if the query to get references failed.
      */
     public Queue<String> getReferences(String siteId) throws SolrServerException {
         if (logger.isDebugEnabled())
@@ -356,14 +367,14 @@ public class SolrTools {
      * @param reference   reference of the document.
      * @param currentDate creation date of the currently executed task.
      * @return true if the document is outdated (and should be updated), false otherwise.
-     * @throws SolrServerException
+     * @throws SolrServerException thrown if the query to get the referenced document from the index failed.
      */
     public boolean isDocumentOutdated(String reference, Date currentDate) throws SolrServerException {
         if (logger.isDebugEnabled())
             logger.debug("Obtaining creation date for document '" + reference + "'");
         SolrQuery query = new SolrQuery()
-                .setQuery(SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference) + " AND " +
-                        SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
+                .setQuery(SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference) + " AND "
+                        + SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
                 .setRows(0);
         return solrServer.query(query).getResults().getNumFound() == 0;
     }
@@ -375,9 +386,28 @@ public class SolrTools {
      * @return true if the site is indexable, false otherwise.
      */
     private boolean isSiteIndexable(Site site) {
-        return !(siteService.isSpecialSite(site.getId()) ||
-                (searchIndexBuilder.isOnlyIndexSearchToolSites() && site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) == null) ||
-                (searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId())));
+        return !siteService.isSpecialSite(site.getId()) && isSiteWithToolIndexable(site) && isSiteTypeIndexable(site);
+    }
+
+    /**
+     * Checks if a site is indexable depending if it's a user site.
+     *
+     * @param site site to check.
+     * @return true if the site is indexable based on the site type.
+     */
+    private boolean isSiteTypeIndexable(Site site) {
+        return !(searchIndexBuilder.isExcludeUserSites() && siteService.isUserSite(site.getId()));
+    }
+
+    /**
+     * Checks if the site is indexable based on the presence of search tool.
+     *
+     * @param site site to check.
+     * @return true if the site is indexable based on the site type.
+     */
+    private boolean isSiteWithToolIndexable(Site site) {
+        return !searchIndexBuilder.isOnlyIndexSearchToolSites()
+                || site.getToolForCommonId(SolrSearchIndexBuilder.SEARCH_TOOL_ID) != null;
     }
 
     /**

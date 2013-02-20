@@ -7,13 +7,19 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.w3c.dom.Element;
 
 /**
- * NotificationAction which captures events related to the search system and relay them to the {@link SearchIndexBuilder}.
+ * This is a @{link NotificationAction} which captures events related to the search index
+ * and relay them to the {@link SearchIndexBuilder}.
  *
  * @author Colin Hebert
  */
 public class SearchNotificationAction implements NotificationAction {
     private final SearchIndexBuilder searchIndexBuilder;
 
+    /**
+     * Builds a NotificationAction relaying events to a given {@link SearchIndexBuilder}.
+     *
+     * @param searchIndexBuilder index builder which will process the intercepted events.
+     */
     public SearchNotificationAction(SearchIndexBuilder searchIndexBuilder) {
         this.searchIndexBuilder = searchIndexBuilder;
     }

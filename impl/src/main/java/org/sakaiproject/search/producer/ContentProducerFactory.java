@@ -20,12 +20,13 @@ public class ContentProducerFactory {
     private final Collection<EntityContentProducer> contentProducers = new HashSet<EntityContentProducer>();
 
     /**
-     * Register an {@link EntityContentProducer} for a later use
+     * Register an {@link EntityContentProducer} for a later use.
      *
      * @param contentProducer entityContentProducer to register
      */
     public void addContentProducer(EntityContentProducer contentProducer) {
-        logger.info(contentProducer.getClass() + " registered to provide content to the search index from " + contentProducer.getTool());
+        logger.info(contentProducer.getClass() + " registered to provide content to the search index from "
+                + contentProducer.getTool());
         contentProducers.add(contentProducer);
     }
 
@@ -42,7 +43,8 @@ public class ContentProducerFactory {
             try {
                 if (contentProducer.matches(reference)) {
                     if (logger.isDebugEnabled())
-                        logger.debug("The content producer '" + contentProducer + "' matches the reference '" + reference + "'");
+                        logger.debug("The content producer '" + contentProducer + "'"
+                                + "matches the reference '" + reference + "'");
                     return contentProducer;
                 }
             } catch (Exception e) {
@@ -64,7 +66,8 @@ public class ContentProducerFactory {
             try {
                 if (contentProducer.matches(event)) {
                     if (logger.isDebugEnabled())
-                        logger.debug("The content producer '" + contentProducer + "' matches the event '" + event + "'");
+                        logger.debug("The content producer '" + contentProducer + "'"
+                                + "matches the event '" + event + "'");
                     return contentProducer;
                 }
             } catch (Exception e) {
@@ -77,7 +80,7 @@ public class ContentProducerFactory {
     }
 
     /**
-     * Get the list of registered {@link EntityContentProducer}
+     * Get the list of registered {@link EntityContentProducer}.
      *
      * @return an unmodifiable collection of {@link EntityContentProducer} automatically registered
      */

@@ -26,7 +26,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * SolrServerAdapter allows to generate a SolrServer object on the fly depending on the configuration in sakai.properties
+ * SolrServerAdapter allows to generate a SolrServer object on the fly depending on the configuration in
+ * sakai.properties.
  * <p>
  * By default an embedded server will be spawned, otherwise, if search.solr.server is set in sakai.properties,
  * a client for that server will be created.
@@ -35,14 +36,14 @@ import java.util.List;
  * @author Colin Hebert
  */
 public class SolrServerAdapter extends SolrServer {
-    public static final String CORE_NAME = "search";
-    public static final String SOLR_HOME_PROPERTY = "solr.solr.home";
-    public static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
-    public static final String SOLR_NODE_PATH = SOLR_CONFIGURATION_PATH + "search/conf/";
+    private static final String CORE_NAME = "search";
+    private static final String SOLR_HOME_PROPERTY = "solr.solr.home";
+    private static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
+    private static final String SOLR_NODE_PATH = SOLR_CONFIGURATION_PATH + "search/conf/";
     private static final Logger logger = LoggerFactory.getLogger(SolrServerAdapter.class);
     private SolrServer instance;
 
-    private void init() {
+    public void init() {
         String serverUrl = ServerConfigurationService.getString("search.solr.server");
         if (!serverUrl.isEmpty()) {
             logger.info("The Solr server is set up");
@@ -110,14 +111,15 @@ public class SolrServerAdapter extends SolrServer {
         //Check and create the directory if it isn't available
         logger.error("Creating dirs '" + SOLR_CONFIGURATION_PATH + "'");
         if (!nodeConfigDir.exists() && !nodeConfigDir.mkdirs() || !nodeConfigDir.isDirectory()) {
-            throw new IllegalStateException("The solr configuration directory '" + SOLR_CONFIGURATION_PATH + "' couldn't be created");
+            throw new IllegalStateException("The solr configuration directory '" + SOLR_CONFIGURATION_PATH + "' "
+                    + "couldn't be created");
         }
 
-        String solrXmlPath = SOLR_CONFIGURATION_PATH + "solr.xml";
-        String solrConfigPath = SOLR_NODE_PATH + "solrconfig.xml";
-        String solrSchemaPath = SOLR_NODE_PATH + "schema.xml";
+        File solrXmlFile = new File(SOLR_CONFIGURATION_PATH + "solr.xml");
+        File solrConfigFile = new File(SOLR_NODE_PATH + "solrconfig.xml");
+        File solrSchemaFile = new File(SOLR_NODE_PATH + "schema.xml");
 
-        return (new File(solrXmlPath).exists() && new File(solrConfigPath).exists() && new File(solrSchemaPath).exists());
+        return solrXmlFile.exists() && solrConfigFile.exists() && solrSchemaFile.exists();
     }
 
     @Override
@@ -126,7 +128,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public UpdateResponse add(Collection<SolrInputDocument> docs, int commitWithinMs) throws SolrServerException, IOException {
+    public UpdateResponse add(Collection<SolrInputDocument> docs, int commitWithinMs)
+            throws SolrServerException, IOException {
         return instance.add(docs, commitWithinMs);
     }
 
@@ -176,7 +179,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public UpdateResponse commit(boolean waitFlush, boolean waitSearcher, boolean softCommit) throws SolrServerException, IOException {
+    public UpdateResponse commit(boolean waitFlush, boolean waitSearcher, boolean softCommit)
+            throws SolrServerException, IOException {
         return instance.commit(waitFlush, waitSearcher, softCommit);
     }
 
@@ -186,7 +190,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public UpdateResponse optimize(boolean waitFlush, boolean waitSearcher, int maxSegments) throws SolrServerException, IOException {
+    public UpdateResponse optimize(boolean waitFlush, boolean waitSearcher, int maxSegments)
+            throws SolrServerException, IOException {
         return instance.optimize(waitFlush, waitSearcher, maxSegments);
     }
 
@@ -241,7 +246,8 @@ public class SolrServerAdapter extends SolrServer {
     }
 
     @Override
-    public QueryResponse queryAndStreamResponse(SolrParams params, StreamingResponseCallback callback) throws SolrServerException, IOException {
+    public QueryResponse queryAndStreamResponse(SolrParams params, StreamingResponseCallback callback)
+            throws SolrServerException, IOException {
         return instance.queryAndStreamResponse(params, callback);
     }
 
