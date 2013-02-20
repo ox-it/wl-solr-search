@@ -113,7 +113,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public boolean matches(Event event) {
-        return SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+        return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
     }
 
     @Override
