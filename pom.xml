@@ -10,7 +10,7 @@
     <groupId>org.sakaiproject.search.solr</groupId>
     <artifactId>solr-base</artifactId>
     <packaging>pom</packaging>
-    <name>Solr Base</name>
+    <name>Sakai search - Solr Base</name>
     <version>1.0-SNAPSHOT</version>
 
     <distributionManagement>

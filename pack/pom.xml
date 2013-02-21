@@ -9,8 +9,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>solr-pack</artifactId>
-    <name>Solr Component</name>
+    <name>Sakai search - Solr Component</name>
     <packaging>sakai-component</packaging>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
