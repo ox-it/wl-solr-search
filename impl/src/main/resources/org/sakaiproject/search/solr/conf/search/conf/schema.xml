@@ -3,6 +3,7 @@
     <types>
         <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
         <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -21,6 +22,7 @@
     </types>
 
     <fields>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
         <field name="indexdate" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
         <field name="reference" type="string" indexed="true" stored="true" required="true"/>
         <field name="container" type="string" indexed="true" stored="true"/>
