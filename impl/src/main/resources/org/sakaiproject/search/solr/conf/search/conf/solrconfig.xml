@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-    <abortOnConfigurationError>true</abortOnConfigurationError>
     <luceneMatchVersion>LUCENE_41</luceneMatchVersion>
     <dataDir>${solr.data.dir:}</dataDir>
     <directoryFactory name="DirectoryFactory"
                       class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/>
 
+    <abortOnConfigurationError>true</abortOnConfigurationError>
     <requestDispatcher handleSelect="true">
         <requestParsers enableRemoteStreaming="true"
                         multipartUploadLimitInKB="2048000"/>
