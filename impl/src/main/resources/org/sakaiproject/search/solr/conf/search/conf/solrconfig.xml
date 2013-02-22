@@ -2,8 +2,8 @@
 <config>
     <abortOnConfigurationError>true</abortOnConfigurationError>
     <directoryFactory name="DirectoryFactory" class="solr.StandardDirectoryFactory"/>
-    <dataDir>${solr.search.data.dir:}</dataDir>
     <luceneMatchVersion>LUCENE_41</luceneMatchVersion>
+    <dataDir>${solr.data.dir:}</dataDir>
 
     <requestDispatcher handleSelect="true">
         <requestParsers enableRemoteStreaming="true"
