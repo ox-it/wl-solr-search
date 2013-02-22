@@ -6,6 +6,20 @@
                       class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/>
 
     <abortOnConfigurationError>true</abortOnConfigurationError>
+
+    <updateHandler class="solr.DirectUpdateHandler2">
+        <updateLog>
+            <str name="dir">${solr.ulog.dir:}</str>
+        </updateLog>
+        <autoCommit>
+            <maxTime>15000</maxTime>
+            <openSearcher>false</openSearcher>
+        </autoCommit>
+        <autoSoftCommit>
+            <maxTime>1000</maxTime>
+        </autoSoftCommit>
+    </updateHandler>
+
     <requestDispatcher handleSelect="false">
         <requestParsers enableRemoteStreaming="true"
                         multipartUploadLimitInKB="2048000"/>
