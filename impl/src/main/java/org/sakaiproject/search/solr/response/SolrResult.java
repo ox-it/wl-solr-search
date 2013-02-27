@@ -96,7 +96,6 @@ public class SolrResult implements SearchResult {
     public String getSearchResult() {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, List<String>> fieldEntry : highlights.entrySet()) {
-            sb.append(fieldEntry.getKey()).append(": ");
             for (String highlight : fieldEntry.getValue())
                 sb.append(highlight).append("... ");
         }

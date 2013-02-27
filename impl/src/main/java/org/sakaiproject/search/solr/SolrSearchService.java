@@ -94,27 +94,23 @@ public class SolrSearchService implements SearchService {
                              String filterName, String sorterName)
             throws InvalidSearchQueryException {
         try {
-            final int highlightSnippets = 5;
             SolrQuery query = new SolrQuery();
 
             query.setStart(start);
             query.setRows(end - start);
-            query.setFields("*", "score");
 
-            query.setHighlight(true).setHighlightSnippets(highlightSnippets);
+            query.setHighlight(true);
             query.setParam("hl.useFastVectorHighlighter", true);
             query.setParam("hl.mergeContiguous", true);
             query.setParam("hl.fl", SearchService.FIELD_CONTENTS);
-
-            query.setParam("tv", true);
-            query.setParam("tv.fl", SearchService.FIELD_CONTENTS);
-            query.setParam("tv.tf", true);
+            query.setParam("hl.formatter", "html");
 
             if (siteIds != null && !siteIds.isEmpty())
-                query.setFilterQueries(createSitesFilterQuery(siteIds));
+                query.addFilterQuery(createSitesFilterQuery(siteIds));
 
             if (logger.isDebugEnabled())
                 logger.debug("Searching with Solr: " + searchTerms);
+
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
             return new SolrSearchList(rsp, searchItemFilter, contentProducerFactory);
