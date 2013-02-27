@@ -47,10 +47,20 @@
         <httpCaching never304="true"/>
     </requestDispatcher>
 
-    <requestHandler name="/select" class="solr.SearchHandler" default="true">
+    <!-- Main SearchHandler -->
+    <requestHandler name="/select" class="solr.SearchHandler">
         <lst name="defaults">
-            <str name="echoParams">explicit</str>
+            <str name="defType">edismax</str>
+            <str name="qf">
+                title^10.0 tool^3.0 type^1.0 contents^5.0 text^0.5
+            </str>
+            <str name="q.alt">*:*</str>
             <int name="rows">10</int>
+            <str name="fl">*,score</str>
+
+            <str name="tv">true</str>
+            <str name="tv.fl">contents</str>
+            <str name="tv.tf">true</str>
         </lst>
         <arr name="last-components">
             <str>tv</str>
