@@ -40,6 +40,6 @@
     </fields>
     <uniqueKey>reference</uniqueKey>
     <defaultSearchField>text</defaultSearchField>
-    <solrQueryParser defaultOperator="OR"/>
+    <solrQueryParser defaultOperator="AND"/>
     <copyField source="*" dest="text"/>
 </schema>
