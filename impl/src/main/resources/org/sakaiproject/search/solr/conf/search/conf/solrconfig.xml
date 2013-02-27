@@ -67,6 +67,17 @@
         </arr>
     </requestHandler>
 
+    <!-- Search handler for test/admin purposes -->
+    <requestHandler name="/query" class="solr.SearchHandler">
+        <lst name="defaults">
+            <str name="echoParams">explicit</str>
+            <str name="wt">json</str>
+            <str name="indent">true</str>
+            <int name="rows">10</int>
+            <str name="fl">*,score</str>
+        </lst>
+    </requestHandler>
+
     <requestHandler name="/update" class="solr.UpdateRequestHandler"/>
 
     <requestHandler name="/update/extract" startup="lazy" class="solr.extraction.ExtractingRequestHandler">
