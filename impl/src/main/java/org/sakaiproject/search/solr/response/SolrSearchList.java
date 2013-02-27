@@ -24,12 +24,9 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
     private final QueryResponse rsp;
     private final int start;
 
-    public SolrSearchList(QueryResponse rsp, SearchItemFilter filter, ContentProducerFactory contentProducerFactory) {
+    public SolrSearchList(QueryResponse rsp, int start, SearchItemFilter filter, ContentProducerFactory contentProducerFactory) {
         this.rsp = rsp;
-
-        //Get the 'start' index of the result list. If not set, use 0
-        String expectedStart = ((NamedList<String>) rsp.getHeader().get("params")).get("start");
-        this.start = (expectedStart != null) ? Integer.parseInt(expectedStart) : 0;
+        this.start = start;
 
         List<SearchResult> results = new ArrayList<SearchResult>(rsp.getResults().size());
 

@@ -113,7 +113,7 @@ public class SolrSearchService implements SearchService {
 
             query.setQuery(searchTerms);
             QueryResponse rsp = solrServer.query(query);
-            return new SolrSearchList(rsp, searchItemFilter, contentProducerFactory);
+            return new SolrSearchList(rsp, start, searchItemFilter, contentProducerFactory);
         } catch (SolrServerException e) {
             throw new InvalidSearchQueryException("Failed to parse Query", e);
         }
