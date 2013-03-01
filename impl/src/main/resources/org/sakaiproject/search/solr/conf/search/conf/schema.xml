@@ -41,5 +41,7 @@
     <uniqueKey>reference</uniqueKey>
     <defaultSearchField>text</defaultSearchField>
     <solrQueryParser defaultOperator="AND"/>
-    <copyField source="*" dest="text"/>
+    <copyField source="contents" dest="text"/>
+    <copyField source="tool" dest="text"/>
+    <copyField source="title" dest="text"/>
 </schema>
