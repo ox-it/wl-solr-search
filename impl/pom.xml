@@ -72,7 +72,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -119,12 +118,19 @@
                                 <includes>
                                     <include>org.apache.tika:tika-parsers</include>
                                     <include>asm:asm</include>
+                                    <include>commons-io:commons-io</include>
+                                    <include>org.apache.solr:solr-core</include>
+                                    <include>org.apache.solr:solr-solrj</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>org.objectweb.asm</pattern>
                                     <shadedPattern>org.sakaiproject.search.asm</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.io</pattern>
+                                    <shadedPattern>org.sakaiproject.search.commons.io</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
