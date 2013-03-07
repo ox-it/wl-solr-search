@@ -4,4 +4,3 @@
         <core name="search" instanceDir="search"/>
     </cores>
 </solr>
-
