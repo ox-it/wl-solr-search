@@ -24,12 +24,12 @@ import org.sakaiproject.search.producer.BinaryEntityContentProducer;
 import org.sakaiproject.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.solr.SolrSearchIndexBuilder;
 import org.sakaiproject.search.solr.util.AdminStatRequest;
-import org.sakaiproject.search.solr.util.UpdateRequestReader;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -93,8 +93,10 @@ public class SolrTools {
         } else if (contentProducer.isContentFromReader(reference)) {
             if (logger.isDebugEnabled())
                 logger.debug("Create a request with a Reader");
-            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(reference));
-            request = new UpdateRequestReader().add(document);
+            String content;
+            content = getContentFromReader(reference, contentProducer);
+            document.setField(SearchService.FIELD_CONTENTS, content);
+            request = new UpdateRequest().add(document);
         } else {
             if (logger.isDebugEnabled())
                 logger.debug("Create a request based on a String");
@@ -103,6 +105,29 @@ public class SolrTools {
         }
 
         return request;
+    }
+
+    /**
+     * Gets the content of a document from a Reader.
+     *
+     * @param reference       document from which the content must be extracted
+     * @param contentProducer content producer for the document
+     * @return the content of the document. If there is an exception
+     */
+    private String getContentFromReader(String reference, EntityContentProducer contentProducer) {
+        StringBuffer sb = new StringBuffer();
+        try {
+            BufferedReader br = new BufferedReader(contentProducer.getContentReader(reference));
+            String tmp;
+            while ((tmp = br.readLine()) != null) {
+                sb.append(tmp);
+            }
+        } catch (IOException e) {
+            logger.error("An exception occurred while converting the content of "
+                    + "'" + reference + "' from a Reader to a String", e);
+            sb = new StringBuffer();
+        }
+        return sb.toString();
     }
 
     /**
