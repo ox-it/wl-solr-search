@@ -4,6 +4,9 @@ Sakai-Solr is an implementation of [Sakai Search](https://confluence.sakaiprojec
 [Apache Solr](http://lucene.apache.org/solr/) as the back end, instead of only lucene as provided in the default
 implementation.
 
+
+[![Build Status](https://secure.travis-ci.org/ColinHebert/Sakai-Solr.png)](http://travis-ci.org/ColinHebert/Sakai-Solr)
+
 ### Structure
 
 The project is divided in three modules similar to the structure of many Sakai projects:
