@@ -189,7 +189,8 @@ public class SolrResult implements SearchResult {
                 if (addedFrequency == null)
                     continue;
                 Long frequency = termFrequencies.get(fieldTerm.getKey());
-                termFrequencies.put(fieldTerm.getKey(), (frequency == null) ? addedFrequency : addedFrequency + frequency);
+                termFrequencies.put(fieldTerm.getKey(),
+                        (frequency == null) ? addedFrequency : addedFrequency + frequency);
             }
         }
 

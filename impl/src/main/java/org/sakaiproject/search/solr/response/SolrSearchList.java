@@ -31,7 +31,8 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
      * @param filter                 filter to apply on each result.
      * @param contentProducerFactory factory to obtain a content producer for each result.
      */
-    public SolrSearchList(QueryResponse rsp, int start, SearchItemFilter filter, ContentProducerFactory contentProducerFactory) {
+    public SolrSearchList(QueryResponse rsp, int start, SearchItemFilter filter,
+                          ContentProducerFactory contentProducerFactory) {
         this.rsp = rsp;
         this.start = start;
 
