@@ -182,14 +182,14 @@ public class SolrResult implements SearchResult {
     private TermFrequency extractTermFrequency(Map<String, Map<String, TermInfo>> termsByField) {
         Map<String, Long> termFrequencies = new HashMap<String, Long>();
         //Count the frequencies for each term, based on the sum of the frequency in each field
-        for (Map<String, TermInfo> terms : termsByField.values()) {
-            for (Map.Entry<String, TermInfo> term : terms.entrySet()) {
-                Long addedFrequency = term.getValue().getTermFrequency();
+        for (Map<String, TermInfo> fieldTerms : termsByField.values()) {
+            for (Map.Entry<String, TermInfo> fieldTerm : fieldTerms.entrySet()) {
+                Long addedFrequency = fieldTerm.getValue().getTermFrequency();
                 //Ignore when the frequency isn't specified (if tf isn't returned by solr)
                 if (addedFrequency == null)
                     continue;
-                Long frequency = termFrequencies.get(term.getKey());
-                termFrequencies.put(term.getKey(), (frequency == null) ? addedFrequency : addedFrequency + frequency);
+                Long frequency = termFrequencies.get(fieldTerm.getKey());
+                termFrequencies.put(fieldTerm.getKey(), (frequency == null) ? addedFrequency : addedFrequency + frequency);
             }
         }
 
@@ -207,11 +207,11 @@ public class SolrResult implements SearchResult {
         sortedFrequencies.addAll(termFrequencies.entrySet());
 
         //Extract data from each Entry into two arrays
-        final String[] terms = new String[sortedFrequencies.size()];
+        final String[] rawTerms = new String[sortedFrequencies.size()];
         final int[] frequencies = new int[sortedFrequencies.size()];
         int i = 0;
         for (Map.Entry<String, Long> term : sortedFrequencies) {
-            terms[i] = term.getKey();
+            rawTerms[i] = term.getKey();
             //There is a huge loss in precision, but there should not be any issue with null values
             frequencies[i] = (int) (long) term.getValue();
             i++;
@@ -220,7 +220,7 @@ public class SolrResult implements SearchResult {
         return new TermFrequency() {
             @Override
             public String[] getTerms() {
-                return terms;
+                return rawTerms;
             }
 
             @Override
