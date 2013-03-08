@@ -3,7 +3,6 @@ package org.sakaiproject.search.solr.response;
 import com.google.common.collect.ForwardingList;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
