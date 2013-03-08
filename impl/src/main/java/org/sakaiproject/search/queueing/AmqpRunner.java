@@ -11,6 +11,8 @@ import java.io.ObjectInputStream;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * TaskRunner using an AMQP server to obtain tasks.
+ *
  * @author Colin Hebert
  */
 public class AmqpRunner extends WaitingTaskRunner {
@@ -22,6 +24,9 @@ public class AmqpRunner extends WaitingTaskRunner {
     private Channel channel;
     private String queueName;
 
+    /**
+     * Creates a connection and starts handling tasks sent by the AMQP server.
+     */
     public void init() {
         try {
             amqpConnection = connectionFactory.newConnection(executor);
@@ -44,6 +49,9 @@ public class AmqpRunner extends WaitingTaskRunner {
         }
     }
 
+    /**
+     * Stops the connection to the AMQP server.
+     */
     public void destroy() {
         synchronized (this) {
             try {

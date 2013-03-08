@@ -6,7 +6,7 @@ import org.apache.solr.common.util.NamedList;
 import java.util.*;
 
 /**
- * Extract {@link org.apache.solr.handler.component.TermVectorComponent} results from a {@link QueryResponse}
+ * Extract {@link org.apache.solr.handler.component.TermVectorComponent} results from a {@link QueryResponse}.
  * <p>
  * Based on <a href="https://issues.apache.org/jira/browse/SOLR-949">SOLR-949</a>, this extractor will get every
  * information provided by  {@link org.apache.solr.handler.component.TermVectorComponent} and put that in a {@link Map}
@@ -220,7 +220,7 @@ public class TermVectorExtractor {
         }
 
         /**
-         * Offset
+         * Offset of the term.
          */
         public static final class Offset {
             private Long start;
