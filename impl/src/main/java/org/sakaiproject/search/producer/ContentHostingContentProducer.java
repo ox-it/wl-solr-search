@@ -38,8 +38,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
     private SearchIndexBuilder searchIndexBuilder;
 
     /**
-     * Initialisation method in charge of registering events related to ContentHosting
-     * that should trigger an indexation.
+     * Registers events related to ContentHosting that should trigger an indexation.
      */
     public void init() {
         if (serverConfigurationService.getBoolean("search.enable", false)) {
@@ -113,7 +112,7 @@ public abstract class ContentHostingContentProducer implements EntityContentProd
 
     @Override
     public boolean matches(Event event) {
-        return SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+        return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
     }
 
     @Override

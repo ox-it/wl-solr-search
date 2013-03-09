@@ -9,6 +9,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+/**
+ * Task queueing system relying on an AMQP server.
+ *
+ * @author Colin Hebert
+ */
 public class AmqpQueueing implements IndexQueueing {
     private static final Logger logger = LoggerFactory.getLogger(AmqpQueueing.class);
     private ConnectionFactory connectionFactory;
@@ -16,6 +21,9 @@ public class AmqpQueueing implements IndexQueueing {
     private String queueName;
     private boolean running = true;
 
+    /**
+     * Initialises the connection to the AMQP server.
+     */
     public void init() {
         try {
             amqpConnection = connectionFactory.newConnection();
@@ -24,6 +32,9 @@ public class AmqpQueueing implements IndexQueueing {
         }
     }
 
+    /**
+     * Disconnects the AMQP server.
+     */
     public void destroy() {
         synchronized (this) {
             try {

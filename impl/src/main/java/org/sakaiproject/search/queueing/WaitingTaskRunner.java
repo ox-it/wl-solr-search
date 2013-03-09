@@ -160,7 +160,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     }
 
     /**
-     * Handle a handleTemporaryTaskHandlingException by obtaining a lock to initiate the lockdown and add the new tasks
+     * Handles a handleTemporaryTaskHandlingException by obtaining a lock to initiate the lockdown and add the new tasks
      * to the queue.
      *
      * @param tthe TemporaryTaskHandlingException to handle.

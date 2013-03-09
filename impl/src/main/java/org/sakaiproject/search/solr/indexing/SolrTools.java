@@ -24,12 +24,12 @@ import org.sakaiproject.search.producer.BinaryEntityContentProducer;
 import org.sakaiproject.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.solr.SolrSearchIndexBuilder;
 import org.sakaiproject.search.solr.util.AdminStatRequest;
-import org.sakaiproject.search.solr.util.UpdateRequestReader;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -53,7 +53,7 @@ public class SolrTools {
     private Tika tika;
 
     /**
-     * Initialise tika if needed.
+     * Initialises tika if needed.
      */
     public void init() {
         if (tikaEnabled)
@@ -93,8 +93,10 @@ public class SolrTools {
         } else if (contentProducer.isContentFromReader(reference)) {
             if (logger.isDebugEnabled())
                 logger.debug("Create a request with a Reader");
-            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContentReader(reference));
-            request = new UpdateRequestReader().add(document);
+            String content;
+            content = getContentFromReader(reference, contentProducer);
+            document.setField(SearchService.FIELD_CONTENTS, content);
+            request = new UpdateRequest().add(document);
         } else {
             if (logger.isDebugEnabled())
                 logger.debug("Create a request based on a String");
@@ -106,7 +108,30 @@ public class SolrTools {
     }
 
     /**
-     * Extract additional document properties and content through Tika.
+     * Gets the content of a document from a Reader.
+     *
+     * @param reference       document from which the content must be extracted
+     * @param contentProducer content producer for the document
+     * @return the content of the document. If there is an exception
+     */
+    private String getContentFromReader(String reference, EntityContentProducer contentProducer) {
+        StringBuffer sb = new StringBuffer();
+        try {
+            BufferedReader br = new BufferedReader(contentProducer.getContentReader(reference));
+            String tmp;
+            while ((tmp = br.readLine()) != null) {
+                sb.append(tmp);
+            }
+        } catch (IOException e) {
+            logger.error("An exception occurred while converting the content of "
+                    + "'" + reference + "' from a Reader to a String", e);
+            sb = new StringBuffer();
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Extracts additional document properties and content through Tika.
      *
      * @param reference             reference of the document to index.
      * @param document              solr document about to be index.
@@ -136,7 +161,7 @@ public class SolrTools {
     }
 
     /**
-     * Create a solrDocument for a specific resource.
+     * Creates a solrDocument for a specific resource.
      *
      * @param reference       resource used to generate the document
      * @param contentProducer contentProducer in charge of extracting the data
@@ -167,7 +192,7 @@ public class SolrTools {
     }
 
     /**
-     * Prepare a request toward SolrCell to parse a binary document.
+     * Prepares a request toward SolrCell to parse a binary document.
      * <p>
      * The given document will be send in its binary form to apache tika to be analysed and stored in the index.
      * </p>
@@ -202,7 +227,7 @@ public class SolrTools {
     }
 
     /**
-     * Extract properties from the {@link EntityContentProducer}
+     * Extracts properties from the {@link EntityContentProducer}
      * <p>
      * The {@link EntityContentProducer#getCustomProperties(String)} method returns a map of different kind of elements.
      * To avoid casting and calls to {@code instanceof}, extractCustomProperties does all the work
@@ -259,7 +284,7 @@ public class SolrTools {
     }
 
     /**
-     * Replace special characters, turn to lower case and avoid repetitive '_'.
+     * Replaces special characters, turn to lower case and avoid repetitive '_'.
      *
      * @param propertyName String to filter.
      * @return a filtered name more appropriate to use with solr.
@@ -337,7 +362,7 @@ public class SolrTools {
     }
 
     /**
-     * Get the reference of every document available (not only the indexed ones) for a specific site.
+     * Gets the reference of every document available (not only the indexed ones) for a specific site.
      * <p>
      * This method gets the documents currently available in a site, not only the indexed ones.<br />
      * This method is most commonly used to reindex a site.

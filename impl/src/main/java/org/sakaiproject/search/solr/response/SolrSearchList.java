@@ -3,7 +3,6 @@ package org.sakaiproject.search.solr.response;
 import com.google.common.collect.ForwardingList;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.util.NamedList;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
@@ -24,12 +23,18 @@ public class SolrSearchList extends ForwardingList<SearchResult> implements Sear
     private final QueryResponse rsp;
     private final int start;
 
-    public SolrSearchList(QueryResponse rsp, SearchItemFilter filter, ContentProducerFactory contentProducerFactory) {
+    /**
+     * List of results for a solr query.
+     *
+     * @param rsp                    raw response from solr.
+     * @param start                  position of the first result (overall).
+     * @param filter                 filter to apply on each result.
+     * @param contentProducerFactory factory to obtain a content producer for each result.
+     */
+    public SolrSearchList(QueryResponse rsp, int start, SearchItemFilter filter,
+                          ContentProducerFactory contentProducerFactory) {
         this.rsp = rsp;
-
-        //Get the 'start' index of the result list. If not set, use 0
-        String expectedStart = ((NamedList<String>) rsp.getHeader().get("params")).get("start");
-        this.start = (expectedStart != null) ? Integer.parseInt(expectedStart) : 0;
+        this.start = start;
 
         List<SearchResult> results = new ArrayList<SearchResult>(rsp.getResults().size());
 

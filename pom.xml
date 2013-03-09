@@ -10,7 +10,7 @@
     <groupId>org.sakaiproject.search.solr</groupId>
     <artifactId>solr-base</artifactId>
     <packaging>pom</packaging>
-    <name>Solr Base</name>
+    <name>Sakai search - Solr Base</name>
     <version>1.0-SNAPSHOT</version>
 
     <distributionManagement>
@@ -39,13 +39,13 @@
         <!-- dependencies versions -->
         <sakai.search.version>1.3.8-SNAPSHOT</sakai.search.version>
         <solr.version>4.1.0</solr.version>
-        <tika.version>1.2</tika.version>
-        <guava.version>13.0.1</guava.version>
+        <tika.version>1.3</tika.version>
+        <guava.version>14.0</guava.version>
         <sakai.citation.version>2.8.2</sakai.citation.version>
-        <junit.version>4.10</junit.version>
-        <mockito.version>1.9.0</mockito.version>
+        <junit.version>4.11</junit.version>
+        <mockito.version>1.9.5</mockito.version>
         <slf4j.version>1.7.2</slf4j.version>
-        <amqp.version>3.0.0</amqp.version>
+        <amqp.version>3.0.3</amqp.version>
     </properties>
 
     <modules>
@@ -192,6 +192,15 @@
                 <extensions>true</extensions>
                 <configuration>
                     <deployDirectory>${maven.tomcat.home}</deployDirectory>
+                    <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
                     <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
                 </configuration>
             </plugin>
