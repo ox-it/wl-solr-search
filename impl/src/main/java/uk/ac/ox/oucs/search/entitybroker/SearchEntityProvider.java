@@ -18,7 +18,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import java.util.*;
 
 /**
- * Entity provider for Entity broker giving access to search services through a an HTTP method
+ * Entity provider for Entity broker giving access to search services through a an HTTP method.
  *
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  * @author Colin Hebert
@@ -31,7 +31,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     private SiteService siteService;
 
     /**
-     * Name of the service, here "search"
+     * Gets the name of the service, here "search".
      *
      * @return the constant name of this service
      */
@@ -41,7 +41,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     }
 
     /**
-     * Handled formats, such as JSon and XML
+     * Lists handled formats, such as JSon and XML.
      *
      * @return formats supported
      */
@@ -51,28 +51,29 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     }
 
     /**
-     * Simple search method
+     * Simple search method.
      *
-     * @param ref
-     * @param search
-     * @return a list of SearchResults
+     * @param ref TODO: Documment this parameter (unused, why?)
+     * @param search TODO: Documment this parameter
+     * @return a list of SearchResults.
      */
     @EntityCustomAction(action = "search", viewKey = EntityView.VIEW_LIST)
     public List<SearchResultEntity> search(EntityReference ref, Search search) {
         try {
-            //Get the query sent by the client
+            // Get the query sent by the client
             String query = extractQuery(search.getRestrictionByProperty("searchTerms"));
-            //Get the list of contexts (sites) used for this search, or every accessible site if the user hasn't provided a context list
+            // Get the list of contexts (sites) used for this search, or every accessible site if the user
+            // hasn't provided a context list
             List<String> contexts = extractContexts(search.getRestrictionByProperty("contexts"));
 
-            //Set the limit if it hasn't been set already
+            // Set the limit if it hasn't been set already
             if (search.getLimit() < 0)
                 search.setLimit(DEFAULT_RESULT_COUNT);
 
-            //Actual search
+            // Actual search
             SearchList searchResults = searchService.search(query, contexts, (int) search.getStart(), (int) search.getLimit());
 
-            //Transforms SearchResult in a SearchResultEntity to avoid conflicts with the getId() method (see SRCH-85)
+            // Transforms SearchResult in a SearchResultEntity to avoid conflicts with the getId() method (see SRCH-85)
             List<SearchResultEntity> results = new ArrayList<SearchResultEntity>(searchResults.size());
             for (SearchResult result : searchResults) {
                 results.add(new SearchResultEntity(result));
@@ -85,13 +86,13 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     }
 
     /**
-     * Get the list of tools handled by the search engine.
+     * Gets the list of tools handled by the search engine.
      *
      * @return a list of supported tools
      */
     @EntityCustomAction(action = "tools", viewKey = EntityView.VIEW_SHOW)
     public Set<String> getTools() {
-        //TODO: remove the call to this deprecated method and use ContentProducerFactory instead
+        // TODO: remove the call to this deprecated method and use ContentProducerFactory instead
         List<EntityContentProducer> entityContentProducers = searchIndexBuilder.getContentProducers();
         Set<String> tools = new HashSet<String>(entityContentProducers.size());
         for (EntityContentProducer entityContentProducer : entityContentProducers) {
@@ -101,7 +102,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     }
 
     /**
-     * Extract the query from users parameters
+     * Extracts the query from users parameters.
      *
      * @param searchTermsRestriction parameter given to EntityBroker
      * @return A search String
@@ -113,14 +114,14 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
 
         StringBuilder searchQuery = new StringBuilder();
         for (String term : (String[]) searchTermsRestriction.getArrayValue()) {
-            //Concatenate with spaces, if the user wants a coma separated value he can easily enter comas in his query.
+            // Concatenate with spaces, if the user wants a coma separated value he can easily enter comas in his query.
             searchQuery.append(term).append(' ');
         }
         return searchQuery.toString();
     }
 
     /**
-     * Extract contexts from users parameters
+     * Extracts contexts from users parameters.
      *
      * @param contextsRestriction parameter given to EntityBroker
      * @return A list of contexts (sites) where the search will be done
@@ -136,7 +137,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     }
 
     /**
-     * Get all sites available for the current user
+     * Gets all sites available for the current user.
      *
      * @return a list of contexts (sites IDs) available for the current user
      */
@@ -148,14 +149,14 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
                 siteIds.add(site.getId());
         }
 
-        //Manually add the user's site
+        // Manually add the user's site
         siteIds.add(siteService.getUserSiteId(userDirectoryService.getCurrentUser().getId()));
         return siteIds;
     }
 
-    //--------------------------
-    //Spring injected components
-    //--------------------------
+    //---------------------------
+    // Spring injected components
+    //---------------------------
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
@@ -173,7 +174,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     }
 
     /**
-     * A wrapper to customise the result sent through EntityBroker
+     * A wrapper to customise the result sent through EntityBroker.
      * <p>
      * Wraps a {@link SearchResult} to avoid issues with the {@link org.sakaiproject.search.api.SearchResult#getId()}
      * method and {@link EntityReference#checkPrefixId(String, String)}.<br />

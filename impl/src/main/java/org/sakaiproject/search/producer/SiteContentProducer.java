@@ -22,6 +22,8 @@ import java.io.StringReader;
 import java.util.*;
 
 /**
+ * EntityContentProducer in charge of providing details about sites.
+ *
  * @author Colin Hebert
  */
 public class SiteContentProducer implements EntityContentProducer {
