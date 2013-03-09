@@ -23,9 +23,10 @@ import java.util.*;
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  * @author Colin Hebert
  */
-public class SearchEntityProvider extends AbstractEntityProvider implements ActionsExecutable, Outputable, Describeable {
+public class SearchEntityProvider extends AbstractEntityProvider
+        implements ActionsExecutable, Outputable, Describeable {
     private static final int DEFAULT_RESULT_COUNT = 10;
-    public UserDirectoryService userDirectoryService;
+    private UserDirectoryService userDirectoryService;
     private SearchService searchService;
     private SearchIndexBuilder searchIndexBuilder;
     private SiteService siteService;
@@ -71,7 +72,8 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
                 search.setLimit(DEFAULT_RESULT_COUNT);
 
             // Actual search
-            SearchList searchResults = searchService.search(query, contexts, (int) search.getStart(), (int) search.getLimit());
+            SearchList searchResults = searchService.search(query, contexts,
+                    (int) search.getStart(), (int) search.getLimit());
 
             // Transforms SearchResult in a SearchResultEntity to avoid conflicts with the getId() method (see SRCH-85)
             List<SearchResultEntity> results = new ArrayList<SearchResultEntity>(searchResults.size());
@@ -181,7 +183,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
      * Can also filter which parts of the query are accessible to a remote user.
      * </p>
      */
-    public class SearchResultEntity {
+    public final class SearchResultEntity {
         private final SearchResult searchResult;
 
         private SearchResultEntity(SearchResult searchResult) {
