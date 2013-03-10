@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +52,7 @@ public final class ProducersHelper {
     }
 
     public static BinaryEntityContentProducer getBinaryContentProducer(String reference) {
-        InputStream content = new ByteArrayInputStream((reference + " content").getBytes(Charset.defaultCharset()));
+        InputStream content = new ByteArrayInputStream((reference + " content").getBytes());
 
         BinaryEntityContentProducer mockEntityContentProducer = mock(BinaryContentHostingContentProducer.class);
         initialiseMockContentProducer(mockEntityContentProducer, reference);

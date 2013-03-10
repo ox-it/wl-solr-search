@@ -31,6 +31,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- maven-compiler-plugin config -->
         <maven.compiler.source>6</maven.compiler.source>
@@ -46,6 +47,8 @@
         <mockito.version>1.9.5</mockito.version>
         <slf4j.version>1.7.2</slf4j.version>
         <amqp.version>3.0.3</amqp.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <joda-time.version>2.2</joda-time.version>
     </properties>
 
     <modules>
@@ -80,6 +83,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
                 <version>${tika.version}</version>
             </dependency>
@@ -87,6 +95,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda-time.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
@@ -137,16 +150,6 @@
                 <version>${sakai.kernel.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <version>${sakai.entitybroker.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
-                <version>${sakai.entitybroker.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.sakaiproject.kernel</groupId>
                 <artifactId>sakai-kernel-component</artifactId>
                 <version>${sakai.kernel.version}</version>
@@ -165,10 +168,14 @@
                 <version>${mockito.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-core</artifactId>
+                <version>${hamcrest.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-test-framework</artifactId>
                 <version>${solr.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
