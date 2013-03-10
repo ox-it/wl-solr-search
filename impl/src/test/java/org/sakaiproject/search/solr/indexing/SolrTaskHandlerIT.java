@@ -72,6 +72,23 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     }
 
     @Test
+    public void testIndexDocumentOutdatedFails() throws Exception {
+        String reference = "testIndexDocument";
+        DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
+        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
+        addDocumentToIndex(reference, indexationDate);
+
+        solrTaskHandler.indexDocument(reference, actionDate.toDate());
+
+        SolrDocumentList results = getSolrDocuments();
+        // No new documents have been created
+        assertThat(results.getNumFound(), is(1L));
+        // The document hasn't been modified
+        assertDocumentMatches(results.get(0), reference, indexationDate.toDate());
+    }
+
+    @Test
     public void testRemoveDocument() throws Exception {
         String reference = "testRemoveDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
