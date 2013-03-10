@@ -65,6 +65,8 @@ public final class ProducersHelper {
     private static void initialiseMockContentProducer(EntityContentProducer mockContentProducer, String reference) {
         String container = reference + " container";
         String type = reference + " type";
+        String subtype = reference + " subtype";
+        String id = reference + " id";
         String title = reference + " title";
         String tool = reference + " tool";
         String url = reference + " url";
@@ -82,6 +84,8 @@ public final class ProducersHelper {
         when(mockContentProducer.isForIndex(reference)).thenReturn(true);
         when(mockContentProducer.getContainer(reference)).thenReturn(container);
         when(mockContentProducer.getType(reference)).thenReturn(type);
+        when(mockContentProducer.getSubType(reference)).thenReturn(subtype);
+        when(mockContentProducer.getId(reference)).thenReturn(id);
         when(mockContentProducer.getTitle(reference)).thenReturn(title);
         when(mockContentProducer.getTool()).thenReturn(tool);
         when(mockContentProducer.getUrl(reference)).thenReturn(url);

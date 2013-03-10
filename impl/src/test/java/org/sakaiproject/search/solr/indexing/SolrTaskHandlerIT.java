@@ -82,6 +82,10 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
                 CoreMatchers.<Object>equalTo(contentProducer.getContainer(reference)));
         assertThat(document.getFieldValue(SearchService.FIELD_TYPE),
                 CoreMatchers.<Object>equalTo(contentProducer.getType(reference)));
+        assertThat(document.getFieldValue(SearchService.FIELD_SUBTYPE),
+                CoreMatchers.<Object>equalTo(contentProducer.getSubType(reference)));
+        assertThat(document.getFieldValue(SearchService.FIELD_ID),
+                CoreMatchers.<Object>equalTo(contentProducer.getId(reference)));
         assertThat(document.getFieldValue(SearchService.FIELD_TITLE),
                 CoreMatchers.<Object>equalTo(contentProducer.getTitle(reference)));
         assertThat(document.getFieldValue(SearchService.FIELD_TOOL),
