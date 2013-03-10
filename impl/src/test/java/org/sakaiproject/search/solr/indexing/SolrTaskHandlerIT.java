@@ -96,8 +96,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     }
 
     private void assertIndexIsEmpty() throws Exception {
-        SolrDocumentList result = getSolrDocuments();
-        assertThat(result.getNumFound(), is(0L));
+        assertThat(getSolrDocuments().getNumFound(), is(0L));
     }
 
     private void assertDocumentMatches(SolrDocument document, String reference) {
