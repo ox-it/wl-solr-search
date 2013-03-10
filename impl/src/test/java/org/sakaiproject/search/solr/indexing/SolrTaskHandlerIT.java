@@ -58,8 +58,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public void testIndexDocument() throws Exception {
         String reference = "testIndexDocument";
         DateTime actionDate = new DateTime();
-        EntityContentProducer entityContentProducer = ProducersHelper.getStringContentProducer(reference);
-        contentProducerFactory.addContentProducer(entityContentProducer);
+        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
         assertIndexIsEmpty();
 
         solrTaskHandler.indexDocument(reference, actionDate.toDate());
@@ -75,8 +74,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String reference = "testRemoveDocument";
         Date indexationDate = new DateTime(2013, 3, 10, 16, 0, 0).toDate();
         Date actionDate = new DateTime(2013, 3, 10, 17, 0, 0).toDate();
-        EntityContentProducer entityContentProducer = ProducersHelper.getStringContentProducer(reference);
-        contentProducerFactory.addContentProducer(entityContentProducer);
+        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
         solrTaskHandler.indexDocument(reference, indexationDate);
         SolrDocumentList result = getSolrDocuments();
         assertThat(result.getNumFound(), is(1L));
@@ -91,8 +89,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String reference = "testRemoveDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
-        EntityContentProducer entityContentProducer = ProducersHelper.getStringContentProducer(reference);
-        contentProducerFactory.addContentProducer(entityContentProducer);
+        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
         solrTaskHandler.indexDocument(reference, indexationDate.toDate());
         SolrDocumentList result = getSolrDocuments();
         assertThat(result.getNumFound(), is(1L));
