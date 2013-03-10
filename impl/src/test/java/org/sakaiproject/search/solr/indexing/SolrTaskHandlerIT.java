@@ -111,7 +111,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
 
         solrTaskHandler.removeDocument(reference, actionDate.toDate());
 
-        assertIndexIsEmpty();
+        assertThat(getSolrDocuments().getNumFound(), is(1L));
     }
 
     private void assertIndexIsEmpty() throws Exception {
