@@ -8,6 +8,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.util.AbstractSolrTestCase;
 import org.hamcrest.CoreMatchers;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -55,17 +56,49 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testIndexDocument() throws Exception {
         String reference = "testIndexDocument";
-        Date actionDate = new Date();
+        DateTime actionDate = new DateTime();
         EntityContentProducer entityContentProducer = ProducersHelper.getStringContentProducer(reference);
         contentProducerFactory.addContentProducer(entityContentProducer);
         assertIndexIsEmpty();
 
-        solrTaskHandler.indexDocument(reference, actionDate);
+        solrTaskHandler.indexDocument(reference, actionDate.toDate());
 
         SolrDocumentList result = getSolrDocuments();
         assertThat(result.getNumFound(), is(1L));
         SolrDocument document = result.get(0);
         assertDocumentMatches(document, reference);
+    }
+
+    @Test
+    public void testRemoveDocument() throws Exception {
+        String reference = "testRemoveDocument";
+        Date indexationDate = new DateTime(2013, 3, 10, 16, 0, 0).toDate();
+        Date actionDate = new DateTime(2013, 3, 10, 17, 0, 0).toDate();
+        EntityContentProducer entityContentProducer = ProducersHelper.getStringContentProducer(reference);
+        contentProducerFactory.addContentProducer(entityContentProducer);
+        solrTaskHandler.indexDocument(reference, indexationDate);
+        SolrDocumentList result = getSolrDocuments();
+        assertThat(result.getNumFound(), is(1L));
+
+        solrTaskHandler.removeDocument(reference, actionDate);
+
+        assertIndexIsEmpty();
+    }
+
+    @Test
+    public void testRemoveDocumentOutdatedFails() throws Exception {
+        String reference = "testRemoveDocument";
+        DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
+        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        EntityContentProducer entityContentProducer = ProducersHelper.getStringContentProducer(reference);
+        contentProducerFactory.addContentProducer(entityContentProducer);
+        solrTaskHandler.indexDocument(reference, indexationDate.toDate());
+        SolrDocumentList result = getSolrDocuments();
+        assertThat(result.getNumFound(), is(1L));
+
+        solrTaskHandler.removeDocument(reference, actionDate.toDate());
+
+        assertIndexIsEmpty();
     }
 
     private void assertIndexIsEmpty() throws Exception {
