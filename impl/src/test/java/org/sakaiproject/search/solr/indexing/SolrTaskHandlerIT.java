@@ -42,7 +42,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public void setUp() throws Exception {
         super.setUp();
         solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
-        solrServer.deleteByQuery("*:*");
+        clearIndex();
 
         solrTaskHandler = new SolrTaskHandler();
         solrTaskHandler.setSolrServer(solrServer);
