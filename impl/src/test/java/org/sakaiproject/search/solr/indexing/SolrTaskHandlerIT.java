@@ -75,9 +75,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         Date indexationDate = new DateTime(2013, 3, 10, 16, 0, 0).toDate();
         Date actionDate = new DateTime(2013, 3, 10, 17, 0, 0).toDate();
         contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
-        solrTaskHandler.indexDocument(reference, indexationDate);
-        SolrDocumentList result = getSolrDocuments();
-        assertThat(result.getNumFound(), is(1L));
+        addDocumentToIndex(reference, indexationDate);
 
         solrTaskHandler.removeDocument(reference, actionDate);
 
@@ -90,9 +88,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
-        solrTaskHandler.indexDocument(reference, indexationDate.toDate());
-        SolrDocumentList result = getSolrDocuments();
-        assertThat(result.getNumFound(), is(1L));
+        addDocumentToIndex(reference, indexationDate);
 
         solrTaskHandler.removeDocument(reference, actionDate.toDate());
 
@@ -121,6 +117,12 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
                 CoreMatchers.<Object>equalTo(contentProducer.getUrl(reference)));
         assertThat(document.getFieldValue(SearchService.FIELD_SITEID),
                 CoreMatchers.<Object>equalTo(contentProducer.getSiteId(reference)));
+
+    }
+
+    private void addDocumentToIndex(String reference, DateTime indexationDate) throws Exception {
+        solrTaskHandler.indexDocument(reference, indexationDate.toDate());
+        solrServer.commit();
     }
 
     private SolrDocumentList getSolrDocuments() throws Exception {
