@@ -25,6 +25,8 @@ import static org.mockito.Mockito.*;
  * @author Colin Hebert
  */
 public class SolrSplitterProcessesTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     @Mock
     private TaskHandler mockTaskHandler;
     @Mock
@@ -33,8 +35,6 @@ public class SolrSplitterProcessesTest {
     private SolrTools mockSolrTools;
     private Queue<String> indexableSites = new LinkedList<String>();
     private SolrSplitterProcesses solrSplitterProcesses;
-    @Rule
-    private ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
