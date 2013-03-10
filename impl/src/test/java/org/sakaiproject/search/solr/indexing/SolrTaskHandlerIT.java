@@ -19,6 +19,7 @@ import org.sakaiproject.search.producer.ProducersHelper;
 
 import java.util.Date;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
 /**
@@ -63,10 +64,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
 
         solrTaskHandler.indexDocument(reference, actionDate.toDate());
 
-        SolrDocumentList result = getSolrDocuments();
-        assertThat(result.getNumFound(), is(1L));
-        SolrDocument document = result.get(0);
-        assertDocumentMatches(document, reference);
+        SolrDocumentList results = getSolrDocuments();
+        // A new documents has been created
+        assertThat(results.getNumFound(), is(1L));
+        // The document matches the input
+        assertDocumentMatches(results.get(0), reference, actionDate.toDate());
     }
 
     @Test
@@ -97,6 +99,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
 
     private void assertIndexIsEmpty() throws Exception {
         assertThat(getSolrDocuments().getNumFound(), is(0L));
+    }
+
+    private void assertDocumentMatches(SolrDocument document, String reference, Date actionDate) {
+        assertDocumentMatches(document, reference);
+        assertThat((Date) document.getFieldValue(SearchService.DATE_STAMP), equalTo(actionDate));
     }
 
     private void assertDocumentMatches(SolrDocument document, String reference) {
