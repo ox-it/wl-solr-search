@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.is;
 /**
  * @author Colin Hebert
  */
+@org.apache.lucene.util.LuceneTestCase.SuppressCodecs({"Lucene3x","Lucene40"})
 public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     private SolrTools solrTools;
     private ContentProducerFactory contentProducerFactory;
