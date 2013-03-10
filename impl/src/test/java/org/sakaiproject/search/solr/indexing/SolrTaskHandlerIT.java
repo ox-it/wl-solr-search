@@ -72,12 +72,12 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testRemoveDocument() throws Exception {
         String reference = "testRemoveDocument";
-        Date indexationDate = new DateTime(2013, 3, 10, 16, 0, 0).toDate();
-        Date actionDate = new DateTime(2013, 3, 10, 17, 0, 0).toDate();
+        DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
+        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
         addDocumentToIndex(reference, indexationDate);
 
-        solrTaskHandler.removeDocument(reference, actionDate);
+        solrTaskHandler.removeDocument(reference, actionDate.toDate());
 
         assertIndexIsEmpty();
     }
