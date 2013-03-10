@@ -87,7 +87,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testRemoveDocumentOutdatedFails() throws Exception {
         String reference = "testRemoveDocument";
-        DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
+        DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
         solrTaskHandler.indexDocument(reference, indexationDate.toDate());
