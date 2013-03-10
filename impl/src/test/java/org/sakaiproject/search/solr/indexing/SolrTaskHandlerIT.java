@@ -57,7 +57,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testIndexDocument() throws Exception {
         String reference = "testIndexDocument";
-        DateTime actionDate = new DateTime();
+        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
         assertIndexIsEmpty();
 
