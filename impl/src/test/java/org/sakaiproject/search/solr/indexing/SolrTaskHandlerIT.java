@@ -155,6 +155,55 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         assertThat(getSolrDocuments().getNumFound(), is(1L));
     }
 
+    /**
+     * Attempts to index a site containing multiple documents.
+     * <p>
+     * Checks that the expected number of documents were indexed.
+     * </p>
+     *
+     * @throws Exception any exception.
+     */
+    @Test
+    public void testIndexSiteCreatesRightNumberOfDocuments() throws Exception {
+        String siteId = "indexSiteId";
+        int numberOfDocs = 7;
+        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create()
+                .addDocToSite(siteId, numberOfDocs);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
+
+        solrTaskHandler.indexSite(siteId, actionDate.toDate());
+
+        assertThat(getSolrDocuments().getNumFound(), is((long) numberOfDocs));
+    }
+
+    /**
+     * Attempt to index an already indexed site containing multiple documents (and had some documents removed).
+     * <p>
+     * Checks that the expected number of documents were indexed.<br />
+     * Checks that the old/nonexistant documents were removed.<br />
+     * </p>
+     *
+     * @throws Exception any exception.
+     */
+    @Test
+    public void testIndexSiteRemovesOldDocuments() throws Exception {
+        String siteId = "indexSiteId";
+        int numberOfOldDocs = 7;
+        DateTime indexationDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        int numberOfNewDocs = 3;
+        DateTime actionDate = new DateTime(2013, 3, 10, 18, 0, 0);
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDocToSite(siteId, numberOfOldDocs);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
+        addSiteToIndex(siteId, indexationDate);
+        contentProducerBuilder.emptySite(siteId)
+                .addDocToSite(siteId, numberOfNewDocs);
+
+        solrTaskHandler.indexSite(siteId, actionDate.toDate());
+
+        assertThat(getSolrDocuments().getNumFound(), is((long) numberOfNewDocs));
+    }
+
     private void assertIndexIsEmpty() throws Exception {
         assertThat(getSolrDocuments().getNumFound(), is(0L));
     }
@@ -186,6 +235,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
 
     private void addDocumentToIndex(String reference, DateTime indexationDate) throws Exception {
         solrTaskHandler.indexDocument(reference, indexationDate.toDate());
+        solrServer.commit();
+    }
+
+    private void addSiteToIndex(String siteId, DateTime indexationDate) throws Exception {
+        solrTaskHandler.indexSite(siteId, indexationDate.toDate());
         solrServer.commit();
     }
 
