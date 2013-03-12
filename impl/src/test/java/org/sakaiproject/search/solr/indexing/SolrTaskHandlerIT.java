@@ -27,9 +27,8 @@ import static org.hamcrest.CoreMatchers.is;
  *
  * @author Colin Hebert
  */
-@org.apache.lucene.util.LuceneTestCase.SuppressCodecs({"Lucene3x","Lucene40"})
+@org.apache.lucene.util.LuceneTestCase.SuppressCodecs({"Lucene3x", "Lucene40"})
 public class SolrTaskHandlerIT extends AbstractSolrTestCase {
-    private SolrTools solrTools;
     private ContentProducerFactory contentProducerFactory;
     private SolrServer solrServer;
     private SolrTaskHandler solrTaskHandler;
@@ -47,10 +46,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         super.setUp();
         solrServer = new EmbeddedSolrServer(h.getCoreContainer(), h.getCore().getName());
         clearIndex();
+        assertIndexIsEmpty();
 
         solrTaskHandler = new SolrTaskHandler();
         solrTaskHandler.setSolrServer(solrServer);
-        solrTools = new SolrTools();
+        SolrTools solrTools = new SolrTools();
         solrTaskHandler.setSolrTools(solrTools);
         solrTools.setSolrServer(solrServer);
         contentProducerFactory = new ContentProducerFactory();
@@ -72,7 +72,6 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         // Add a producer for 'reference'
         contentProducerFactory.addContentProducer(ProducerBuilder.create().addDoc(reference).build());
-        assertIndexIsEmpty();
 
         solrTaskHandler.indexDocument(reference, actionDate.toDate());
 
