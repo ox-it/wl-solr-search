@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.producer.ContentProducerFactory;
-import org.sakaiproject.search.producer.ProducersHelper;
+import org.sakaiproject.search.producer.ProducerBuilder;
 
 import java.util.Date;
 
@@ -59,7 +59,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public void testIndexDocument() throws Exception {
         String reference = "testIndexDocument";
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
-        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
+        contentProducerFactory.addContentProducer(ProducerBuilder.create().addDoc(reference).build());
         assertIndexIsEmpty();
 
         solrTaskHandler.indexDocument(reference, actionDate.toDate());
@@ -76,7 +76,8 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String reference = "testIndexDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
-        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
         addDocumentToIndex(reference, indexationDate);
 
         solrTaskHandler.indexDocument(reference, actionDate.toDate());
@@ -93,7 +94,8 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String reference = "testRemoveDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
-        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
         addDocumentToIndex(reference, indexationDate);
 
         solrTaskHandler.removeDocument(reference, actionDate.toDate());
@@ -106,7 +108,8 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String reference = "testRemoveDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
-        contentProducerFactory.addContentProducer(ProducersHelper.getStringContentProducer(reference));
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
         addDocumentToIndex(reference, indexationDate);
 
         solrTaskHandler.removeDocument(reference, actionDate.toDate());
