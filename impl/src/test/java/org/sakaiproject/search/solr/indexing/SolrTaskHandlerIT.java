@@ -74,31 +74,32 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testIndexDocumentOutdatedFails() throws Exception {
         String reference = "testIndexDocument";
-        DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
-        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        DateTime firstIndexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
+        // The secondIndexation date is _before_ the first indexation.
+        DateTime secondIndexationDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
-        addDocumentToIndex(reference, indexationDate);
+        addDocumentToIndex(reference, firstIndexationDate);
 
-        solrTaskHandler.indexDocument(reference, actionDate.toDate());
+        solrTaskHandler.indexDocument(reference, secondIndexationDate.toDate());
 
         SolrDocumentList results = getSolrDocuments();
         // No new documents have been created
         assertThat(results.getNumFound(), is(1L));
         // The document hasn't been modified
-        assertDocumentMatches(results.get(0), reference, indexationDate.toDate());
+        assertDocumentMatches(results.get(0), reference, firstIndexationDate.toDate());
     }
 
     @Test
     public void testRemoveDocument() throws Exception {
         String reference = "testRemoveDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
-        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        DateTime removalDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
         addDocumentToIndex(reference, indexationDate);
 
-        solrTaskHandler.removeDocument(reference, actionDate.toDate());
+        solrTaskHandler.removeDocument(reference, removalDate.toDate());
 
         assertIndexIsEmpty();
     }
@@ -107,12 +108,13 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public void testRemoveDocumentOutdatedFails() throws Exception {
         String reference = "testRemoveDocument";
         DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
-        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        // The removal date is _before_ the indexation.
+        DateTime removalDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
         addDocumentToIndex(reference, indexationDate);
 
-        solrTaskHandler.removeDocument(reference, actionDate.toDate());
+        solrTaskHandler.removeDocument(reference, removalDate.toDate());
 
         assertThat(getSolrDocuments().getNumFound(), is(1L));
     }
