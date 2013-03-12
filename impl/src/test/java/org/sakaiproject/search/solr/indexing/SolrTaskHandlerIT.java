@@ -23,6 +23,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
 /**
+ * Integration test with Solr.
+ *
  * @author Colin Hebert
  */
 @org.apache.lucene.util.LuceneTestCase.SuppressCodecs({"Lucene3x","Lucene40"})
@@ -55,10 +57,20 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         solrTools.setContentProducerFactory(contentProducerFactory);
     }
 
+    /**
+     * Attempts to add a new document to the index.
+     * <p>
+     * Checks that only one document is available (the index is empty to begin with).<br />
+     * Checks that the document is the one created (same properties, same creation date).
+     * </p>
+     *
+     * @throws Exception any exception.
+     */
     @Test
     public void testIndexDocument() throws Exception {
         String reference = "testIndexDocument";
         DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
+        // Add a producer for 'reference'
         contentProducerFactory.addContentProducer(ProducerBuilder.create().addDoc(reference).build());
         assertIndexIsEmpty();
 
@@ -71,6 +83,16 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         assertDocumentMatches(results.get(0), reference, actionDate.toDate());
     }
 
+    /**
+     * Attempts to add an outdated document to the index.
+     * <p>
+     * Checks that a same document can't be twice in the index.<br />
+     * Checks that an outdated document doesn't overwrite a newer version of that document.<br />
+     * Checks that outdated documents fail silently.
+     * </p>
+     *
+     * @throws Exception any exception.
+     */
     @Test
     public void testIndexDocumentOutdatedFails() throws Exception {
         String reference = "testIndexDocument";
@@ -84,12 +106,18 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         solrTaskHandler.indexDocument(reference, secondIndexationDate.toDate());
 
         SolrDocumentList results = getSolrDocuments();
-        // No new documents have been created
         assertThat(results.getNumFound(), is(1L));
-        // The document hasn't been modified
         assertDocumentMatches(results.get(0), reference, firstIndexationDate.toDate());
     }
 
+    /**
+     * Attempts to remove a document from the index.
+     * <p>
+     * Checks that the removal of the only document results in an empty index.
+     * </p>
+     *
+     * @throws Exception any exception.
+     */
     @Test
     public void testRemoveDocument() throws Exception {
         String reference = "testRemoveDocument";
@@ -104,6 +132,15 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         assertIndexIsEmpty();
     }
 
+    /**
+     * Attempts to remove a document from the index when a newer version of the document is present.
+     * <p>
+     * Checks that a newer document isn't removed when the removal date is before the document indexation date.<br />
+     * Checks that outdated removal fail silently.
+     * </p>
+     *
+     * @throws Exception any exception.
+     */
     @Test
     public void testRemoveDocumentOutdatedFails() throws Exception {
         String reference = "testRemoveDocument";
