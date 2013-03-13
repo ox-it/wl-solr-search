@@ -227,6 +227,29 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         assertIndexIsEmpty();
     }
 
+    /**
+     * Attempts to refresh a site that has deprecated documents.
+     * <p>
+     * Check that the now deprecated documents are removed.
+     * </p>
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRefreshSiteRemovesDocuments() throws Exception {
+        String siteId = "refreshSiteId";
+        int numberOfDocs = 7;
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create()
+                .addDocsToSite(siteId, numberOfDocs);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
+        addSiteToIndex(siteId, DATE_1);
+        contentProducerBuilder.emptySite(siteId);
+
+        solrTaskHandler.refreshSite(siteId, DATE_2);
+
+        assertIndexIsEmpty();
+    }
+
     private void assertIndexIsEmpty() throws Exception {
         assertThat(getSolrDocuments().getNumFound(), is(0L));
     }
