@@ -80,7 +80,9 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         // A new documents has been created
         assertThat(results.getNumFound(), is(1L));
         // The document matches the input
-        assertDocumentMatches(results.get(0), reference, actionDate.toDate());
+        SolrDocument document = results.get(0);
+        assertThat(document.getFieldValue(SearchService.FIELD_REFERENCE), CoreMatchers.<Object>equalTo(reference));
+        assertDocumentMatches(document, actionDate.toDate());
     }
 
     /**
@@ -107,7 +109,10 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
 
         SolrDocumentList results = getSolrDocuments();
         assertThat(results.getNumFound(), is(1L));
-        assertDocumentMatches(results.get(0), reference, firstIndexationDate.toDate());
+
+        SolrDocument document = results.get(0);
+        assertThat(document.getFieldValue(SearchService.FIELD_REFERENCE), CoreMatchers.<Object>equalTo(reference));
+        assertDocumentMatches(document, firstIndexationDate.toDate());
     }
 
     /**
@@ -216,21 +221,20 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
                 new SolrQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId)));
 
         for (SolrDocument document : response.getResults()) {
-            assertDocumentMatches(document, document.getFieldValue(SearchService.FIELD_REFERENCE), actionDate);
+            assertDocumentMatches(document, actionDate);
         }
     }
 
 
-    private void assertDocumentMatches(SolrDocument document, String reference, Date actionDate) {
-        assertDocumentMatches(document, reference);
+    private void assertDocumentMatches(SolrDocument document, Date actionDate) {
+        assertDocumentMatches(document);
         assertThat((Date) document.getFieldValue(SearchService.DATE_STAMP), equalTo(actionDate));
     }
 
-    private void assertDocumentMatches(SolrDocument document, String reference) {
+    private void assertDocumentMatches(SolrDocument document) {
+        String reference = (String) document.getFieldValue(SearchService.FIELD_REFERENCE);
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
 
-        assertThat(document.getFieldValue(SearchService.FIELD_REFERENCE),
-                CoreMatchers.<Object>equalTo(reference));
         assertThat(document.getFieldValue(SearchService.FIELD_CONTAINER),
                 CoreMatchers.<Object>equalTo(contentProducer.getContainer(reference)));
         assertThat(document.getFieldValue(SearchService.FIELD_TYPE),
@@ -243,7 +247,6 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
                 CoreMatchers.<Object>equalTo(contentProducer.getUrl(reference)));
         assertThat(document.getFieldValue(SearchService.FIELD_SITEID),
                 CoreMatchers.<Object>equalTo(contentProducer.getSiteId(reference)));
-
     }
 
     private void addDocumentToIndex(String reference, DateTime indexationDate) throws Exception {
