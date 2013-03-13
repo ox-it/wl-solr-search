@@ -272,7 +272,7 @@ public final class ProducerBuilder {
      * @param numberOfDocuments number of documents to generate.
      * @return the current builder for chained calls.
      */
-    public ProducerBuilder addDocToSite(String siteId, int numberOfDocuments) {
+    public ProducerBuilder addDocsToSite(String siteId, int numberOfDocuments) {
         for (int i = 0; i < numberOfDocuments; i++) {
             addDoc(UUID.randomUUID().toString(), siteId);
         }

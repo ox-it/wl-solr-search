@@ -161,6 +161,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
      * Attempts to index a site containing multiple documents.
      * <p>
      * Checks that the expected number of documents were indexed.
+     * Checks that the expected documents are available.
      * </p>
      *
      * @throws Exception any exception.
@@ -170,7 +171,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String siteId = "indexSiteId";
         int numberOfDocs = 7;
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create()
-                .addDocToSite(siteId, numberOfDocs);
+                .addDocsToSite(siteId, numberOfDocs);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
 
         solrTaskHandler.indexSite(siteId, DATE_1);
@@ -180,7 +181,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     }
 
     /**
-     * Attempt to index an already indexed site containing multiple documents (and had some documents removed).
+     * Attempts to index an already indexed site containing multiple documents (and had some documents removed).
      * <p>
      * Checks that the expected number of documents were indexed.<br />
      * Checks that the old/nonexistant documents were removed.<br />
@@ -193,11 +194,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String siteId = "indexSiteId";
         int numberOfOldDocs = 7;
         int numberOfNewDocs = 3;
-        ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDocToSite(siteId, numberOfOldDocs);
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDocsToSite(siteId, numberOfOldDocs);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
         addSiteToIndex(siteId, DATE_1);
         contentProducerBuilder.emptySite(siteId)
-                .addDocToSite(siteId, numberOfNewDocs);
+                .addDocsToSite(siteId, numberOfNewDocs);
 
         solrTaskHandler.indexSite(siteId, DATE_2);
 
@@ -218,7 +219,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         String siteId = "refreshSiteId";
         int numberOfDocs = 7;
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create()
-                .addDocToSite(siteId, numberOfDocs);
+                .addDocsToSite(siteId, numberOfDocs);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
 
         solrTaskHandler.refreshSite(siteId, DATE_1);
