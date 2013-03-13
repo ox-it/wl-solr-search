@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.util.AbstractSolrTestCase;
@@ -175,6 +176,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         solrTaskHandler.indexSite(siteId, actionDate.toDate());
 
         assertThat(getSolrDocuments().getNumFound(), is((long) numberOfDocs));
+        assertSiteDocumentsMatches(siteId, actionDate.toDate());
     }
 
     /**
@@ -202,11 +204,22 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         solrTaskHandler.indexSite(siteId, actionDate.toDate());
 
         assertThat(getSolrDocuments().getNumFound(), is((long) numberOfNewDocs));
+        assertSiteDocumentsMatches(siteId, actionDate.toDate());
     }
 
     private void assertIndexIsEmpty() throws Exception {
         assertThat(getSolrDocuments().getNumFound(), is(0L));
     }
+
+    private void assertSiteDocumentsMatches(String siteId, Date actionDate) throws Exception {
+        QueryResponse response = solrServer.query(
+                new SolrQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId)));
+
+        for (SolrDocument document : response.getResults()) {
+            assertDocumentMatches(document, document.getFieldValue(SearchService.FIELD_REFERENCE), actionDate);
+        }
+    }
+
 
     private void assertDocumentMatches(SolrDocument document, String reference, Date actionDate) {
         assertDocumentMatches(document, reference);
