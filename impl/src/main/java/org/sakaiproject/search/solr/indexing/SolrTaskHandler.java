@@ -33,6 +33,7 @@ public class SolrTaskHandler implements TaskHandler {
     private static final Logger logger = LoggerFactory.getLogger(SolrTaskHandler.class);
     private SolrServer solrServer;
     private SolrTools solrTools;
+    private ThreadLocalManager threadLocalManager;
 
     @Override
     public void executeTask(Task task) {
@@ -190,7 +191,6 @@ public class SolrTaskHandler implements TaskHandler {
             if (!nthe.isEmpty()) throw nthe;
         } finally {
             //Clean up the localThread after each site
-            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
             threadLocalManager.clear();
         }
     }
@@ -342,5 +342,9 @@ public class SolrTaskHandler implements TaskHandler {
 
     public void setSolrTools(SolrTools solrTools) {
         this.solrTools = solrTools;
+    }
+
+    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+        this.threadLocalManager = threadLocalManager;
     }
 }
