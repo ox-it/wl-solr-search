@@ -30,6 +30,8 @@ import static org.hamcrest.CoreMatchers.is;
  */
 @org.apache.lucene.util.LuceneTestCase.SuppressCodecs({"Lucene3x", "Lucene40"})
 public class SolrTaskHandlerIT extends AbstractSolrTestCase {
+    public static final Date DATE_1 = new DateTime(2013, 3, 10, 16, 0, 0).toDate();
+    public static final Date DATE_2 = new DateTime(2013, 3, 10, 17, 0, 0).toDate();
     private ContentProducerFactory contentProducerFactory;
     private SolrServer solrServer;
     private SolrTaskHandler solrTaskHandler;
@@ -70,11 +72,10 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testIndexDocument() throws Exception {
         String reference = "testIndexDocument";
-        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         // Add a producer for 'reference'
         contentProducerFactory.addContentProducer(ProducerBuilder.create().addDoc(reference).build());
 
-        solrTaskHandler.indexDocument(reference, actionDate.toDate());
+        solrTaskHandler.indexDocument(reference, DATE_1);
 
         SolrDocumentList results = getSolrDocuments();
         // A new documents has been created
@@ -82,7 +83,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         // The document matches the input
         SolrDocument document = results.get(0);
         assertThat(document.getFieldValue(SearchService.FIELD_REFERENCE), CoreMatchers.<Object>equalTo(reference));
-        assertDocumentMatches(document, actionDate.toDate());
+        assertDocumentMatches(document, DATE_1);
     }
 
     /**
@@ -98,21 +99,18 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testIndexDocumentOutdatedFails() throws Exception {
         String reference = "testIndexDocument";
-        DateTime firstIndexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
-        // The secondIndexation date is _before_ the first indexation.
-        DateTime secondIndexationDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
-        addDocumentToIndex(reference, firstIndexationDate);
+        addDocumentToIndex(reference, DATE_2);
 
-        solrTaskHandler.indexDocument(reference, secondIndexationDate.toDate());
+        solrTaskHandler.indexDocument(reference, DATE_1);
 
         SolrDocumentList results = getSolrDocuments();
         assertThat(results.getNumFound(), is(1L));
 
         SolrDocument document = results.get(0);
         assertThat(document.getFieldValue(SearchService.FIELD_REFERENCE), CoreMatchers.<Object>equalTo(reference));
-        assertDocumentMatches(document, firstIndexationDate.toDate());
+        assertDocumentMatches(document, DATE_2);
     }
 
     /**
@@ -126,13 +124,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testRemoveDocument() throws Exception {
         String reference = "testRemoveDocument";
-        DateTime indexationDate = new DateTime(2013, 3, 10, 16, 0, 0);
-        DateTime removalDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
-        addDocumentToIndex(reference, indexationDate);
+        addDocumentToIndex(reference, DATE_1);
 
-        solrTaskHandler.removeDocument(reference, removalDate.toDate());
+        solrTaskHandler.removeDocument(reference, DATE_2);
 
         assertIndexIsEmpty();
     }
@@ -149,14 +145,11 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     @Test
     public void testRemoveDocumentOutdatedFails() throws Exception {
         String reference = "testRemoveDocument";
-        DateTime indexationDate = new DateTime(2013, 3, 10, 18, 0, 0);
-        // The removal date is _before_ the indexation.
-        DateTime removalDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDoc(reference);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
-        addDocumentToIndex(reference, indexationDate);
+        addDocumentToIndex(reference, DATE_2);
 
-        solrTaskHandler.removeDocument(reference, removalDate.toDate());
+        solrTaskHandler.removeDocument(reference, DATE_1);
 
         assertThat(getSolrDocuments().getNumFound(), is(1L));
     }
@@ -173,15 +166,14 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public void testIndexSiteCreatesRightNumberOfDocuments() throws Exception {
         String siteId = "indexSiteId";
         int numberOfDocs = 7;
-        DateTime actionDate = new DateTime(2013, 3, 10, 17, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create()
                 .addDocToSite(siteId, numberOfDocs);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
 
-        solrTaskHandler.indexSite(siteId, actionDate.toDate());
+        solrTaskHandler.indexSite(siteId, DATE_1);
 
         assertThat(getSolrDocuments().getNumFound(), is((long) numberOfDocs));
-        assertSiteDocumentsMatches(siteId, actionDate.toDate());
+        assertSiteDocumentsMatches(siteId, DATE_1);
     }
 
     /**
@@ -197,19 +189,17 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public void testIndexSiteRemovesOldDocuments() throws Exception {
         String siteId = "indexSiteId";
         int numberOfOldDocs = 7;
-        DateTime indexationDate = new DateTime(2013, 3, 10, 17, 0, 0);
         int numberOfNewDocs = 3;
-        DateTime actionDate = new DateTime(2013, 3, 10, 18, 0, 0);
         ProducerBuilder contentProducerBuilder = ProducerBuilder.create().addDocToSite(siteId, numberOfOldDocs);
         contentProducerFactory.addContentProducer(contentProducerBuilder.build());
-        addSiteToIndex(siteId, indexationDate);
+        addSiteToIndex(siteId, DATE_1);
         contentProducerBuilder.emptySite(siteId)
                 .addDocToSite(siteId, numberOfNewDocs);
 
-        solrTaskHandler.indexSite(siteId, actionDate.toDate());
+        solrTaskHandler.indexSite(siteId, DATE_2);
 
         assertThat(getSolrDocuments().getNumFound(), is((long) numberOfNewDocs));
-        assertSiteDocumentsMatches(siteId, actionDate.toDate());
+        assertSiteDocumentsMatches(siteId, DATE_2);
     }
 
     private void assertIndexIsEmpty() throws Exception {
@@ -249,13 +239,13 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
                 CoreMatchers.<Object>equalTo(contentProducer.getSiteId(reference)));
     }
 
-    private void addDocumentToIndex(String reference, DateTime indexationDate) throws Exception {
-        solrTaskHandler.indexDocument(reference, indexationDate.toDate());
+    private void addDocumentToIndex(String reference, Date indexationDate) throws Exception {
+        solrTaskHandler.indexDocument(reference, indexationDate);
         solrServer.commit();
     }
 
-    private void addSiteToIndex(String siteId, DateTime indexationDate) throws Exception {
-        solrTaskHandler.indexSite(siteId, indexationDate.toDate());
+    private void addSiteToIndex(String siteId, Date indexationDate) throws Exception {
+        solrTaskHandler.indexSite(siteId, indexationDate);
         solrServer.commit();
     }
 
