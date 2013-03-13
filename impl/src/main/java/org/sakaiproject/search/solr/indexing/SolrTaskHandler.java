@@ -166,7 +166,7 @@ public class SolrTaskHandler implements TaskHandler {
             //Get the currently indexed resources for this site
             Queue<String> references;
             try {
-                references = solrTools.getReferences(siteId);
+                references = solrTools.getValidReferences(siteId);
             } catch (Exception e) {
                 Task task = new DefaultTask(REFRESH_SITE, actionDate).setProperty(DefaultTask.SITE_ID, siteId);
                 throw wrapException(e, "Couldn't obtain the list of documents to refresh for '" + siteId + "'", task);
