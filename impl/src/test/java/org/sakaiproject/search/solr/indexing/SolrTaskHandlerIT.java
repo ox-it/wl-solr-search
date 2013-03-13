@@ -17,11 +17,13 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.producer.ContentProducerFactory;
 import org.sakaiproject.search.producer.ProducerBuilder;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.mock;
 
 /**
  * Integration test with Solr.
@@ -58,6 +60,7 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         solrTools.setSolrServer(solrServer);
         contentProducerFactory = new ContentProducerFactory();
         solrTools.setContentProducerFactory(contentProducerFactory);
+        solrTaskHandler.setThreadLocalManager(mock(ThreadLocalManager.class));
     }
 
     /**
