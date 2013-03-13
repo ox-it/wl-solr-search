@@ -205,6 +205,27 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
         assertSiteDocumentsMatches(siteId, DATE_2);
     }
 
+    /**
+     * Attempts to refresh a site that didn't have documents in the first place.
+     * <p>
+     * Check that no documents were added even though there are new documents in the site.
+     * </p>
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRefreshSiteDoesntCreateDocuments() throws Exception {
+        String siteId = "refreshSiteId";
+        int numberOfDocs = 7;
+        ProducerBuilder contentProducerBuilder = ProducerBuilder.create()
+                .addDocToSite(siteId, numberOfDocs);
+        contentProducerFactory.addContentProducer(contentProducerBuilder.build());
+
+        solrTaskHandler.refreshSite(siteId, DATE_1);
+
+        assertIndexIsEmpty();
+    }
+
     private void assertIndexIsEmpty() throws Exception {
         assertThat(getSolrDocuments().getNumFound(), is(0L));
     }
