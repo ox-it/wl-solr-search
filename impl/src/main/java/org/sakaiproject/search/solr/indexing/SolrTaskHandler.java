@@ -5,7 +5,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrException;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexing.DefaultTask;
 import org.sakaiproject.search.indexing.Task;
