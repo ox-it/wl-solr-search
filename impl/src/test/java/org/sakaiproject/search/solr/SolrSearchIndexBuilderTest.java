@@ -55,7 +55,7 @@ public class SolrSearchIndexBuilderTest {
     }
 
     @Test
-    public void testUnsupportedEventResource()  {
+    public void testUnsupportedEventResource() {
         Date eventTime = new Date();
         String reference = "reference";
         String eventType = "eventType";
