@@ -92,20 +92,37 @@ public class SolrSearchIndexBuilderTest {
 
     @Test
     public void testRebuildSite() throws Exception {
-        Date eventTime = new Date();
-        String reference = "reference";
-        String eventType = "eventType";
-        Event event = mock(Event.class);
-        when(event.getEventTime()).thenReturn(eventTime);
-        when(event.getResource()).thenReturn(reference);
-        when(event.getEvent()).thenReturn(eventType);
-        ProducerBuilder producerBuilder = ProducerBuilder.create().addDoc(reference)
-                .addEvent(eventType, ProducerBuilder.ActionType.DELETE);
-        contentProducerFactory.addContentProducer(producerBuilder.build());
+        String siteId = "siteid";
 
-        solrSearchIndexBuilder.addResource(null, event);
+        solrSearchIndexBuilder.rebuildIndex(siteId);
 
         verify(mockIndexQueueing).addTaskToQueue(
-                argThat(new TaskMatcher(DefaultTask.Type.REMOVE_DOCUMENT.getTypeName())));
+                argThat(new TaskMatcher(DefaultTask.Type.INDEX_SITE.getTypeName())));
+    }
+
+    @Test
+    public void testRefreshSite() throws Exception {
+        String siteId = "siteid";
+
+        solrSearchIndexBuilder.refreshIndex(siteId);
+
+        verify(mockIndexQueueing).addTaskToQueue(
+                argThat(new TaskMatcher(DefaultTask.Type.REFRESH_SITE.getTypeName())));
+    }
+
+    @Test
+    public void testRebuildIndex() throws Exception {
+        solrSearchIndexBuilder.rebuildIndex();
+
+        verify(mockIndexQueueing).addTaskToQueue(
+                argThat(new TaskMatcher(DefaultTask.Type.INDEX_ALL.getTypeName())));
+    }
+
+    @Test
+    public void testRefreshIndex() throws Exception {
+        solrSearchIndexBuilder.refreshIndex();
+
+        verify(mockIndexQueueing).addTaskToQueue(
+                argThat(new TaskMatcher(DefaultTask.Type.REFRESH_ALL.getTypeName())));
     }
 }
