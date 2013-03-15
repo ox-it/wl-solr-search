@@ -1,10 +1,10 @@
 package org.sakaiproject.search.solr.indexing;
 
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrException;
+import org.apache.solr.common.SolrInputDocument;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexing.DefaultTask;
 import org.sakaiproject.search.indexing.Task;
@@ -87,9 +87,10 @@ public class SolrTaskHandler implements TaskHandler {
                 return;
             }
 
-            SolrRequest request = solrTools.toSolrRequest(reference, actionDate);
-            logger.debug("Executing the following request '" + request + "'");
-            solrServer.request(request);
+            SolrInputDocument document = solrTools.toSolrDocument(reference, actionDate);
+            if (logger.isDebugEnabled())
+                logger.debug("Adding the document '" + document + "'");
+            solrServer.add(document);
         } catch (Exception e) {
             Task task = new DefaultTask(INDEX_DOCUMENT, actionDate).setProperty(DefaultTask.REFERENCE, reference);
             throw wrapException(e, "An exception occurred while indexing the document '" + reference + "'", task);

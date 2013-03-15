@@ -2,10 +2,8 @@ package org.sakaiproject.search.solr.indexing;
 
 import com.google.common.collect.Iterators;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -28,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
 
 /**
@@ -53,64 +52,65 @@ public class SolrTools {
     }
 
     /**
-     * Generates a {@link SolrRequest} to index the given resource thanks to its {@link EntityContentProducer}.
+     * Generates a {@link SolrInputDocument} to index the given resource thanks to its {@link EntityContentProducer}.
      *
      * @param reference  resource to index
      * @param actionDate date of creation of the indexation task
-     * @return an update request for the resource
+     * @return a document ready to be indexed
      */
-    public SolrRequest toSolrRequest(String reference, Date actionDate) {
+    public SolrInputDocument toSolrDocument(String reference, Date actionDate) {
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
         if (logger.isDebugEnabled())
-            logger.debug("Create a solr request to add '" + reference + "' to the index");
-        SolrRequest request;
-        SolrInputDocument document = generateBaseSolrDocument(reference, actionDate, contentProducer);
-        if (logger.isDebugEnabled())
-            logger.debug("Base solr document created ." + document);
+            logger.debug("Create a solr document to add '" + reference + "' to the index.");
 
-        //Prepare the actual request based on a stream/reader/string
-        if (contentProducer instanceof BinaryEntityContentProducer) {
-            BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
-            //Depending on whether Tika is enabled or not, rely on solr cell.
-            if (logger.isDebugEnabled())
-                logger.debug("Create a request based on a document parsed by Tika");
-            setDocumentTikaProperties(reference, document, binaryContentProducer);
-            request = new UpdateRequest().add(document);
-        } else if (contentProducer.isContentFromReader(reference)) {
-            if (logger.isDebugEnabled())
-                logger.debug("Create a request with a Reader");
-            String content;
-            content = getContentFromReader(reference, contentProducer);
-            document.setField(SearchService.FIELD_CONTENTS, content);
-            request = new UpdateRequest().add(document);
-        } else {
-            if (logger.isDebugEnabled())
-                logger.debug("Create a request based on a String");
-            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(reference));
-            request = new UpdateRequest().add(document);
+        SolrInputDocument document = new SolrInputDocument();
+
+        //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
+        document.addField(SearchService.DATE_STAMP, format(actionDate));
+        document.addField(SearchService.FIELD_REFERENCE, reference);
+        document.addField(SearchService.FIELD_CONTAINER, contentProducer.getContainer(reference));
+        document.addField(SearchService.FIELD_TYPE, contentProducer.getType(reference));
+        document.addField(SearchService.FIELD_TITLE, contentProducer.getTitle(reference));
+        document.addField(SearchService.FIELD_TOOL, contentProducer.getTool());
+        document.addField(SearchService.FIELD_URL, contentProducer.getUrl(reference));
+        document.addField(SearchService.FIELD_SITEID, contentProducer.getSiteId(reference));
+
+        //Add the custom properties
+        Map<String, Collection<String>> properties = extractCustomProperties(reference, contentProducer);
+        for (Map.Entry<String, Collection<String>> entry : properties.entrySet()) {
+            document.addField(PROPERTY_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        return request;
+        //Add the content
+        if (contentProducer instanceof BinaryEntityContentProducer) {
+            // A tika digested document adds content and metadata to the document.
+            setDocumentTikaProperties(reference, document, (BinaryEntityContentProducer) contentProducer);
+        } else if (contentProducer.isContentFromReader(reference)) {
+            document.setField(SearchService.FIELD_CONTENTS,
+                    readerToString(contentProducer.getContentReader(reference)));
+        } else {
+            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(reference));
+        }
+
+        return document;
     }
 
     /**
-     * Gets the content of a document from a Reader.
+     * Gets the content of a document from a Reader and converts it to a String.
      *
-     * @param reference       document from which the content must be extracted
-     * @param contentProducer content producer for the document
-     * @return the content of the document. If there is an exception
+     * @param reader content of the document as a Reader
+     * @return the content of the document.
      */
-    private String getContentFromReader(String reference, EntityContentProducer contentProducer) {
+    private String readerToString(Reader reader) {
         StringBuffer sb = new StringBuffer();
         try {
-            BufferedReader br = new BufferedReader(contentProducer.getContentReader(reference));
+            BufferedReader br = new BufferedReader(reader);
             String tmp;
             while ((tmp = br.readLine()) != null) {
                 sb.append(tmp);
             }
         } catch (IOException e) {
-            logger.error("An exception occurred while converting the content of "
-                    + "'" + reference + "' from a Reader to a String", e);
+            logger.error("Couldn't extract the content from a reader.", e);
             sb = new StringBuffer();
         }
         return sb.toString();
@@ -144,35 +144,6 @@ public class SolrTools {
         } catch (Exception e) {
             logger.warn("Couldn't parse the content of '" + reference + "'", e);
         }
-    }
-
-    /**
-     * Creates a solrDocument for a specific resource.
-     *
-     * @param reference       resource used to generate the document
-     * @param contentProducer contentProducer in charge of extracting the data
-     * @return a SolrDocument
-     */
-    private SolrInputDocument generateBaseSolrDocument(String reference, Date actionDate,
-                                                       EntityContentProducer contentProducer) {
-        SolrInputDocument document = new SolrInputDocument();
-
-        //The date_stamp field should be automatically set by solr (default="NOW"), if it isn't set here
-        document.addField(SearchService.DATE_STAMP, format(actionDate));
-        document.addField(SearchService.FIELD_REFERENCE, reference);
-        document.addField(SearchService.FIELD_CONTAINER, contentProducer.getContainer(reference));
-        document.addField(SearchService.FIELD_TYPE, contentProducer.getType(reference));
-        document.addField(SearchService.FIELD_TITLE, contentProducer.getTitle(reference));
-        document.addField(SearchService.FIELD_TOOL, contentProducer.getTool());
-        document.addField(SearchService.FIELD_URL, contentProducer.getUrl(reference));
-        document.addField(SearchService.FIELD_SITEID, contentProducer.getSiteId(reference));
-
-        //Add the custom properties
-        Map<String, Collection<String>> properties = extractCustomProperties(reference, contentProducer);
-        for (Map.Entry<String, Collection<String>> entry : properties.entrySet()) {
-            document.addField(PROPERTY_PREFIX + entry.getKey(), entry.getValue());
-        }
-        return document;
     }
 
     /**
