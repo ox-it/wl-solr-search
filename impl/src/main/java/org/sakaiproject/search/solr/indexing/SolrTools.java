@@ -85,11 +85,13 @@ public class SolrTools {
         if (contentProducer instanceof BinaryEntityContentProducer) {
             // A tika digested document adds content and metadata to the document.
             setDocumentTikaProperties(reference, document, (BinaryEntityContentProducer) contentProducer);
-        } else if (contentProducer.isContentFromReader(reference)) {
-            document.setField(SearchService.FIELD_CONTENTS,
-                    readerToString(contentProducer.getContentReader(reference)));
         } else {
-            document.setField(SearchService.FIELD_CONTENTS, contentProducer.getContent(reference));
+            String content;
+            if (contentProducer.isContentFromReader(reference))
+                content = readerToString(contentProducer.getContentReader(reference));
+            else
+                content = contentProducer.getContent(reference);
+            document.setField(SearchService.FIELD_CONTENTS, stripNonCharCodepoints(content));
         }
 
         return document;
@@ -222,6 +224,37 @@ public class SolrTools {
         if (logger.isDebugEnabled())
             logger.debug("Transformed the '" + propertyName + "' property into: '" + sb + "'");
         return sb.toString();
+    }
+
+    /**
+     * Removes non-characters and non-printable characters from a String.
+     *
+     * @param input content containing non-characters or non-printable characters
+     * @return a String stripped from unuseable characters.
+     */
+    private String stripNonCharCodepoints(String input) {
+        StringBuilder retVal = new StringBuilder();
+        char ch;
+
+        for (int i = 0; i < input.length(); i++) {
+            ch = input.charAt(i);
+            //CHECKSTYLE.OFF: MagicNumber - Characters are full of magic number, there is nothing to check here.
+
+            // Strip all non-characters and non-printable control characters except tabulator,
+            // new line and carriage return
+            // See http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Noncharacter_Code_Point=True:]
+            if (ch % 0x10000 != 0xffff && // 0xffff - 0x10ffff range step 0x10000
+                    ch % 0x10000 != 0xfffe && // 0xfffe - 0x10fffe range
+                    (ch <= 0xfdd0 || ch >= 0xfdef) && // 0xfdd0 - 0xfdef
+                    (ch > 0x1F || ch == 0x9 || ch == 0xa || ch == 0xd)) {
+
+                retVal.append(ch);
+            }
+
+            //CHECKSTYLE.ON: MagicNumber
+        }
+
+        return retVal.toString();
     }
 
     /**
