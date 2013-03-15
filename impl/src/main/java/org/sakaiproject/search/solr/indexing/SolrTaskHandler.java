@@ -1,10 +1,13 @@
 package org.sakaiproject.search.solr.indexing;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.SolrParams;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexing.DefaultTask;
 import org.sakaiproject.search.indexing.Task;
@@ -30,6 +33,7 @@ import static org.sakaiproject.search.solr.indexing.SolrTask.Type.*;
  */
 public class SolrTaskHandler implements TaskHandler {
     private static final Logger logger = LoggerFactory.getLogger(SolrTaskHandler.class);
+    private static final String VERSION_FIELD = "_version_";
     private SolrServer solrServer;
     private SolrTools solrTools;
     private ThreadLocalManager threadLocalManager;
@@ -80,14 +84,25 @@ public class SolrTaskHandler implements TaskHandler {
             logger.debug("Add '" + reference + "' to the index");
 
         try {
-            //Check if the document hasn't been indexed since the creation of the task
-            if (!solrTools.isDocumentOutdated(reference, actionDate)) {
+            // Real-time get the last version of the document
+            SolrParams q = new SolrQuery()
+                    .setRequestHandler("/get")
+                    .set("id", reference)
+                    .set("fl", VERSION_FIELD + "," + SearchService.DATE_STAMP);
+            SolrDocument currentDocument = (SolrDocument) solrServer.query(q).getResponse().get("doc");
+
+            //Check if the document exists and hasn't been indexed since the creation of the task
+            if (currentDocument != null
+                    && actionDate.compareTo((Date) currentDocument.getFieldValue(SearchService.DATE_STAMP)) <= 0) {
                 if (logger.isDebugEnabled())
                     logger.debug("Indexation not useful as the document was updated earlier");
                 return;
             }
 
             SolrInputDocument document = solrTools.toSolrDocument(reference, actionDate);
+            if (currentDocument != null) {
+                document.setField(VERSION_FIELD, currentDocument.getFieldValue(VERSION_FIELD));
+            }
             if (logger.isDebugEnabled())
                 logger.debug("Adding the document '" + document + "'");
             solrServer.add(document);

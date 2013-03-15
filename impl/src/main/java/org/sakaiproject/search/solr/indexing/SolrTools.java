@@ -307,28 +307,6 @@ public class SolrTools {
     }
 
     /**
-     * Checks if a document is outdated (not updated since the current time).
-     * <p>
-     * As tasks are executed in different threads, race conditions could appear.<br />
-     * To avoid that, verify if the document in the index isn't already more recent than the current task.
-     * </p>
-     *
-     * @param reference   reference of the document.
-     * @param currentDate creation date of the currently executed task.
-     * @return true if the document is outdated (and should be updated), false otherwise.
-     * @throws SolrServerException thrown if the query to get the referenced document from the index failed.
-     */
-    public boolean isDocumentOutdated(String reference, Date currentDate) throws SolrServerException {
-        if (logger.isDebugEnabled())
-            logger.debug("Obtaining creation date for document '" + reference + "'");
-        SolrQuery query = new SolrQuery()
-                .setQuery(SearchService.FIELD_REFERENCE + ":" + ClientUtils.escapeQueryChars(reference) + " AND "
-                        + SearchService.DATE_STAMP + ":[" + format(currentDate) + " TO *]")
-                .setRows(0);
-        return solrServer.query(query).getResults().getNumFound() == 0;
-    }
-
-    /**
      * Checks whether a site should be indexed or not.
      *
      * @param site site to check.
