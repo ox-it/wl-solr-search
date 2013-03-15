@@ -5,14 +5,11 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
-import org.apache.solr.common.util.ContentStreamBase;
 import org.apache.solr.common.util.DateUtil;
 import org.apache.solr.common.util.NamedList;
 import org.apache.tika.Tika;
@@ -31,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -40,24 +36,20 @@ import java.util.*;
  * @author Colin Hebert
  */
 public class SolrTools {
-    private static final String LITERAL = "literal.";
     private static final String PROPERTY_PREFIX = "property_";
     private static final String UPREFIX = PROPERTY_PREFIX + "tika_";
-    private static final String SOLRCELL_PATH = "/update/extract";
     private static final Logger logger = LoggerFactory.getLogger(SolrTools.class);
     private SiteService siteService;
     private SearchIndexBuilder searchIndexBuilder;
     private ContentProducerFactory contentProducerFactory;
     private SolrServer solrServer;
-    private boolean tikaEnabled;
     private Tika tika;
 
     /**
      * Initialises tika if needed.
      */
     public void init() {
-        if (tikaEnabled)
-            tika = new Tika();
+        tika = new Tika();
     }
 
     /**
@@ -80,16 +72,10 @@ public class SolrTools {
         if (contentProducer instanceof BinaryEntityContentProducer) {
             BinaryEntityContentProducer binaryContentProducer = (BinaryEntityContentProducer) contentProducer;
             //Depending on whether Tika is enabled or not, rely on solr cell.
-            if (!tikaEnabled) {
-                if (logger.isDebugEnabled())
-                    logger.debug("Create a SolrCell request");
-                request = prepareSolrCellRequest(reference, binaryContentProducer, document);
-            } else {
-                if (logger.isDebugEnabled())
-                    logger.debug("Create a request based on a document parsed by Tika");
-                setDocumentTikaProperties(reference, document, binaryContentProducer);
-                request = new UpdateRequest().add(document);
-            }
+            if (logger.isDebugEnabled())
+                logger.debug("Create a request based on a document parsed by Tika");
+            setDocumentTikaProperties(reference, document, binaryContentProducer);
+            request = new UpdateRequest().add(document);
         } else if (contentProducer.isContentFromReader(reference)) {
             if (logger.isDebugEnabled())
                 logger.debug("Create a request with a Reader");
@@ -187,41 +173,6 @@ public class SolrTools {
             document.addField(PROPERTY_PREFIX + entry.getKey(), entry.getValue());
         }
         return document;
-    }
-
-    /**
-     * Prepares a request toward SolrCell to parse a binary document.
-     * <p>
-     * The given document will be send in its binary form to apache tika to be analysed and stored in the index.
-     * </p>
-     *
-     * @param reference       name of the document
-     * @param contentProducer associated content producer providing a binary stream of data
-     * @param document        {@link SolrInputDocument} used to prepare index fields
-     * @return a solrCell request
-     */
-    private SolrRequest prepareSolrCellRequest(final String reference,
-                                               final BinaryEntityContentProducer contentProducer,
-                                               SolrInputDocument document) {
-        //Send to tika
-        ContentStreamUpdateRequest contentStreamUpdateRequest = new ContentStreamUpdateRequest(SOLRCELL_PATH);
-        contentStreamUpdateRequest.setParam("fmap.content", SearchService.FIELD_CONTENTS);
-        contentStreamUpdateRequest.setParam("uprefix", UPREFIX);
-        ContentStreamBase contentStreamBase = new ContentStreamBase() {
-            @Override
-            public InputStream getStream() throws IOException {
-                return contentProducer.getContentStream(reference);
-            }
-        };
-        contentStreamUpdateRequest.addContentStream(contentStreamBase);
-        for (SolrInputField field : document) {
-            contentStreamUpdateRequest.setParam("fmap.sakai_" + field.getName(), field.getName());
-            for (Object o : field) {
-                //The "sakai_" part is due to SOLR-3386, this fix should be temporary
-                contentStreamUpdateRequest.setParam(LITERAL + "sakai_" + field.getName(), o.toString());
-            }
-        }
-        return contentStreamUpdateRequest;
     }
 
     /**
@@ -475,9 +426,5 @@ public class SolrTools {
 
     public void setSolrServer(SolrServer solrServer) {
         this.solrServer = solrServer;
-    }
-
-    public void setTikaEnabled(boolean tikaEnabled) {
-        this.tikaEnabled = tikaEnabled;
     }
 }
