@@ -326,7 +326,8 @@ public class SolrTaskHandler implements TaskHandler {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
         } else if (e instanceof SolrException
                 && (((SolrException) e).code() == SolrException.ErrorCode.SERVICE_UNAVAILABLE.code
-                || ((SolrException) e).code() == SolrException.ErrorCode.SERVER_ERROR.code)) {
+                || ((SolrException) e).code() == SolrException.ErrorCode.SERVER_ERROR.code
+                || ((SolrException) e).code() == SolrException.ErrorCode.CONFLICT.code)) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
         } else if (e instanceof IOException) {
             return new TemporaryTaskHandlingException(message, e, potentialNewTask);
