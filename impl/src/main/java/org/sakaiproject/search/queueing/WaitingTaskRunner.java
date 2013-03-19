@@ -76,9 +76,12 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                 logger.error("Couldn't execute task '" + task + "'.", e);
             }
 
-            // A TemporaryTaskException occurred, stop everything for a while (so the search server can recover)
             if (taskRunnerLock.isHeldByCurrentThread())
+                // A TemporaryTaskException occurred, stop everything for a while (so the search server can recover)
                 initiateLockdown();
+            else
+                // If there is no exceptions, reset the timer
+                waitingTime = BASE_WAITING_TIME;
 
         } catch (InterruptedException e) {
             logger.error("Thread interrupted while trying to do '" + task + "'.", e);
@@ -139,8 +142,6 @@ public abstract class WaitingTaskRunner implements TaskRunner {
         synchronized (taskRunnerLock) {
             taskRunnerLock.notifyAll();
             taskRunnerLock.unlock();
-            // Reset the waiting time
-            waitingTime = BASE_WAITING_TIME;
         }
     }
 
