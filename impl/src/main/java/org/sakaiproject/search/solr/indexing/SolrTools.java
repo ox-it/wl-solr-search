@@ -158,7 +158,7 @@ public class SolrTools {
      *
      * @param reference       affected resource
      * @param contentProducer producer providing properties for the given resource
-     * @return a formated map of {@link Collection<String>}
+     * @return a formatted map of {@link Collection<String>}
      */
     @SuppressWarnings("unchecked")
     private Map<String, Collection<String>> extractCustomProperties(String reference,

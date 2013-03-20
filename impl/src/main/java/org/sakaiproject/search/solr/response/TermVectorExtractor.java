@@ -62,15 +62,15 @@ public class TermVectorExtractor {
     /**
      * Extracts documents from the {@link org.apache.solr.handler.component.TermVectorComponent} result.
      *
-     * @param termVectorInfosRaw Raw data extracted from the solr query
+     * @param termVectorInfoRaw Raw data extracted from the solr query
      * @return A map of document ids associated with a map of fields in these documents
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, Map<String, TermInfo>>> extractTermVectorInfo(
-            NamedList<Object> termVectorInfosRaw) {
+            NamedList<Object> termVectorInfoRaw) {
         Map<String, Map<String, Map<String, TermInfo>>> documents =
-                new HashMap<String, Map<String, Map<String, TermInfo>>>(termVectorInfosRaw.size());
-        for (Map.Entry<String, Object> termVectorInfoEntryRaw : termVectorInfosRaw) {
+                new HashMap<String, Map<String, Map<String, TermInfo>>>(termVectorInfoRaw.size());
+        for (Map.Entry<String, Object> termVectorInfoEntryRaw : termVectorInfoRaw) {
             //Ignore unique key field name and warnings
             if (!UNIQUE_KEY_FIELD_NAME.equals(termVectorInfoEntryRaw.getKey())
                     && !WARNINGS.equals(termVectorInfoEntryRaw.getKey())) {
