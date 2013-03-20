@@ -160,6 +160,7 @@ public class SolrTools {
      * @param contentProducer producer providing properties for the given resource
      * @return a formated map of {@link Collection<String>}
      */
+    @SuppressWarnings("unchecked")
     private Map<String, Collection<String>> extractCustomProperties(String reference,
                                                                     EntityContentProducer contentProducer) {
         Map<String, ?> m = contentProducer.getCustomProperties(reference);
@@ -375,6 +376,7 @@ public class SolrTools {
      *
      * @return the number of documents awaiting indexation in the solr server.
      */
+    @SuppressWarnings("unchecked")
     public int getPendingDocuments() {
         try {
             AdminStatRequest adminStatRequest = new AdminStatRequest();

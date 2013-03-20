@@ -52,6 +52,7 @@ public class TermVectorExtractor {
      *
      * @param queryResponse response sent by the solr server for a search query.
      */
+    @SuppressWarnings("unchecked")
     public TermVectorExtractor(QueryResponse queryResponse) {
         NamedList<Object> res = (NamedList<Object>) queryResponse.getResponse().get(TERM_VECTORS);
         if (res != null)
@@ -64,6 +65,7 @@ public class TermVectorExtractor {
      * @param termVectorInfosRaw Raw data extracted from the solr query
      * @return A map of document ids associated with a map of fields in these documents
      */
+    @SuppressWarnings("unchecked")
     private Map<String, Map<String, Map<String, TermInfo>>> extractTermVectorInfo(
             NamedList<Object> termVectorInfosRaw) {
         Map<String, Map<String, Map<String, TermInfo>>> documents =
@@ -89,6 +91,7 @@ public class TermVectorExtractor {
      * @param documentContentRaw Raw data extracted from the solr query
      * @return A map of field names associated with a map of terms in these fields
      */
+    @SuppressWarnings("unchecked")
     private Map<String, Map<String, TermInfo>> extractDocumentContent(NamedList<Object> documentContentRaw) {
         Map<String, Map<String, TermInfo>> fields =
                 new HashMap<String, Map<String, TermInfo>>(documentContentRaw.size());
@@ -112,6 +115,7 @@ public class TermVectorExtractor {
      * @param fieldContentRaw Raw data extracted from the solr query
      * @return A map of terms associated with various data on these fields, {@link }
      */
+    @SuppressWarnings("unchecked")
     private Map<String, TermInfo> extractFieldContent(NamedList<Object> fieldContentRaw) {
         Map<String, TermInfo> terms = new HashMap<String, TermInfo>(fieldContentRaw.size());
         for (Map.Entry<String, Object> fieldContentEntryRaw : fieldContentRaw) {
