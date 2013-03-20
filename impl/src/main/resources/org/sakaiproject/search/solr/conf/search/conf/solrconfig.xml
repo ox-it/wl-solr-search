@@ -83,14 +83,6 @@
 
     <requestHandler name="/update" class="solr.UpdateRequestHandler"/>
 
-    <requestHandler name="/update/extract" startup="lazy" class="solr.extraction.ExtractingRequestHandler">
-        <lst name="defaults">
-            <str name="fmap.title">tika_title</str>
-            <str name="lowernames">true</str>
-            <str name="uprefix">ignored_</str>
-        </lst>
-    </requestHandler>
-
     <!-- Administration, statistics and Ping/healthcheck -->
     <requestHandler name="/admin/" class="solr.admin.AdminHandlers"/>
     <requestHandler name="/admin/stats" class="solr.admin.SolrInfoMBeanHandler"/>
