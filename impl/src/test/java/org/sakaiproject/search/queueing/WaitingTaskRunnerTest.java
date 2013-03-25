@@ -80,11 +80,13 @@ public class WaitingTaskRunnerTest {
      */
     @Test
     public void testNestedExceptionWithTempExceptionQueueNewTask() {
-        doThrow(createNestedException(1, 0)).when(mockTaskHandler).executeTask(any(Task.class));
+        int numberOfTemporaryExceptions = 12;
+        int numberOfExceptions = 9;
+        doThrow(createNestedException(numberOfTemporaryExceptions, numberOfExceptions)).when(mockTaskHandler).executeTask(any(Task.class));
 
         waitingTaskRunner.runTask(mock(Task.class));
 
-        verify(mockIndexQueueing).addTaskToQueue(any(Task.class));
+        verify(mockIndexQueueing, times(numberOfTemporaryExceptions)).addTaskToQueue(any(Task.class));
     }
 
     /**
@@ -98,8 +100,9 @@ public class WaitingTaskRunnerTest {
      */
     @Test
     public void testMultipleTemporaryExceptionUnlockOtherThreads() throws Exception {
+        int numberOfTemporaryExceptions = 12;
         Task failingTask = mock(Task.class);
-        doThrow(createNestedException(2, 0)).when(mockTaskHandler).executeTask(failingTask);
+        doThrow(createNestedException(numberOfTemporaryExceptions, 0)).when(mockTaskHandler).executeTask(failingTask);
 
         assertTaskExecutedWithin(failingTask, 1000);
         assertTaskExecutedWithin(mock(Task.class), 1000);
