@@ -40,6 +40,12 @@ public class WaitingTaskRunnerTest {
         waitingTaskRunner.setThreadLocalManager(threadLocalManager);
     }
 
+    /**
+     * Attempts to throw one {@link TemporaryTaskHandlingException}.
+     * <p>
+     * Checks that it adds a new {@link Task} to the queueing system.
+     * </p>
+     */
     @Test
     public void testTemporaryExceptionQueueNewTask() {
         Task task = mock(Task.class);
@@ -50,6 +56,12 @@ public class WaitingTaskRunnerTest {
         verify(mockIndexQueueing).addTaskToQueue(task);
     }
 
+    /**
+     * Attempts to throw one {@link TaskHandlingException}.
+     * <p>
+     * Checks that it doesn't end up with a new task being added to the queue.
+     * </p>
+     */
     @Test
     public void testExceptionDontQueueNewTask() {
         doThrow(new TaskHandlingException()).when(mockTaskHandler).executeTask(any(Task.class));
@@ -59,6 +71,12 @@ public class WaitingTaskRunnerTest {
         verify(mockIndexQueueing, never()).addTaskToQueue(any(Task.class));
     }
 
+    /**
+     * Attempts to throw multiple {@link TemporaryTaskHandlingException}.
+     * <p>
+     * Checks that every temporary exception creates a new {@link Task} that is added back to the queue.
+     * </p>
+     */
     @Test
     public void testNestedExceptionWithTempExceptionQueueNewTask() {
         doThrow(createNestedException(1, 0)).when(mockTaskHandler).executeTask(any(Task.class));
@@ -68,6 +86,15 @@ public class WaitingTaskRunnerTest {
         verify(mockIndexQueueing).addTaskToQueue(any(Task.class));
     }
 
+    /**
+     * Attempts to throw multiple {@link TemporaryTaskHandlingException}.
+     * <p>
+     * Checks that the WaitingTaskRunner doesn't end up in a deadlock when multiple TemporaryTaskHandlingException
+     * are thrown at once.
+     * </p>
+     *
+     * @throws Exception should not happen.
+     */
     @Test
     public void testMultipleTemporaryExceptionUnlockOtherThreads() throws Exception {
         Task failingTask = mock(Task.class);
