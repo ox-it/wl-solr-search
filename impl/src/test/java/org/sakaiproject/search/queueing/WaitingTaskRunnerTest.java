@@ -13,6 +13,7 @@ import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -108,6 +109,31 @@ public class WaitingTaskRunnerTest {
         assertTaskExecutedWithin(mock(Task.class), 1000);
     }
 
+    /**
+     * Attempts to throw a {@link TemporaryTaskHandlingException} to stop the task handling threads.
+     * <p>
+     * Checks that a temporary exceptions results in the system stopping temporarily every thread.
+     * </p>
+     *
+     * @throws Exception should not happen.
+     */
+    @Test
+    public void testTemporaryExceptionStopsOtherThreads() throws Exception {
+        int waitingTime = 4000;
+        Task failingTask = mock(Task.class);
+        doThrow(new TemporaryTaskHandlingException(mock(Task.class))).when(mockTaskHandler).executeTask(failingTask);
+
+        Thread failingTaskThread;
+        do {
+            failingTaskThread = createSeparateTaskThread(failingTask);
+            failingTaskThread.start();
+            failingTaskThread.join(waitingTime);
+        } while (!failingTaskThread.isAlive());
+
+        assertTaskNotExecutedWithin(mock(Task.class), waitingTime/4);
+        assertTaskExecutedWithin(mock(Task.class), 2*waitingTime);
+    }
+
     private NestedTaskHandlingException createNestedException(int temporaryExceptionsCount, int exceptionsCount) {
         NestedTaskHandlingException nestedTaskHandlingException = new NestedTaskHandlingException();
         for (int i = 0; i < temporaryExceptionsCount; i++) {
@@ -125,6 +151,13 @@ public class WaitingTaskRunnerTest {
         separateTaskThread.start();
         separateTaskThread.join(millis);
         assertFalse(separateTaskThread.isAlive());
+    }
+
+    private void assertTaskNotExecutedWithin(Task task, long millis) throws InterruptedException {
+        Thread separateTaskThread = createSeparateTaskThread(task);
+        separateTaskThread.start();
+        separateTaskThread.join(millis);
+        assertTrue(separateTaskThread.isAlive());
     }
 
     private Thread createSeparateTaskThread(final Task task) {
