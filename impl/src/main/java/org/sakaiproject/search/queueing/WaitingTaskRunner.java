@@ -55,6 +55,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     private TaskHandler taskHandler;
     private SecurityService securityService;
     private IndexQueueing indexQueueing;
+    private ThreadLocalManager threadLocalManager;
 
     @Override
     public void runTask(Task task) {
@@ -90,7 +91,6 @@ public abstract class WaitingTaskRunner implements TaskRunner {
             securityService.popAdvisor(OPEN_SECURITY_ADVISOR);
 
             // Clean up the localThread after each task
-            ThreadLocalManager threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
             threadLocalManager.clear();
 
             // A TemporaryTaskException occurred and the waiting time is now passed (or an exception killed it)
@@ -188,5 +188,9 @@ public abstract class WaitingTaskRunner implements TaskRunner {
 
     public void setIndexQueueing(IndexQueueing indexQueueing) {
         this.indexQueueing = indexQueueing;
+    }
+
+    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+        this.threadLocalManager = threadLocalManager;
     }
 }
