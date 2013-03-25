@@ -12,6 +12,7 @@ import org.sakaiproject.search.indexing.exception.TaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -100,8 +101,8 @@ public class WaitingTaskRunnerTest {
         Task failingTask = mock(Task.class);
         doThrow(createNestedException(2, 0)).when(mockTaskHandler).executeTask(failingTask);
 
-        executeTaskWithin(failingTask, 1000);
-        executeTaskWithin(mock(Task.class), 1000);
+        assertTaskExecutedWithin(failingTask, 1000);
+        assertTaskExecutedWithin(mock(Task.class), 1000);
     }
 
     private NestedTaskHandlingException createNestedException(int temporaryExceptionsCount, int exceptionsCount) {
@@ -116,12 +117,11 @@ public class WaitingTaskRunnerTest {
         return nestedTaskHandlingException;
     }
 
-    private void executeTaskWithin(Task task, long millis) throws InterruptedException {
+    private void assertTaskExecutedWithin(Task task, long millis) throws InterruptedException {
         Thread separateTaskThread = createSeparateTaskThread(task);
         separateTaskThread.start();
         separateTaskThread.join(millis);
-        if (separateTaskThread.isAlive())
-            throw new IllegalThreadStateException("The task " + task + " should have been executed by now.");
+        assertFalse(separateTaskThread.isAlive());
     }
 
     private Thread createSeparateTaskThread(final Task task) {
