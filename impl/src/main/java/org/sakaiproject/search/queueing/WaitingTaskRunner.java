@@ -168,7 +168,9 @@ public abstract class WaitingTaskRunner implements TaskRunner {
     private void handleTemporaryTaskHandlingException(TemporaryTaskHandlingException tthe) {
         // A TemporaryTaskHandlingException means that the locking system must be initialised
         // If it's already initialised, carry on
-        taskRunnerLock.tryLock();
+        // Check that the lock isn't already held by the current thread (do not lock twice!)
+        if (!taskRunnerLock.isHeldByCurrentThread())
+            taskRunnerLock.tryLock();
         logger.info("A task failed because of a temporary exception. "
                 + "'" + tthe.getNewTask() + "' will be executed later", tthe);
         indexQueueing.addTaskToQueue(tthe.getNewTask());
