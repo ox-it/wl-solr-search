@@ -132,8 +132,8 @@ public class WaitingTaskRunnerTest {
             failingTaskThread.join(waitingTime);
         } while (!failingTaskThread.isAlive());
 
-        assertTaskNotExecutedWithin(mock(Task.class), waitingTime/4);
-        assertTaskExecutedWithin(mock(Task.class), 2*waitingTime);
+        assertTaskNotExecutedWithin(mock(Task.class), waitingTime / 4);
+        assertTaskExecutedWithin(mock(Task.class), 2 * waitingTime);
     }
 
     /**
