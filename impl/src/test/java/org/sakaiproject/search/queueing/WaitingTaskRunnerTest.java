@@ -2,9 +2,12 @@ package org.sakaiproject.search.queueing;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.search.indexing.SecurityAdvisorMatcher;
 import org.sakaiproject.search.indexing.Task;
 import org.sakaiproject.search.indexing.TaskHandler;
 import org.sakaiproject.search.indexing.exception.NestedTaskHandlingException;
@@ -12,8 +15,7 @@ import org.sakaiproject.search.indexing.exception.TaskHandlingException;
 import org.sakaiproject.search.indexing.exception.TemporaryTaskHandlingException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -132,6 +134,27 @@ public class WaitingTaskRunnerTest {
 
         assertTaskNotExecutedWithin(mock(Task.class), waitingTime/4);
         assertTaskExecutedWithin(mock(Task.class), 2*waitingTime);
+    }
+
+    /**
+     * Attempts to execute one task.
+     * <p>
+     * Checks that an advisor is set up to give access to every resources.
+     * </p>
+     */
+    @Test
+    public void testSecurityAdvisorSet() {
+        Task task = mock(Task.class);
+        // Advisor matcher that checks an advisor will allow anything.
+        SecurityAdvisorMatcher securityAdvisorMatcher = new SecurityAdvisorMatcher();
+        securityAdvisorMatcher.addUnlockCheckRandom(SecurityAdvisor.SecurityAdvice.ALLOWED);
+
+        waitingTaskRunner.runTask(task);
+
+        ArgumentCaptor<SecurityAdvisor> argument = ArgumentCaptor.forClass(SecurityAdvisor.class);
+        verify(mockSecurityService).pushAdvisor(argument.capture());
+        assertThat(argument.getValue(), securityAdvisorMatcher);
+        verify(mockSecurityService).popAdvisor(argument.getValue());
     }
 
     private NestedTaskHandlingException createNestedException(int temporaryExceptionsCount, int exceptionsCount) {
