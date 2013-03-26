@@ -37,6 +37,9 @@ public class SiteContentProducer implements EntityContentProducer {
     private SearchService searchService;
     private SearchIndexBuilder searchIndexBuilder;
 
+    /**
+     * Sets up the list of events related to site modification and register to the SearchIndexBuilder.
+     */
     public void init() {
         addEvents = Arrays.asList(
                 SiteService.SECURE_ADD_COURSE_SITE,
