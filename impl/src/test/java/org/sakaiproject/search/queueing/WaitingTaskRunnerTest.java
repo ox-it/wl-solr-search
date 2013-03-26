@@ -31,7 +31,7 @@ public class WaitingTaskRunnerTest {
     @Mock
     private IndexQueueing mockIndexQueueing;
     @Mock
-    private ThreadLocalManager threadLocalManager;
+    private ThreadLocalManager mockThreadLocalManager;
 
     @Before
     public void setUp() throws Exception {
@@ -41,7 +41,7 @@ public class WaitingTaskRunnerTest {
         waitingTaskRunner.setIndexQueueing(mockIndexQueueing);
         waitingTaskRunner.setTaskHandler(mockTaskHandler);
         waitingTaskRunner.setSecurityService(mockSecurityService);
-        waitingTaskRunner.setThreadLocalManager(threadLocalManager);
+        waitingTaskRunner.setThreadLocalManager(mockThreadLocalManager);
     }
 
     /**
