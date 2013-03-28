@@ -117,7 +117,6 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <minimizeJar>true</minimizeJar>
                             <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
