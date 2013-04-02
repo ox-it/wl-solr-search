@@ -73,6 +73,7 @@ public class SolrServerAdapter extends SolrServer {
         copyFromClassPathToSolrHome("solr.xml");
         copyFromClassPathToSolrHome("search/conf/solrconfig.xml");
         copyFromClassPathToSolrHome("search/conf/schema.xml");
+        copyFromClassPathToSolrHome("search/conf/lang/stopwords_en.xml");
     }
 
     /**
