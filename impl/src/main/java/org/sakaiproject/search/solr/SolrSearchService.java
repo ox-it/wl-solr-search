@@ -311,9 +311,9 @@ public class SolrSearchService implements SearchService {
         }
     }
 
-    //------------------------------------------------------------------------------------------
-    //As far as I know, this implementation isn't diagnosable, so this is a dummy implementation
-    //------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    // As far as I know, this implementation isn't diagnosable, so this is a dummy implementation
+    //-------------------------------------------------------------------------------------------
     @Override
     public void enableDiagnostics() {
     }
@@ -332,9 +332,9 @@ public class SolrSearchService implements SearchService {
         return true;
     }
 
-    //-------------------------
-    //Search services Accessors
-    //-------------------------
+    //--------------------------
+    // Search services Accessors
+    //--------------------------
     public void setSolrServer(SolrServer solrServer) {
         this.solrServer = solrServer;
     }
