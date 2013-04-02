@@ -111,7 +111,7 @@ public class SolrServerAdapter extends SolrServer {
     private boolean isConfigurationPresent() {
         File nodeConfigDir = new File(SOLR_NODE_PATH);
 
-        //Check and create the directory if it isn't available
+        // Check and create the directory if it isn't available
         logger.error("Creating dirs '" + SOLR_CONFIGURATION_PATH + "'");
         if (!nodeConfigDir.exists() && !nodeConfigDir.mkdirs() || !nodeConfigDir.isDirectory()) {
             throw new IllegalStateException("The solr configuration directory '" + SOLR_CONFIGURATION_PATH + "' "
