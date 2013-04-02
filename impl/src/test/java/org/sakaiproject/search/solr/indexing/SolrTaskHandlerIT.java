@@ -42,7 +42,8 @@ public class SolrTaskHandlerIT extends AbstractSolrTestCase {
     public static void beforeClass() throws Exception {
         initCore("org/sakaiproject/search/solr/conf/search/conf/solrconfig.xml",
                 "org/sakaiproject/search/solr/conf/search/conf/schema.xml",
-                "org/sakaiproject/search/solr/conf/search/");
+                "org/sakaiproject/search/solr/conf",
+                "search");
     }
 
     @Before
