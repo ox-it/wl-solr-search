@@ -83,8 +83,7 @@ public class SolrServerAdapter extends SolrServer {
      */
     private void copyFromClassPathToSolrHome(String fileToCopy) {
         File destinationFile = new File(SOLR_CONFIGURATION_PATH + fileToCopy);
-        if (logger.isDebugEnabled())
-            logger.debug("Copying '" + fileToCopy + "' to '" + destinationFile.getPath() + "'");
+        logger.debug("Copying '{}' to '{}'", fileToCopy, destinationFile.getPath());
 
         try {
             destinationFile.getParentFile().mkdirs();
@@ -93,7 +92,7 @@ public class SolrServerAdapter extends SolrServer {
             IOUtils.copy(SolrServerAdapter.class.getResourceAsStream(SOLR_CONFIGURATION_CLASSPATH + fileToCopy),
                     new FileOutputStream(destinationFile));
         } catch (IOException e) {
-            logger.error("Couldn't copy '" + fileToCopy + "' to '" + destinationFile.getPath() + "'", e);
+            logger.error("Couldn't copy '{}' to '{}'", fileToCopy, destinationFile.getPath(), e);
         }
     }
 

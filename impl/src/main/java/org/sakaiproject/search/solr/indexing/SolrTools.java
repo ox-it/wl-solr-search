@@ -66,8 +66,7 @@ public class SolrTools {
      */
     public SolrInputDocument toSolrDocument(String reference, Date actionDate) {
         EntityContentProducer contentProducer = contentProducerFactory.getContentProducerForElement(reference);
-        if (logger.isDebugEnabled())
-            logger.debug("Create a solr document to add '" + reference + "' to the index.");
+        logger.debug("Create a solr document to add '{}' to the index.", reference);
 
         SolrInputDocument document = new SolrInputDocument();
 
@@ -153,7 +152,7 @@ public class SolrTools {
                 for (String metadataValue : metadata.getValues(metadataName))
                     document.addField(UPREFIX + metadataName, metadataValue);
         } catch (Exception e) {
-            logger.warn("Couldn't parse the content of '" + reference + "'", e);
+            logger.warn("Couldn't parse the content of '{}'", reference, e);
         }
     }
 
@@ -194,17 +193,16 @@ public class SolrTools {
                 values = (Collection<String>) propertyValue;
             else {
                 if (propertyValue != null)
-                    logger.warn("Couldn't find what the value for '" + propertyName + "' was. It has been ignored.");
+                    logger.warn("Couldn't find what the value for '{}' was. It has been ignored.", propertyName);
                 values = Collections.emptyList();
             }
 
             // If this property was already present there
             // This shouldn't happen, but if it does everything must be stored
             if (properties.containsKey(propertyName)) {
-                logger.warn("Two properties had a really similar name '" + propertyName + "' and were merged. "
-                        + "This shouldn't happen!");
-                if (logger.isDebugEnabled())
-                    logger.debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
+                logger.warn("Two properties had a really similar name '{}' and were merged. This shouldn't happen!",
+                        propertyName);
+                logger.debug("Merged values '{}' with '{}'", properties.get(propertyName), values);
                 values = new ArrayList<String>(values);
                 values.addAll(properties.get(propertyName));
             }
@@ -231,8 +229,7 @@ public class SolrTools {
                 sb.append(c);
             lastUnderscore = (c == '_');
         }
-        if (logger.isDebugEnabled())
-            logger.debug("Transformed the '" + propertyName + "' property into: '" + sb + "'");
+        logger.debug("Transformed the '{}' property into: '{}'", propertyName, sb.toString());
         return sb.toString();
     }
 
@@ -310,8 +307,7 @@ public class SolrTools {
      * @throws SolrServerException thrown if the query to get references failed.
      */
     public Queue<String> getValidReferences(String siteId) throws SolrServerException {
-        if (logger.isDebugEnabled())
-            logger.debug("Obtaining indexed elements for site: '" + siteId + "'");
+        logger.debug("Obtaining indexed elements for site '{}'", siteId);
         SolrQuery query = new SolrQuery()
                 .setQuery(SearchService.FIELD_SITEID + ":" + ClientUtils.escapeQueryChars(siteId))
                         // TODO: Use paging?
