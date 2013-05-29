@@ -229,7 +229,7 @@ public class SolrTools {
                 sb.append(c);
             lastUnderscore = (c == '_');
         }
-        logger.debug("Transformed the '{}' property into: '{}'", propertyName, sb.toString());
+        logger.debug("Transformed the '{}' property into: '{}'", propertyName, sb);
         return sb.toString();
     }
 

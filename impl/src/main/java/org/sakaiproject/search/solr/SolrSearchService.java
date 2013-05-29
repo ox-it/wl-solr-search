@@ -133,7 +133,7 @@ public class SolrSearchService implements SearchService {
                 sb.append(" OR ");
         }
         sb.append(')');
-        logger.debug("Create filter query {}", sb.toString());
+        logger.debug("Create filter query {}", sb);
         return sb.toString();
     }
 
