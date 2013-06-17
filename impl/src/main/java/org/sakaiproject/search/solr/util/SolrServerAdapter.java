@@ -40,6 +40,7 @@ public class SolrServerAdapter extends SolrServer {
     private static final String SOLR_HOME_PROPERTY = "solr.solr.home";
     private static final String SOLR_CONFIGURATION_PATH = ServerConfigurationService.getSakaiHomePath() + "solr/";
     private static final String SOLR_CONFIGURATION_CLASSPATH = "/org/sakaiproject/search/solr/conf/";
+    private static final int HTTP_SERVER_TIMEOUT = 10000;
     private static final Logger logger = LoggerFactory.getLogger(SolrServerAdapter.class);
     private SolrServer instance;
 
@@ -50,7 +51,9 @@ public class SolrServerAdapter extends SolrServer {
         String serverUrl = ServerConfigurationService.getString("search.solr.server");
         if (!serverUrl.isEmpty()) {
             logger.info("The Solr server is set up");
-            instance = new HttpSolrServer(serverUrl);
+            HttpSolrServer httpSolrServer = new HttpSolrServer(serverUrl);
+            httpSolrServer.setConnectionTimeout(HTTP_SERVER_TIMEOUT);
+            instance = httpSolrServer;
         } else {
             logger.info("The Solr server isn't set up, using an embedded one");
             if (!new File(SOLR_CONFIGURATION_PATH).exists())
@@ -83,8 +86,7 @@ public class SolrServerAdapter extends SolrServer {
      */
     private void copyFromClassPathToSolrHome(String fileToCopy) {
         File destinationFile = new File(SOLR_CONFIGURATION_PATH + fileToCopy);
-        if (logger.isDebugEnabled())
-            logger.debug("Copying '" + fileToCopy + "' to '" + destinationFile.getPath() + "'");
+        logger.debug("Copying '{}' to '{}'", fileToCopy, destinationFile.getPath());
 
         try {
             destinationFile.getParentFile().mkdirs();
@@ -93,7 +95,7 @@ public class SolrServerAdapter extends SolrServer {
             IOUtils.copy(SolrServerAdapter.class.getResourceAsStream(SOLR_CONFIGURATION_CLASSPATH + fileToCopy),
                     new FileOutputStream(destinationFile));
         } catch (IOException e) {
-            logger.error("Couldn't copy '" + fileToCopy + "' to '" + destinationFile.getPath() + "'", e);
+            logger.error("Couldn't copy '{}' to '{}'", fileToCopy, destinationFile.getPath(), e);
         }
     }
 
