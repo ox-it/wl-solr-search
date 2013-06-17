@@ -132,11 +132,11 @@ public class SolrTools {
      */
     private void setDocumentTikaProperties(String reference, SolrInputDocument document,
                                            BinaryEntityContentProducer binaryContentProducer) {
+        Metadata metadata = new Metadata();
+        String resourceName = binaryContentProducer.getResourceName(reference);
+        String contentType = binaryContentProducer.getContentType(reference);
+        InputStream contentStream = binaryContentProducer.getContentStream(reference);
         try {
-            Metadata metadata = new Metadata();
-            String resourceName = binaryContentProducer.getResourceName(reference);
-            String contentType = binaryContentProducer.getContentType(reference);
-            InputStream contentStream = binaryContentProducer.getContentStream(reference);
             if (resourceName != null)
                 metadata.add(Metadata.RESOURCE_NAME_KEY, resourceName);
             if (contentType != null)
@@ -153,6 +153,13 @@ public class SolrTools {
                     document.addField(UPREFIX + metadataName, metadataValue);
         } catch (Exception e) {
             logger.warn("Couldn't parse the content of '{}'", reference, e);
+        } finally {
+            try {
+                if (contentStream != null)
+                    contentStream.close();
+            } catch (IOException e) {
+                logger.error("Couldn't close the content stream.", e);
+            }
         }
     }
 

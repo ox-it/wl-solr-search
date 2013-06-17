@@ -6,6 +6,7 @@ import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
@@ -52,12 +53,20 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
     @Override
     @Deprecated
     public String getContent(String reference) {
+        InputStream contentStream = null;
         try {
-            InputStream contentStream = getContentStream(reference);
+            contentStream = getContentStream(reference);
             return contentStream == null ? "" : tika.parseToString(contentStream);
         } catch (Exception e) {
             logger.error("Error while trying to get the content of '{}' with tika", reference, e);
             return "";
+        } finally {
+            try {
+                if (contentStream != null)
+                    contentStream.close();
+            } catch (IOException e) {
+                logger.error("Error while closing the contentStream", e);
+            }
         }
     }
 
