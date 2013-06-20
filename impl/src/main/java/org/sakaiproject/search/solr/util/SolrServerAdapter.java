@@ -53,6 +53,7 @@ public class SolrServerAdapter extends SolrServer {
             logger.info("The Solr server is set up");
             HttpSolrServer httpSolrServer = new HttpSolrServer(serverUrl);
             httpSolrServer.setConnectionTimeout(HTTP_SERVER_TIMEOUT);
+            httpSolrServer.setSoTimeout(HTTP_SERVER_TIMEOUT);
             instance = httpSolrServer;
         } else {
             logger.info("The Solr server isn't set up, using an embedded one");
