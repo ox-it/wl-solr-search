@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -63,9 +64,13 @@ public class SolrServerAdapter extends SolrServer {
             ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             System.setProperty(SOLR_HOME_PROPERTY, SOLR_CONFIGURATION_PATH);
-            CoreContainer coreContainer = new CoreContainer.Initializer().initialize();
-            instance = new EmbeddedSolrServer(coreContainer, CORE_NAME);
-            Thread.currentThread().setContextClassLoader(currentClassLoader);
+            try {
+                CoreContainer coreContainer = new CoreContainer.Initializer().initialize();
+                instance = new EmbeddedSolrServer(coreContainer, CORE_NAME);
+                Thread.currentThread().setContextClassLoader(currentClassLoader);
+            } catch (FileNotFoundException e) {
+                throw new IllegalStateException("Couldn't create an embedded instance of solr");
+            }
         }
     }
 
