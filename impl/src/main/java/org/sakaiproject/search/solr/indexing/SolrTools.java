@@ -98,7 +98,9 @@ public class SolrTools {
                 content = readerToString(contentProducer.getContentReader(reference));
             else
                 content = contentProducer.getContent(reference);
-            document.setField(SearchService.FIELD_CONTENTS, stripNonCharCodepoints(content));
+
+            if (content != null)
+                document.setField(SearchService.FIELD_CONTENTS, stripNonCharCodepoints(content));
         }
 
         return document;
