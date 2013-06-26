@@ -70,7 +70,7 @@ public abstract class WaitingTaskRunner implements TaskRunner {
                 waitingTime = BASE_WAITING_TIME;
             } catch (NestedTaskHandlingException e) {
                 logger.warn("Some exceptions happened during the execution of '{}'.", task);
-                unfoldNestedTaskException(e);
+                unfoldNestedTaskException(e, task);
             } catch (TemporaryTaskHandlingException e) {
                 logger.warn("Couldn't execute task '{}'.", task, e);
                 handleTemporaryTaskHandlingException(e);
@@ -145,12 +145,12 @@ public abstract class WaitingTaskRunner implements TaskRunner {
      *
      * @param e NestedTaskHandlingException to unfold.
      */
-    private void unfoldNestedTaskException(NestedTaskHandlingException e) {
+    private void unfoldNestedTaskException(NestedTaskHandlingException e, Task task) {
         for (TaskHandlingException t : e.getTaskHandlingExceptions()) {
             if (t instanceof TemporaryTaskHandlingException) {
                 handleTemporaryTaskHandlingException((TemporaryTaskHandlingException) t);
             } else {
-                logger.error("An exception occurred during the task execution.", t);
+                logger.error("An exception occurred during the execution of '{}'.", task, t);
             }
         }
     }
