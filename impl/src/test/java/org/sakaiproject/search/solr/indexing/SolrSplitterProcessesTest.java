@@ -104,7 +104,6 @@ public class SolrSplitterProcessesTest {
      * <p>
      * Checks that the task is split in multiple subtasks.<br />
      * Checks that a "RemoveAll" task has been created.<br />
-     * Checks that an "OptimiseIndex" task has been created.<br />
      * Checks that an "IndexSite" task has been created for each site available.
      * </p>
      */
@@ -120,8 +119,6 @@ public class SolrSplitterProcessesTest {
         verify(mockIndexQueueing, times(numberOfTasks)).addTaskToQueue(any(Task.class));
         verify(mockIndexQueueing).addTaskToQueue(
                 argThat(new TaskMatcher(SolrTask.Type.REMOVE_ALL_DOCUMENTS.getTypeName())));
-        verify(mockIndexQueueing).addTaskToQueue(
-                argThat(new TaskMatcher(SolrTask.Type.OPTIMISE_INDEX.getTypeName())));
         verify(mockIndexQueueing, times(indexableSitesSize)).addTaskToQueue(
                 argThat(new TaskMatcher(DefaultTask.Type.INDEX_SITE.getTypeName())));
     }
