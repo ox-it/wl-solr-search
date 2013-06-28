@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.Queue;
 
 import static org.sakaiproject.search.indexing.DefaultTask.Type.*;
-import static org.sakaiproject.search.solr.indexing.SolrTask.Type.OPTIMISE_INDEX;
 import static org.sakaiproject.search.solr.indexing.SolrTask.Type.REMOVE_ALL_DOCUMENTS;
 
 /**
