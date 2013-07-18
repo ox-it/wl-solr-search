@@ -9,6 +9,8 @@ import java.io.InputStream;
  * <p>
  * Providing a binary stream through a ContentProducer allows to offload the document parsing.
  * </p>
+ * Moving this to the search API would allow any other content producers to use a central binary
+ * to text service rather than having duplication.
  *
  * @author Colin Hebert
  */
