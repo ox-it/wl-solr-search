@@ -141,6 +141,7 @@
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
+                                    <!-- These are all deployed to shared and we need newer versions -->
                                     <include>org.apache.tika:tika-parsers</include>
                                     <include>asm:asm</include>
                                     <include>commons-io:commons-io</include>
