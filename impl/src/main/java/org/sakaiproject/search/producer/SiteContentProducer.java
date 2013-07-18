@@ -23,6 +23,7 @@ import java.util.*;
 
 /**
  * EntityContentProducer in charge of providing details about sites.
+ * This should be moved out to the general search implementation
  *
  * @author Colin Hebert
  */
