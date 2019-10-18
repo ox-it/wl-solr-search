@@ -73,7 +73,7 @@
 
         <!-- dependencies versions -->
         <sakai.search.version>1.3.8-SNAPSHOT</sakai.search.version>
-        <solr.version>4.3.1</solr.version>
+        <solr.version>8.2.0</solr.version>
         <tika.version>1.3</tika.version>
         <guava.version>14.0.1</guava.version>
         <sakai.citation.version>2.8.2</sakai.citation.version>
